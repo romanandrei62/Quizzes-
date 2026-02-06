@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Only apply hover effects on devices with hover capability (not touch devices) */
+  @media (hover: hover) and (pointer: fine) {
+    .hover-bg-gray-50:hover {
+      background-color: rgb(249 250 251);
+    }
+  }
+}

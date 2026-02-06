@@ -1,0 +1,708 @@
+import React, { useState, Children } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Search,
+  CheckSquare,
+  X,
+  Trash2,
+  RotateCcw,
+  MessageCircle,
+  Paperclip,
+  AlertCircle,
+  Filter,
+  Calendar,
+  ArrowUpDown,
+  ChevronDown,
+  Inbox,
+  Pin } from
+'lucide-react';
+import { Avatar } from '../ui/Avatar';
+import { BarsSortIcon } from './BarsSortIcon';
+interface TrashedMessage {
+  id: string;
+  sender: string;
+  email: string;
+  avatar: string;
+  subject: string;
+  preview: string;
+  timestamp: Date;
+  tags: string[];
+  hasAttachment?: boolean;
+  replyCount?: number;
+  deletedDate: Date;
+  isPinned?: boolean;
+}
+interface MessageTrashProps {
+  onSelectMessage: (id: string) => void;
+}
+// Helper function to format date like Gmail
+const formatMessageDate = (date: Date): string => {
+  const now = new Date();
+  const messageDate = new Date(date);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const weekAgo = new Date(today);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const messageDay = new Date(
+    messageDate.getFullYear(),
+    messageDate.getMonth(),
+    messageDate.getDate()
+  );
+  if (messageDay.getTime() === today.getTime()) {
+    return messageDate.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+  if (messageDay.getTime() === yesterday.getTime()) {
+    return 'Yesterday';
+  }
+  if (messageDay > weekAgo) {
+    return messageDate.toLocaleDateString('en-US', {
+      weekday: 'long'
+    });
+  }
+  if (messageDate.getFullYear() === now.getFullYear()) {
+    return messageDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+  return messageDate.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
+const MOCK_TRASHED_MESSAGES: TrashedMessage[] = [
+{
+  id: '1',
+  sender: 'Newsletter Team',
+  email: 'newsletter@example.com',
+  avatar: 'NT',
+  subject: 'Weekly Digest - December Edition',
+  preview:
+  "Check out this week's top stories and updates from around the company...",
+  timestamp: new Date(new Date().setDate(new Date().getDate() - 2)),
+  tags: ['Newsletter'],
+  deletedDate: new Date(new Date().setHours(new Date().getHours() - 2)),
+  isPinned: false
+},
+{
+  id: '2',
+  sender: 'Marketing Automation',
+  email: 'marketing@example.com',
+  avatar: 'MA',
+  subject: 'Your Campaign Performance Report',
+  preview:
+  'Here are the results from your recent email campaign. Overall engagement was...',
+  timestamp: new Date(new Date().setDate(new Date().getDate() - 5)),
+  tags: ['Marketing'],
+  hasAttachment: true,
+  deletedDate: new Date(new Date().setDate(new Date().getDate() - 1)),
+  isPinned: true
+},
+{
+  id: '3',
+  sender: 'Old Client',
+  email: 'oldclient@example.com',
+  avatar: 'OC',
+  subject: 'Re: Project from 2023',
+  preview:
+  'Following up on the project we discussed last year. Are you still available for...',
+  timestamp: new Date(2024, 10, 15),
+  tags: ['Client'],
+  replyCount: 3,
+  deletedDate: new Date(new Date().setDate(new Date().getDate() - 3)),
+  isPinned: false
+}];
+
+type SortType = 'newest' | 'oldest' | 'title-asc' | 'title-desc';
+type FilterType = 'all' | 'pinned' | 'date';
+export function MessageTrash({ onSelectMessage }: MessageTrashProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
+  const [messages, setMessages] = useState(MOCK_TRASHED_MESSAGES);
+  const [sortBy, setSortBy] = useState<SortType>('newest');
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<{
+    from: string;
+    to: string;
+  }>({
+    from: '',
+    to: ''
+  });
+  // Search functionality
+  const getSearchableContent = (messageId: string): string => {
+    const message = MOCK_TRASHED_MESSAGES.find((m) => m.id === messageId);
+    if (!message) return '';
+    return `${message.sender} ${message.email} ${message.subject} ${message.preview} ${message.tags.join(' ')}`.toLowerCase();
+  };
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+  const handleClearSelection = () => {
+    setSelectedIds(new Set());
+  };
+  const handleToggleCheckboxes = () => {
+    setShowCheckboxes(!showCheckboxes);
+    if (showCheckboxes) {
+      setSelectedIds(new Set());
+    }
+  };
+  const handleRestore = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('Restore message:', id);
+    // In real app: move back to inbox
+  };
+  const handlePermanentDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('Permanently delete message:', id);
+    // In real app: permanently delete
+  };
+  const handleTogglePin = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMessages((prev) =>
+    prev.map((msg) =>
+    msg.id === id ?
+    {
+      ...msg,
+      isPinned: !msg.isPinned
+    } :
+    msg
+    )
+    );
+  };
+  const sortOptions = [
+  {
+    value: 'newest' as SortType,
+    label: 'Created (Newest - Oldest)',
+    icon: Calendar
+  },
+  {
+    value: 'oldest' as SortType,
+    label: 'Created (Oldest - Newest)',
+    icon: Calendar
+  },
+  {
+    value: 'title-asc' as SortType,
+    label: 'Title (A-Z)',
+    icon: ArrowUpDown
+  },
+  {
+    value: 'title-desc' as SortType,
+    label: 'Title (Z-A)',
+    icon: ArrowUpDown
+  }];
+
+  const filterOptions = [
+  {
+    value: 'all' as FilterType,
+    label: 'All Messages',
+    icon: Inbox
+  },
+  {
+    value: 'pinned' as FilterType,
+    label: 'Pinned',
+    icon: Pin
+  },
+  {
+    value: 'date' as FilterType,
+    label: 'Filter by Date',
+    icon: Calendar
+  }];
+
+  const handleDateRangeClick = () => {
+    setIsFilterOpen(false);
+    setIsDateRangeOpen(true);
+  };
+  const handleApplyDateRange = () => {
+    console.log('Apply date range:', dateRange);
+    setIsDateRangeOpen(false);
+  };
+  const handleClearDateRange = () => {
+    setDateRange({
+      from: '',
+      to: ''
+    });
+    setIsDateRangeOpen(false);
+  };
+  // Filter and sort messages with search
+  const sortedMessages = messages.
+  filter((msg) => {
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const senderMatch = msg.sender.toLowerCase().includes(query);
+      const subjectMatch = msg.subject.toLowerCase().includes(query);
+      const previewMatch = msg.preview.toLowerCase().includes(query);
+      const contentMatch = getSearchableContent(msg.id).includes(query);
+      if (!senderMatch && !subjectMatch && !previewMatch && !contentMatch) {
+        return false;
+      }
+    }
+    // Existing filters
+    if (activeFilter === 'pinned') return msg.isPinned;
+    return true;
+  }).
+  sort((a, b) => {
+    // Pinned items always first
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    switch (sortBy) {
+      case 'newest':
+        return b.timestamp.getTime() - a.timestamp.getTime();
+      case 'oldest':
+        return a.timestamp.getTime() - b.timestamp.getTime();
+      case 'title-asc':
+        return a.subject.localeCompare(b.subject);
+      case 'title-desc':
+        return b.subject.localeCompare(a.subject);
+      default:
+        return 0;
+    }
+  });
+  const container = {
+    hidden: {
+      opacity: 0
+    },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+  const item = {
+    hidden: {
+      opacity: 0,
+      y: 10
+    },
+    show: {
+      opacity: 1,
+      y: 0
+    }
+  };
+  return (
+    <div className="flex flex-col h-full bg-white">
+      {/* Header Toolbar */}
+      <div className="px-4 md:px-6 py-4 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+            <Trash2 className="w-5 h-5" />
+            <span>Trash</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {isSearchOpen ?
+            <motion.div
+              initial={{
+                width: 0,
+                opacity: 0
+              }}
+              animate={{
+                width: 'auto',
+                opacity: 1
+              }}
+              exit={{
+                width: 0,
+                opacity: 0
+              }}
+              transition={{
+                duration: 0.2
+              }}
+              className="relative">
+
+                <input
+                type="text"
+                placeholder="Search trash..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                className="w-64 pl-3 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
+
+              </motion.div> :
+            null}
+            <button
+              onClick={() => {
+                setIsSearchOpen(!isSearchOpen);
+                if (isSearchOpen) {
+                  setSearchQuery('');
+                }
+              }}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+
+              <Search className="w-5 h-5 text-gray-600" />
+            </button>
+
+            {/* Filter Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setIsFilterOpen(!isFilterOpen);
+                  setIsSortOpen(false);
+                }}
+                className={`p-2 rounded-lg transition-colors ${activeFilter !== 'all' ? 'bg-teal-50 text-teal-600 hover:bg-teal-100' : 'hover:bg-gray-100 text-gray-600'}`}>
+
+                <Filter className="w-5 h-5" />
+              </button>
+
+              {isFilterOpen &&
+              <>
+                  <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setIsFilterOpen(false)} />
+
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-20">
+                    {filterOptions.map((option) => {
+                    const Icon = option.icon;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setActiveFilter(option.value);
+                          setIsFilterOpen(false);
+                        }}
+                        className={`w-full px-4 py-2 text-left text-sm transition-colors flex items-center gap-2 ${activeFilter === option.value ? 'bg-teal-50 text-teal-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+
+                          <Icon className="w-4 h-4" />
+                          {option.label}
+                        </button>);
+
+                  })}
+                  </div>
+                </>
+              }
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setIsSortOpen(!isSortOpen);
+                  setIsFilterOpen(false);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600">
+
+                <BarsSortIcon className="w-5 h-5" />
+              </button>
+
+              {isSortOpen &&
+              <>
+                  <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setIsSortOpen(false)} />
+
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-20">
+                    {sortOptions.map((option) => {
+                    const Icon = option.icon;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setSortBy(option.value);
+                          setIsSortOpen(false);
+                        }}
+                        className={`w-full px-4 py-2.5 text-left text-sm transition-colors flex items-center gap-2 ${sortBy === option.value ? 'bg-teal-50 text-teal-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+
+                          <Icon className="w-4 h-4" />
+                          {option.label}
+                        </button>);
+
+                  })}
+                  </div>
+                </>
+              }
+            </div>
+
+            <button
+              onClick={handleToggleCheckboxes}
+              className={`p-2 rounded-lg transition-colors ${showCheckboxes ? 'bg-teal-50 text-teal-600 hover:bg-teal-100' : 'hover:bg-gray-100 text-gray-600'}`}
+              title={showCheckboxes ? 'Hide checkboxes' : 'Show checkboxes'}>
+
+              <CheckSquare className="w-5 h-5" />
+            </button>
+
+            <select className="hidden sm:block px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <option>10</option>
+              <option>25</option>
+              <option>50</option>
+              <option>100</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Info Banner */}
+        <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <AlertCircle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800">
+            Messages in trash will be permanently deleted after 30 days
+          </p>
+        </div>
+      </div>
+
+      {/* Bulk Actions Bar */}
+      {selectedIds.size > 0 && showCheckboxes &&
+      <div className="bg-gray-800 text-white shadow-lg animate-slideDown">
+          <div className="px-6 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <span className="text-sm">
+                <span className="font-bold">{selectedIds.size}</span> selected
+              </span>
+              <div className="flex items-center gap-2">
+                <button className="flex items-center gap-2 px-3 md:px-4 py-1.5 text-sm font-medium hover:bg-gray-700 rounded transition-colors">
+                  <RotateCcw className="w-4 h-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">Restore</span>
+                </button>
+                <div className="w-px h-5 bg-gray-600 hidden sm:block"></div>
+                <button className="flex items-center gap-2 px-3 md:px-4 py-1.5 text-sm font-medium hover:bg-red-600 rounded transition-colors">
+                  <Trash2 className="w-4 h-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">Delete Forever</span>
+                </button>
+              </div>
+            </div>
+            <button
+            onClick={handleClearSelection}
+            className="p-1 hover:bg-gray-700 rounded transition-colors flex items-center justify-center">
+
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      }
+
+      {/* Messages List */}
+      <div className="flex-1 overflow-y-auto">
+        {messages.length === 0 ?
+        <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <Trash2 className="h-16 w-16 mb-4 text-gray-300" />
+            <p className="text-lg font-medium text-gray-500">Trash is empty</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Deleted messages will appear here
+            </p>
+          </div> :
+        sortedMessages.length === 0 && searchQuery.trim() ?
+        <div className="text-center py-12">
+            <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 text-sm">
+              No messages found for "{searchQuery}"
+            </p>
+            <button
+            onClick={() => setSearchQuery('')}
+            className="mt-4 text-sm text-teal-600 hover:text-teal-700 font-medium">
+
+              Clear search
+            </button>
+          </div> :
+
+        <motion.div variants={container} initial="hidden" animate="show">
+            {sortedMessages.map((message, index) =>
+          <motion.div
+            key={message.id}
+            variants={item}
+            className={`flex items-center gap-4 px-4 md:px-6 py-4 md:py-5 ${index !== sortedMessages.length - 1 ? 'border-b border-gray-100' : ''} cursor-pointer ${message.isPinned ? 'bg-blue-50/30' : 'bg-gray-50/50'} transition-colors`}
+            onClick={() => onSelectMessage(message.id)}
+            onMouseEnter={() => setHoveredMessageId(message.id)}
+            onMouseLeave={() => setHoveredMessageId(null)}
+            onTouchStart={() => setHoveredMessageId(null)}>
+
+                {showCheckboxes &&
+            <div onClick={(e) => e.stopPropagation()}>
+                    <input
+                type="checkbox"
+                checked={selectedIds.has(message.id)}
+                onChange={() => handleToggleSelect(message.id)}
+                className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500 focus:ring-2 cursor-pointer" />
+
+                  </div>
+            }
+
+                <Avatar
+              fallback={message.avatar}
+              className="flex-shrink-0 opacity-60 hidden md:block" />
+
+
+                <div className="flex-1 min-w-0">
+                  {/* Mobile Layout - Compact */}
+                  <div className="md:hidden">
+                    {/* Top Row: Sender + Icons + Timestamp */}
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <h3 className="text-sm truncate font-normal text-gray-500">
+                          {message.sender}
+                        </h3>
+                        {message.isPinned &&
+                    <Pin className="h-3.5 w-3.5 text-blue-600 fill-blue-600 flex-shrink-0" />
+                    }
+                        {message.hasAttachment &&
+                    <Paperclip className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                    }
+                        {message.replyCount && message.replyCount > 0 &&
+                    <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full flex-shrink-0">
+                            <MessageCircle className="h-3 w-3" />
+                            <span className="text-xs font-semibold">
+                              {message.replyCount}
+                            </span>
+                          </div>
+                    }
+                      </div>
+                      <span className="text-xs flex-shrink-0 text-gray-400">
+                        {formatMessageDate(message.timestamp)}
+                      </span>
+                    </div>
+
+                    {/* Middle Row: Subject */}
+                    <div className="text-sm mb-1 text-gray-600">
+                      {message.subject}
+                    </div>
+
+                    {/* Bottom Row: Preview */}
+                    <div className="text-sm text-gray-400 line-clamp-1 mb-2">
+                      {message.preview}
+                    </div>
+
+                    {/* Action Icons Row */}
+                    <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                      <button
+                    onClick={(e) => handleTogglePin(message.id, e)}
+                    className="p-1.5 hover:bg-gray-100 rounded transition-colors">
+
+                        {message.isPinned ?
+                    <Pin className="h-4 w-4 text-blue-600 fill-blue-600" /> :
+
+                    <Pin className="h-4 w-4 text-gray-400" />
+                    }
+                      </button>
+                      <button
+                    onClick={(e) => handleRestore(message.id, e)}
+                    className="p-1.5 hover:bg-gray-100 rounded transition-colors">
+
+                        <RotateCcw className="h-4 w-4 text-teal-500" />
+                      </button>
+                      <button
+                    onClick={(e) => handlePermanentDelete(message.id, e)}
+                    className="p-1.5 hover:bg-red-100 rounded transition-colors">
+
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout - Original */}
+                  <div className="hidden md:block">
+                    {/* Sender Name */}
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-[15px] font-normal text-gray-500">
+                        {message.sender}
+                      </h3>
+                      {message.isPinned &&
+                  <Pin className="h-3.5 w-3.5 text-blue-600 fill-blue-600" />
+                  }
+                      {message.hasAttachment &&
+                  <Paperclip className="h-3.5 w-3.5 text-gray-400" />
+                  }
+
+                      {/* Spacer */}
+                      <div className="flex-1" />
+
+                      {/* Timestamp - hide on hover when actions appear */}
+                      {hoveredMessageId !== message.id &&
+                  <span className="text-xs flex-shrink-0 text-gray-400">
+                          {formatMessageDate(message.timestamp)}
+                        </span>
+                  }
+                    </div>
+
+                    {/* Subject Line with Reply Count Badge */}
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="text-sm text-gray-600">
+                        {message.subject}
+                      </div>
+
+                      {message.replyCount && message.replyCount > 0 &&
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-500 flex-shrink-0">
+                          <MessageCircle className="h-3 w-3" />
+                          <span>{message.replyCount}</span>
+                        </div>
+                  }
+                    </div>
+
+                    {/* Preview Text */}
+                    <div className="text-sm text-gray-400 line-clamp-1">
+                      {message.preview}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Side: Actions only - Desktop only */}
+                <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+                  {/* Action Buttons - Show on hover */}
+                  {hoveredMessageId === message.id &&
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  x: -10
+                }}
+                animate={{
+                  opacity: 1,
+                  x: 0
+                }}
+                className="flex items-center gap-1">
+
+                      {/* Pin Button */}
+                      <button
+                  onClick={(e) => handleTogglePin(message.id, e)}
+                  className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                  title={message.isPinned ? 'Unpin' : 'Pin to top'}>
+
+                        {message.isPinned ?
+                  <Pin className="h-4 w-4 text-blue-600 fill-blue-600" /> :
+
+                  <Pin className="h-4 w-4 text-gray-400" />
+                  }
+                      </button>
+
+                      {/* Restore Button */}
+                      <button
+                  onClick={(e) => handleRestore(message.id, e)}
+                  className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                  title="Restore to inbox">
+
+                        <RotateCcw className="h-4 w-4 text-teal-500" />
+                      </button>
+
+                      {/* Permanent Delete Button */}
+                      <button
+                  onClick={(e) => handlePermanentDelete(message.id, e)}
+                  className="p-1.5 hover:bg-red-100 rounded transition-colors"
+                  title="Delete forever">
+
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </button>
+                    </motion.div>
+              }
+                </div>
+              </motion.div>
+          )}
+          </motion.div>
+        }
+      </div>
+    </div>);
+
+}
