@@ -45,7 +45,6 @@ export function QuestionsPage() {
     'info'
   );
   const [detailKey, setDetailKey] = useState(0);
-  const [testPink, setTestPink] = useState(false);
   // Column widths - left: 25%, middle: 25%, right: 50%
   const [leftWidth, setLeftWidth] = useState(300);
   const [middleWidth, setMiddleWidth] = useState(300);
@@ -134,7 +133,6 @@ export function QuestionsPage() {
     };
   }, [isDraggingLeft, isDraggingRight, leftWidth, middleWidth, rightWidth]);
   const handleCreateQuestion = () => {
-    setTestPink(true);
     const newQuestion: Question = {
       id: `new-${Date.now()}`,
       title: 'New Question',
@@ -154,12 +152,7 @@ export function QuestionsPage() {
     setSelectedQuestion(question);
   };
   return (
-    <div
-      className="h-screen flex bg-gray-50 overflow-hidden"
-      style={{
-        backgroundColor: testPink ? '#FF69B4' : undefined
-      }}>
-
+    <div className="h-screen flex bg-gray-50 overflow-hidden">
       {/* Main Navigation Sidebar (Left) - 229px width */}
       <div className="w-[229px] bg-[#1a1a1a] flex flex-col shadow-xl hidden lg:flex">
         {/* SuiteDash Logo - 230×90 */}
