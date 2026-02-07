@@ -310,15 +310,19 @@ export function QuestionsContent({
         break;
 
       case 'duplicate':
-        // Create a duplicate with a new ID
+        // Create a duplicate with a new ID and all answers/options preserved
         const duplicate: Question = {
           ...question,
           id: `dup-${Date.now()}`,
           title: `${question.title} (Copy)`,
           status: 'draft',
-          createdAt: new Date()
+          createdAt: new Date(),
+          // Ensure options array is deeply copied
+          options: question.options ? [...question.options] : undefined
         };
         setQuestions([duplicate, ...questions]);
+        // Open the duplicate in edit mode immediately
+        setTimeout(() => onSelectQuestion(duplicate), 100);
         break;
 
       case 'delete':
