@@ -357,6 +357,12 @@ export function QuestionDetail({
         {/* EDIT TAB */}
         {activeTab === 'edit' &&
         <div className="flex flex-col h-full">
+            <div className="h-[57px] px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
+              <h2 className="text-lg font-bold text-gray-900">
+                {isNewQuestion ? 'New Question' : question.title}
+              </h2>
+            </div>
+
             <div className="flex-1 overflow-y-auto">
               <div className="px-6 pt-6 pb-8 space-y-6">
                 <div>
