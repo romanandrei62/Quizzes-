@@ -2268,7 +2268,7 @@ export function QuestionDetail({
 
                                   </div>
 
-                                  {/* Save button - saves this pair and closes form */}
+                                  {/* Save pair button */}
                                   <button
                           onClick={() =>
                           setActiveMatchPairIndex(null)
@@ -2276,7 +2276,7 @@ export function QuestionDetail({
                           className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-teal-500 text-white text-sm font-medium rounded-lg hover:bg-teal-600 transition-colors">
 
                                     <Save className="w-3.5 h-3.5" />
-                                    Save
+                                    Save Pair
                                   </button>
                                 </motion.div>
                       }
