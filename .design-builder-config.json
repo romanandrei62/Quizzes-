@@ -1,0 +1,9 @@
+{
+  "platform": "magicpatterns",
+  "autoSync": true,
+  "remoteUrl": "https://github.com/romanandrei62/Quizzes-.git",
+  "platformUrl": "https://www.magicpatterns.com/c/j1am4da8tkyi1orwtnyckn",
+  "preferredModel": "opus",
+  "componentDir": "src/components",
+  "branch": "main"
+}
