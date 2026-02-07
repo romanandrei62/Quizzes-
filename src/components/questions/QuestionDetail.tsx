@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  createElement } from
+'react';
 import {
   X,
   Plus,
@@ -24,7 +30,9 @@ import {
   Send,
   AlertCircle,
   Sparkles,
-  ArrowLeft } from
+  ArrowLeft,
+  Image,
+  Upload } from
 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
@@ -440,6 +448,31 @@ export function QuestionDetail({
   );
   const [editingBinaryOriginal, setEditingBinaryOriginal] = useState<string>('');
   const binaryInputRef = useRef<HTMLInputElement>(null);
+  const [matchSubType, setMatchSubType] = useState<'text' | 'image'>('text');
+  const [matchPairs, setMatchPairs] = useState<
+    Array<{
+      prompt: string;
+      answer: string;
+      imageUrl?: string;
+    }>>(
+    [
+    {
+      prompt: '',
+      answer: ''
+    },
+    {
+      prompt: '',
+      answer: ''
+    }]
+  );
+  const [activeMatchPairIndex, setActiveMatchPairIndex] = useState<
+    number | null>(
+    null);
+  const [matchDragIndex, setMatchDragIndex] = useState<number | null>(null);
+  const [matchDragOverIndex, setMatchDragOverIndex] = useState<number | null>(
+    null
+  );
+  const matchDragIndexRef = useRef<number | null>(null);
   const [hint, setHint] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -585,6 +618,16 @@ export function QuestionDetail({
       if (!correctAnswer.trim())
       newErrors.correctAnswer = 'Correct answer is required';
     }
+    if (type === 'matching') {
+      const configuredPairs = matchPairs.filter((p) =>
+      matchSubType === 'text' ?
+      p.prompt.trim() && p.answer.trim() :
+      p.imageUrl && p.answer.trim()
+      );
+      if (configuredPairs.length < 2)
+      newErrors.matchPairs =
+      'At least 2 fully configured match pairs are required';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -698,13 +741,21 @@ export function QuestionDetail({
     return correctAnswer.trim() ?
     `Answer set, ${matchValue}% match` :
     'No answer configured';
-    if (type === 'matching') return 'Coming soon';
+    if (type === 'matching') {
+      const filled = matchPairs.filter(
+        (p) =>
+        (matchSubType === 'text' ? p.prompt.trim() : p.imageUrl) &&
+        p.answer.trim()
+      ).length;
+      return `${matchSubType === 'text' ? 'Text' : 'Image'} match · ${filled}/${matchPairs.length} pairs configured`;
+    }
     return '';
   };
   const hasAnswerErrors = !!(
   errors.options ||
   errors.correctAnswer ||
-  errors.correctOptions);
+  errors.correctOptions ||
+  errors.matchPairs);
 
   const validateAnswers = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -720,6 +771,16 @@ export function QuestionDetail({
       if (!correctAnswer.trim())
       newErrors.correctAnswer = 'Correct answer is required';
     }
+    if (type === 'matching') {
+      const configuredPairs = matchPairs.filter((p) =>
+      matchSubType === 'text' ?
+      p.prompt.trim() && p.answer.trim() :
+      p.imageUrl && p.answer.trim()
+      );
+      if (configuredPairs.length < 2)
+      newErrors.matchPairs =
+      'At least 2 fully configured match pairs are required';
+    }
     setErrors((prev) => ({
       ...prev,
       ...newErrors
@@ -727,6 +788,11 @@ export function QuestionDetail({
     return Object.keys(newErrors).length === 0;
   };
   const handleSaveAnswers = () => {
+    if (type === 'matching' && activeMatchPairIndex !== null) {
+      // Save pair → go back to pair list
+      setActiveMatchPairIndex(null);
+      return;
+    }
     if (validateAnswers()) {
       navigateToForm();
     }
@@ -835,7 +901,7 @@ export function QuestionDetail({
 
       {/* Type Change Confirmation Dialog */}
       <AnimatePresence>
-        {showTypeChangeConfirm && pendingType &&
+        {false && showTypeChangeConfirm && pendingType &&
         <motion.div
           initial={{
             opacity: 0
@@ -906,7 +972,6 @@ export function QuestionDetail({
                   <button
                   onClick={() => {
                     setType(pendingType);
-                    // Reset all answer state
                     setOptions(['', '']);
                     setCorrectOption(0);
                     setCorrectOptions(new Set());
@@ -917,6 +982,18 @@ export function QuestionDetail({
                     setTestAnswer('');
                     setTestResult(null);
                     setShowTestMatch(false);
+                    setMatchSubType('text');
+                    setMatchPairs([
+                    {
+                      prompt: '',
+                      answer: ''
+                    },
+                    {
+                      prompt: '',
+                      answer: ''
+                    }]
+                    );
+                    setActiveMatchPairIndex(null);
                     setErrors((prev) => {
                       const next = {
                         ...prev
@@ -1175,27 +1252,40 @@ export function QuestionDetail({
                           onChange={(e) => {
                             const newType = e.target.value;
                             if (newType === type) return;
-                            // Check if answers have been configured
-                            const hasConfiguredAnswers =
-                            type === 'multiple' &&
-                            options.some((o) => o.trim() !== '') ||
-                            type === 'open' &&
-                            correctAnswer.trim() !== '' ||
-                            type === 'true-false';
-                            if (hasConfiguredAnswers) {
-                              setPendingType(newType);
-                              setShowTypeChangeConfirm(true);
-                            } else {
-                              setType(newType);
-                              setErrors((prev) => {
-                                const next = {
-                                  ...prev
-                                };
-                                delete next.options;
-                                delete next.correctAnswer;
-                                return next;
-                              });
-                            }
+                            setType(newType);
+                            // Reset all answer state
+                            setOptions(['', '']);
+                            setCorrectOption(0);
+                            setCorrectOptions(new Set());
+                            setScoringMode('all');
+                            setBinaryLabels(['True', 'False']);
+                            setCorrectAnswer('');
+                            setMatchValue(1);
+                            setTestAnswer('');
+                            setTestResult(null);
+                            setShowTestMatch(false);
+                            setMatchSubType('text');
+                            setMatchPairs([
+                            {
+                              prompt: '',
+                              answer: ''
+                            },
+                            {
+                              prompt: '',
+                              answer: ''
+                            }]
+                            );
+                            setActiveMatchPairIndex(null);
+                            setErrors((prev) => {
+                              const next = {
+                                ...prev
+                              };
+                              delete next.options;
+                              delete next.correctAnswer;
+                              delete next.correctOptions;
+                              delete next.matchPairs;
+                              return next;
+                            });
                           }}
                           className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
 
@@ -1332,7 +1422,8 @@ export function QuestionDetail({
                                 {hasAnswerErrors ?
                           errors.options ||
                           errors.correctAnswer ||
-                          errors.correctOptions :
+                          errors.correctOptions ||
+                          errors.matchPairs :
                           getAnswerSummary()}
                               </p>
                             </div>
@@ -1850,11 +1941,341 @@ export function QuestionDetail({
                   }
 
                         {type === 'matching' &&
-                  <div className="p-6 bg-gray-50 rounded-lg border border-dashed border-gray-200 text-center">
-                            <GitMerge className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                            <p className="text-sm text-gray-500">
-                              Matching pairs configuration coming soon.
-                            </p>
+                  <div className="space-y-4">
+                            {errors.matchPairs &&
+                    <p className="text-xs text-red-500 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {errors.matchPairs}
+                              </p>
+                    }
+                            {/* Sub-type tabs */}
+                            <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+                              <button
+                        onClick={() => {
+                          setMatchSubType('text');
+                          setActiveMatchPairIndex(null);
+                        }}
+                        className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${matchSubType === 'text' ? 'bg-gray-100 text-gray-900' : 'bg-white text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
+
+                                Text Match
+                              </button>
+                              <button
+                        onClick={() => {
+                          setMatchSubType('image');
+                          setActiveMatchPairIndex(null);
+                        }}
+                        className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors border-l border-gray-200 ${matchSubType === 'image' ? 'bg-gray-100 text-gray-900' : 'bg-white text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
+
+                                Image Match
+                              </button>
+                            </div>
+
+                            {/* Pair list / detail */}
+                            <AnimatePresence mode="wait">
+                              {activeMatchPairIndex === null ?
+                      <motion.div
+                        key="pair-list"
+                        initial={{
+                          opacity: 0,
+                          x: -10
+                        }}
+                        animate={{
+                          opacity: 1,
+                          x: 0
+                        }}
+                        exit={{
+                          opacity: 0,
+                          x: -10
+                        }}
+                        transition={{
+                          duration: 0.2
+                        }}
+                        className="space-y-2">
+
+                                  {matchPairs.map((pair, index) =>
+                        <div
+                          key={index}
+                          draggable
+                          onDragStart={(e) => {
+                            matchDragIndexRef.current = index;
+                            setMatchDragIndex(index);
+                            e.dataTransfer.effectAllowed = 'move';
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'move';
+                            setMatchDragOverIndex(index);
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const src = matchDragIndexRef.current;
+                            if (src !== null && src !== index) {
+                              const newPairs = [...matchPairs];
+                              const [moved] = newPairs.splice(
+                                src,
+                                1
+                              );
+                              newPairs.splice(index, 0, moved);
+                              setMatchPairs(newPairs);
+                            }
+                            matchDragIndexRef.current = null;
+                            setMatchDragIndex(null);
+                            setMatchDragOverIndex(null);
+                          }}
+                          onDragEnd={() => {
+                            matchDragIndexRef.current = null;
+                            setMatchDragIndex(null);
+                            setMatchDragOverIndex(null);
+                          }}
+                          className={`flex items-center gap-2 group transition-all ${matchDragIndex === index ? 'opacity-30 scale-95' : ''} ${matchDragOverIndex === index && matchDragIndex !== index ? 'ring-2 ring-teal-400 rounded-lg' : ''}`}>
+
+                                      <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
+                                        <GripVertical className="w-4 h-4" />
+                                      </div>
+                                      <button
+                            onClick={() =>
+                            setActiveMatchPairIndex(index)
+                            }
+                            className="flex-1 flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-gray-200 bg-white hover:border-teal-400 hover:bg-teal-50/30 transition-all text-left">
+
+                                        {matchSubType === 'image' ?
+                            pair.imageUrl ?
+                            <img
+                              src={pair.imageUrl}
+                              alt=""
+                              className="w-8 h-8 rounded object-cover flex-shrink-0" /> :
+
+
+                            <div className="w-8 h-8 rounded bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center flex-shrink-0">
+                                              <Image className="w-3.5 h-3.5 text-gray-400" />
+                                            </div> :
+
+
+                            <GitMerge className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            }
+                                        <div className="flex-1 min-w-0">
+                                          <span className="text-sm text-gray-700 truncate block">
+                                            {matchSubType === 'text' ?
+                                pair.prompt.trim() ||
+                                `Pair ${index + 1}` :
+                                pair.imageUrl ?
+                                'Image uploaded' :
+                                `Pair ${index + 1}`}
+                                          </span>
+                                          {pair.answer.trim() &&
+                              <span className="text-xs text-gray-400 truncate block">
+                                              → {pair.answer}
+                                            </span>
+                              }
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                                      </button>
+                                      <button
+                            onClick={() => {
+                              if (matchPairs.length > 2) {
+                                setMatchPairs(
+                                  matchPairs.filter(
+                                    (_, i) => i !== index
+                                  )
+                                );
+                              }
+                            }}
+                            disabled={matchPairs.length <= 2}
+                            className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30 opacity-0 group-hover:opacity-100">
+
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                        )}
+                                  <button
+                          onClick={() => {
+                            setMatchPairs([
+                            ...matchPairs,
+                            {
+                              prompt: '',
+                              answer: ''
+                            }]
+                            );
+                          }}
+                          className="w-full flex items-center justify-center gap-1.5 py-2.5 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
+
+                                    <Plus className="w-4 h-4" />
+                                    Add New Option
+                                  </button>
+                                </motion.div> :
+
+                      <motion.div
+                        key={`pair-detail-${activeMatchPairIndex}`}
+                        initial={{
+                          opacity: 0,
+                          x: 10
+                        }}
+                        animate={{
+                          opacity: 1,
+                          x: 0
+                        }}
+                        exit={{
+                          opacity: 0,
+                          x: 10
+                        }}
+                        transition={{
+                          duration: 0.2
+                        }}
+                        className="space-y-4">
+
+                                  {matchSubType === 'text' ?
+                        <div>
+                                      <label className="block text-sm font-medium text-teal-600 mb-1.5">
+                                        Prompt
+                                      </label>
+                                      <input
+                            type="text"
+                            value={
+                            matchPairs[activeMatchPairIndex]?.
+                            prompt || ''
+                            }
+                            onChange={(e) => {
+                              const newPairs = [...matchPairs];
+                              newPairs[activeMatchPairIndex] = {
+                                ...newPairs[activeMatchPairIndex],
+                                prompt: e.target.value
+                              };
+                              setMatchPairs(newPairs);
+                            }}
+                            placeholder="Enter prompt text..."
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+
+                                    </div> :
+
+                        <div>
+                                      <label className="block text-sm font-medium text-teal-600 mb-1.5">
+                                        Image Prompt
+                                      </label>
+                                      {matchPairs[activeMatchPairIndex]?.
+                          imageUrl ?
+                          <div className="relative group">
+                                          <img
+                              src={
+                              matchPairs[activeMatchPairIndex].
+                              imageUrl
+                              }
+                              alt="Match prompt"
+                              className="w-full h-40 object-contain rounded-lg border border-gray-200 bg-gray-50" />
+
+                                          <button
+                              onClick={() => {
+                                const newPairs = [...matchPairs];
+                                newPairs[activeMatchPairIndex] = {
+                                  ...newPairs[
+                                  activeMatchPairIndex],
+
+                                  imageUrl: undefined
+                                };
+                                setMatchPairs(newPairs);
+                              }}
+                              className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-md text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm opacity-0 group-hover:opacity-100">
+
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div> :
+
+                          <div
+                            className="w-full min-h-[160px] rounded-lg border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-gray-400 hover:bg-gray-50/50 transition-colors"
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              const file = e.dataTransfer.files[0];
+                              if (
+                              file &&
+                              file.type.startsWith('image/'))
+                              {
+                                const url =
+                                URL.createObjectURL(file);
+                                const newPairs = [...matchPairs];
+                                newPairs[activeMatchPairIndex] = {
+                                  ...newPairs[
+                                  activeMatchPairIndex],
+
+                                  imageUrl: url
+                                };
+                                setMatchPairs(newPairs);
+                              }
+                            }}
+                            onClick={() => {
+                              const input =
+                              document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.onchange = (e) => {
+                                const file = (
+                                e.target as HTMLInputElement).
+                                files?.[0];
+                                if (file) {
+                                  const url =
+                                  URL.createObjectURL(file);
+                                  const newPairs = [...matchPairs];
+                                  newPairs[activeMatchPairIndex] =
+                                  {
+                                    ...newPairs[
+                                    activeMatchPairIndex],
+
+                                    imageUrl: url
+                                  };
+                                  setMatchPairs(newPairs);
+                                }
+                              };
+                              input.click();
+                            }}>
+
+                                          <Upload className="w-5 h-5 text-gray-400" />
+                                          <span className="text-sm text-gray-500">
+                                            Drag & Drop File(s)
+                                          </span>
+                                        </div>
+                          }
+                                      <p className="mt-1.5 text-xs text-gray-400">
+                                        Images will best display when in a 1:1
+                                        ratio (square)
+                                      </p>
+                                    </div>
+                        }
+
+                                  <div>
+                                    <label className="block text-sm font-medium text-teal-600 mb-1.5">
+                                      Answer
+                                    </label>
+                                    <input
+                            type="text"
+                            value={
+                            matchPairs[activeMatchPairIndex]?.
+                            answer || ''
+                            }
+                            onChange={(e) => {
+                              const newPairs = [...matchPairs];
+                              newPairs[activeMatchPairIndex] = {
+                                ...newPairs[activeMatchPairIndex],
+                                answer: e.target.value
+                              };
+                              setMatchPairs(newPairs);
+                            }}
+                            placeholder="Enter the matching answer..."
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+
+                                  </div>
+
+                                  {/* Save pair button */}
+                                  <button
+                          onClick={() =>
+                          setActiveMatchPairIndex(null)
+                          }
+                          className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-teal-500 text-white text-sm font-medium rounded-lg hover:bg-teal-600 transition-colors">
+
+                                    <Save className="w-3.5 h-3.5" />
+                                    Save Pair
+                                  </button>
+                                </motion.div>
+                      }
+                            </AnimatePresence>
                           </div>
                   }
                       </div>
