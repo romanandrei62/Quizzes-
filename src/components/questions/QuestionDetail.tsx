@@ -1413,8 +1413,8 @@ export function QuestionDetail({
                               <div className="flex items-center gap-2">
                                 <span className="text-sm font-semibold text-gray-900">
                                   Configure Answers
+                                  <span className="text-red-400 ml-0.5">*</span>
                                 </span>
-                                <span className="text-red-400 text-sm">*</span>
                               </div>
                               <p
                           className={`text-xs mt-0.5 ${hasAnswerErrors ? 'text-red-500' : 'text-gray-500'}`}>
