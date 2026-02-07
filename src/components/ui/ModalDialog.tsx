@@ -5,8 +5,8 @@ interface ModalDialogProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  children: ReactNode;
-  footer?: ReactNode;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '6xl';

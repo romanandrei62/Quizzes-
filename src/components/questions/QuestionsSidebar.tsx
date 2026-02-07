@@ -7,6 +7,7 @@ interface QuestionsSidebarProps {
   onSelectType: (type: string) => void;
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
+  onCreateQuestion?: () => void;
 }
 const AllTypesIcon = () =>
 <svg
@@ -116,7 +117,8 @@ export function QuestionsSidebar({
   selectedType,
   onSelectType,
   selectedCategory,
-  onSelectCategory
+  onSelectCategory,
+  onCreateQuestion
 }: QuestionsSidebarProps) {
   const [showManageCategories, setShowManageCategories] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -141,7 +143,10 @@ export function QuestionsSidebar({
       {/* Questions Header - Fixed height to match TableActionBar */}
       <div className="h-[57px] px-6 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
         <h2 className="text-base font-bold text-gray-900">Questions</h2>
-        <button className="p-1.5 hover:bg-gray-100 rounded transition-colors">
+        <button
+          onClick={onCreateQuestion}
+          className="p-1.5 hover:bg-gray-100 rounded transition-colors">
+
           <Plus className="w-5 h-5 text-gray-600" />
         </button>
       </div>

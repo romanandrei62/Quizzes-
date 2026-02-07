@@ -501,7 +501,8 @@ export function QuestionsPage() {
               selectedType={selectedType}
               onSelectType={setSelectedType}
               selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory} />
+              onSelectCategory={setSelectedCategory}
+              onCreateQuestion={handleCreateQuestion} />
 
           </div>
 
@@ -581,9 +582,10 @@ export function QuestionsPage() {
         </div>
       </div>
 
-      {/* Detail Overlay - ALWAYS shown when a question is selected/created */}
+      {/* Detail Overlay - shown on mobile only when a question is selected/created */}
       {selectedQuestion &&
       <div
+        className="lg:hidden"
         style={{
           position: 'fixed',
           top: 0,
