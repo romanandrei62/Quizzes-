@@ -445,6 +445,9 @@ export function QuestionDetail({
   const testMatchRef = useRef<HTMLDivElement>(null);
   const testMatchContentRef = useRef<HTMLDivElement>(null);
   const [testMatchHeight, setTestMatchHeight] = useState<number>(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showTypeChangeConfirm, setShowTypeChangeConfirm] = useState(false);
+  const [pendingType, setPendingType] = useState<string | null>(null);
   const [isInfoLoading, setIsInfoLoading] = useState(true);
   const [isFormLoading, setIsFormLoading] = useState(true);
   const [isAnswersLoading, setIsAnswersLoading] = useState(false);
@@ -689,7 +692,189 @@ export function QuestionDetail({
 
   }
   return (
-    <div className="w-full h-full bg-white flex overflow-hidden">
+    <div className="w-full h-full bg-white flex overflow-hidden relative">
+      {/* Delete Confirmation Dialog */}
+      <AnimatePresence>
+        {showDeleteConfirm &&
+        <motion.div
+          initial={{
+            opacity: 0
+          }}
+          animate={{
+            opacity: 1
+          }}
+          exit={{
+            opacity: 0
+          }}
+          transition={{
+            duration: 0.15
+          }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
+          onClick={() => setShowDeleteConfirm(false)}>
+
+            <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.9,
+              y: 8
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              y: 4
+            }}
+            transition={{
+              type: 'spring',
+              damping: 25,
+              stiffness: 400
+            }}
+            className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}>
+
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                  <Trash2 className="w-5 h-5 text-red-500" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 mb-1">
+                  Delete this question?
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  This draft will be permanently removed. This action cannot be
+                  undone.
+                </p>
+                <div className="flex items-center gap-3 w-full">
+                  <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+
+                    Cancel
+                  </button>
+                  <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    if (question) {
+                      onDelete?.(question.id);
+                    }
+                  }}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">
+
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        }
+      </AnimatePresence>
+
+      {/* Type Change Confirmation Dialog */}
+      <AnimatePresence>
+        {showTypeChangeConfirm && pendingType &&
+        <motion.div
+          initial={{
+            opacity: 0
+          }}
+          animate={{
+            opacity: 1
+          }}
+          exit={{
+            opacity: 0
+          }}
+          transition={{
+            duration: 0.15
+          }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
+          onClick={() => {
+            setShowTypeChangeConfirm(false);
+            setPendingType(null);
+          }}>
+
+            <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.9,
+              y: 8
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              y: 4
+            }}
+            transition={{
+              type: 'spring',
+              damping: 25,
+              stiffness: 400
+            }}
+            className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}>
+
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+                  <AlertCircle className="w-5 h-5 text-amber-500" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 mb-1">
+                  Change question type?
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  Switching to{' '}
+                  <span className="font-medium text-gray-700">
+                    {TYPE_LABELS[pendingType]}
+                  </span>{' '}
+                  will reset your currently configured answers.
+                </p>
+                <div className="flex items-center gap-3 w-full">
+                  <button
+                  onClick={() => {
+                    setShowTypeChangeConfirm(false);
+                    setPendingType(null);
+                  }}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+
+                    Keep Current
+                  </button>
+                  <button
+                  onClick={() => {
+                    setType(pendingType);
+                    // Reset all answer state
+                    setOptions(['', '']);
+                    setCorrectOption(0);
+                    setCorrectAnswer('');
+                    setMatchValue(1);
+                    setTestAnswer('');
+                    setTestResult(null);
+                    setShowTestMatch(false);
+                    setErrors((prev) => {
+                      const next = {
+                        ...prev
+                      };
+                      delete next.options;
+                      delete next.correctAnswer;
+                      return next;
+                    });
+                    setShowTypeChangeConfirm(false);
+                    setPendingType(null);
+                  }}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
+
+                    Change Type
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        }
+      </AnimatePresence>
+
       {/* Icon Sidebar */}
       <div className="w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex flex-col items-center pt-4 gap-3">
         <button
@@ -923,16 +1108,29 @@ export function QuestionDetail({
                               <select
                           value={type}
                           onChange={(e) => {
-                            setType(e.target.value);
-                            // Clear answer-related errors when type changes
-                            setErrors((prev) => {
-                              const next = {
-                                ...prev
-                              };
-                              delete next.options;
-                              delete next.correctAnswer;
-                              return next;
-                            });
+                            const newType = e.target.value;
+                            if (newType === type) return;
+                            // Check if answers have been configured
+                            const hasConfiguredAnswers =
+                            type === 'multiple' &&
+                            options.some((o) => o.trim() !== '') ||
+                            type === 'open' &&
+                            correctAnswer.trim() !== '' ||
+                            type === 'true-false';
+                            if (hasConfiguredAnswers) {
+                              setPendingType(newType);
+                              setShowTypeChangeConfirm(true);
+                            } else {
+                              setType(newType);
+                              setErrors((prev) => {
+                                const next = {
+                                  ...prev
+                                };
+                                delete next.options;
+                                delete next.correctAnswer;
+                                return next;
+                              });
+                            }
                           }}
                           className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
 
@@ -1085,11 +1283,7 @@ export function QuestionDetail({
                     {isNewQuestion ?
                 <Button
                   variant="danger"
-                  onClick={() => {
-                    if (question) {
-                      onDelete?.(question.id);
-                    }
-                  }}
+                  onClick={() => setShowDeleteConfirm(true)}
                   leftIcon={<Trash2 className="w-4 h-4" />}>
 
                         Delete
