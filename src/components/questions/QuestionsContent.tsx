@@ -185,6 +185,7 @@ export function QuestionsContent({
   selectedQuestion,
   onSelectQuestion
 }: QuestionsContentProps) {
+  const [questions, setQuestions] = useState<Question[]>(MOCK_QUESTIONS);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('created_desc');
@@ -195,8 +196,8 @@ export function QuestionsContent({
   const [showEditForm, setShowEditForm] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   // Pagination state (simulated)
-  const totalItems = 100;
-  const currentPageItems = MOCK_QUESTIONS;
+  const totalItems = questions.length;
+  const currentPageItems = questions;
   const allCurrentPageSelected = currentPageItems.every((item) =>
   selectedIds.has(item.id)
   );
@@ -297,6 +298,41 @@ export function QuestionsContent({
   const handleFilterChange = (filterId: string) => {
     setFilterBy(filterId);
   };
+
+  const handleQuestionAction = (questionId: string, action: string) => {
+    const question = questions.find(q => q.id === questionId);
+    if (!question) return;
+
+    switch (action) {
+      case 'edit':
+        // Open the question in edit mode
+        onSelectQuestion(question);
+        break;
+
+      case 'duplicate':
+        // Create a duplicate with a new ID
+        const duplicate: Question = {
+          ...question,
+          id: `dup-${Date.now()}`,
+          title: `${question.title} (Copy)`,
+          status: 'draft',
+          createdAt: new Date()
+        };
+        setQuestions([duplicate, ...questions]);
+        break;
+
+      case 'delete':
+        // Remove the question
+        if (window.confirm(`Delete "${question.title}"?`)) {
+          setQuestions(questions.filter(q => q.id !== questionId));
+          if (selectedQuestion?.id === questionId) {
+            onSelectQuestion(null as any);
+          }
+        }
+        break;
+    }
+  };
+
   const container = {
     hidden: {
       opacity: 0
@@ -411,7 +447,8 @@ export function QuestionsContent({
               onClick={() => onSelectQuestion(question)}
               showCheckbox={showCheckboxes}
               isChecked={selectedIds.has(question.id)}
-              onCheckboxChange={() => handleToggleSelect(question.id)} />
+              onCheckboxChange={() => handleToggleSelect(question.id)}
+              onAction={(action) => handleQuestionAction(question.id, action)} />
 
               </motion.div>
           )}

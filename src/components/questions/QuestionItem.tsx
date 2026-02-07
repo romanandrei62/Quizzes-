@@ -22,6 +22,7 @@ interface QuestionItemProps {
   showCheckbox?: boolean;
   isChecked?: boolean;
   onCheckboxChange?: (checked: boolean) => void;
+  onAction?: (action: string) => void;
 }
 const MultipleChoiceIcon = () =>
 <svg
@@ -124,7 +125,8 @@ export function QuestionItem({
   onClick,
   showCheckbox = false,
   isChecked = false,
-  onCheckboxChange
+  onCheckboxChange,
+  onAction
 }: QuestionItemProps) {
   const [showCategoryTooltip, setShowCategoryTooltip] = useState(false);
   const [showTypeTooltip, setShowTypeTooltip] = useState(false);
@@ -135,7 +137,9 @@ export function QuestionItem({
   const TypeIcon = typeConfig.icon;
   const isPublished = question.status === 'active';
   const handleRowAction = (action: string) => {
-    console.log(`Action ${action} for question ${question.id}`);
+    if (onAction) {
+      onAction(action);
+    }
   };
   return (
     <motion.div

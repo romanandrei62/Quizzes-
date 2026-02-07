@@ -3,15 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   MoreVertical,
   Edit,
-  Palette,
-  Mail,
-  Calendar,
-  CalendarCheck,
-  Bell,
-  RefreshCw,
-  Link,
-  Wand2,
-  PauseCircle,
   Copy,
   Trash2 } from
 'lucide-react';
@@ -47,12 +38,6 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
     id: 'duplicate',
     label: 'Duplicate',
     icon: Copy
-  },
-  {
-    id: 'set-inactive',
-    label: 'Set Inactive',
-    icon: PauseCircle,
-    isInactive: true
   },
   {
     id: 'delete',
@@ -119,8 +104,7 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
                   onClick={() => handleActionClick(action.id)}
                   className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors">
 
-                    <Icon
-                    className={`w-4 h-4 flex-shrink-0 ${action.isInactive ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <Icon className="w-4 h-4 flex-shrink-0 text-gray-500" />
 
                     <span className="text-sm text-gray-700">
                       {action.label}
