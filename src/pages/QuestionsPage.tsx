@@ -21,6 +21,9 @@ import {
 import { QuestionsSidebar } from '../components/questions/QuestionsSidebar';
 import { QuestionsContent } from '../components/questions/QuestionsContent';
 import { QuestionDetail } from '../components/questions/QuestionDetail';
+import { QuizzesSidebar } from '../components/quizzes/QuizzesSidebar';
+import { QuizzesContent } from '../components/quizzes/QuizzesContent';
+import { QuizDetail } from '../components/quizzes/QuizDetail';
 interface Question {
   id: string;
   title: string;
@@ -31,6 +34,22 @@ interface Question {
   description?: string;
   options?: string[];
 }
+
+interface Quiz {
+  id: string;
+  title: string;
+  numQuestions: number;
+  passingScore: number;
+  category: string;
+  scoreDisplay: boolean;
+  hints: boolean;
+  showPercentComplete: boolean;
+  showNumQuestions: boolean;
+  showProgressBar: boolean;
+  status: 'draft' | 'ready' | 'archived';
+  description?: string;
+}
+
 export function QuestionsPage() {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -45,6 +64,12 @@ export function QuestionsPage() {
     'info'
   );
   const [detailKey, setDetailKey] = useState(0);
+
+  // Quiz-specific state
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedQuizCategory, setSelectedQuizCategory] = useState<string>('all');
+  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+
   // Column widths - left: 25%, middle: 25%, right: 50%
   const [leftWidth, setLeftWidth] = useState(300);
   const [middleWidth, setMiddleWidth] = useState(300);
@@ -490,20 +515,29 @@ export function QuestionsPage() {
           ref={containerRef}
           className="flex-1 flex gap-4 px-4 pb-4 overflow-hidden">
 
-          {/* Left Column: Questions Sidebar - 25% width */}
+          {/* Left Column: Sidebar - 25% width */}
           <div
             className="flex-shrink-0 shadow-lg rounded-lg overflow-hidden h-full hidden lg:flex"
             style={{
               width: `${leftWidth}px`
             }}>
 
-            <QuestionsSidebar
-              selectedType={selectedType}
-              onSelectType={setSelectedType}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-              onCreateQuestion={handleCreateQuestion} />
-
+            {activeTab === 'questions' ? (
+              <QuestionsSidebar
+                selectedType={selectedType}
+                onSelectType={setSelectedType}
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+                onCreateQuestion={handleCreateQuestion}
+              />
+            ) : (
+              <QuizzesSidebar
+                selectedStatus={selectedStatus}
+                onSelectStatus={setSelectedStatus}
+                selectedCategory={selectedQuizCategory}
+                onSelectCategory={setSelectedQuizCategory}
+              />
+            )}
           </div>
 
           {/* Resize Handle - Left */}
@@ -540,13 +574,13 @@ export function QuestionsPage() {
 
               }
               {activeTab === 'quizzes' &&
-              <div key="quizzes" className="flex flex-col h-full">
-                  <div className="flex-1 flex items-center justify-center">
-                    <p className="text-gray-500">
-                      Quizzes content coming soon...
-                    </p>
-                  </div>
-                </div>
+              <QuizzesContent
+                key="quizzes"
+                selectedStatus={selectedStatus}
+                selectedCategory={selectedQuizCategory}
+                selectedQuiz={selectedQuiz}
+                onSelectQuiz={setSelectedQuiz}
+              />
               }
             </AnimatePresence>
           </div>
@@ -565,19 +599,26 @@ export function QuestionsPage() {
             </div>
           </div>
 
-          {/* Right Column: Question Detail - 50% width (desktop) */}
+          {/* Right Column: Detail - 50% width (desktop) */}
           <div
             className="hidden lg:flex flex-shrink-0 bg-white shadow-lg rounded-lg overflow-hidden h-full"
             style={{
               width: `${rightWidth}px`
             }}>
 
-            <QuestionDetail
-              key={detailKey}
-              question={selectedQuestion}
-              onClose={() => setSelectedQuestion(null)}
-              defaultTab={detailDefaultTab} />
-
+            {activeTab === 'questions' ? (
+              <QuestionDetail
+                key={detailKey}
+                question={selectedQuestion}
+                onClose={() => setSelectedQuestion(null)}
+                defaultTab={detailDefaultTab}
+              />
+            ) : (
+              <QuizDetail
+                quiz={selectedQuiz}
+                onClose={() => setSelectedQuiz(null)}
+              />
+            )}
           </div>
         </div>
       </div>
