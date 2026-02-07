@@ -9,6 +9,7 @@ import {
   Type,
   List,
   CheckSquare,
+  Square,
   GitMerge,
   HelpCircle,
   ChevronDown,
@@ -428,6 +429,17 @@ export function QuestionDetail({
     question?.options || ['', '']
   );
   const [correctOption, setCorrectOption] = useState<number>(0);
+  const [correctOptions, setCorrectOptions] = useState<Set<number>>(new Set());
+  const [scoringMode, setScoringMode] = useState<'all' | 'any'>('all');
+  const [binaryLabels, setBinaryLabels] = useState<[string, string]>([
+  'True',
+  'False']
+  );
+  const [editingBinaryIndex, setEditingBinaryIndex] = useState<number | null>(
+    null
+  );
+  const [editingBinaryOriginal, setEditingBinaryOriginal] = useState<string>('');
+  const binaryInputRef = useRef<HTMLInputElement>(null);
   const [hint, setHint] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -544,6 +556,18 @@ export function QuestionDetail({
       });
     }
   };
+  const toggleCorrectOption = (index: number) => {
+    setCorrectOptions((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+    clearError('correctOptions');
+  };
   const validateForPublish = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!title.trim() || title.trim() === 'New Question')
@@ -553,6 +577,9 @@ export function QuestionDetail({
       const filledOptions = options.filter((o) => o.trim() !== '');
       if (filledOptions.length < 2)
       newErrors.options = 'At least 2 answer options are required';
+      if (correctOptions.size === 0)
+      newErrors.correctOptions =
+      'At least one correct answer must be selected';
     }
     if (type === 'open') {
       if (!correctAnswer.trim())
@@ -594,6 +621,16 @@ export function QuestionDetail({
     if (options.length > 2) {
       const newOptions = options.filter((_, i) => i !== index);
       setOptions(newOptions);
+      // Update correctOptions set - shift indices
+      setCorrectOptions((prev) => {
+        const next = new Set<number>();
+        prev.forEach((i) => {
+          if (i < index) next.add(i);else
+          if (i > index) next.add(i - 1);
+          // skip i === index (removed)
+        });
+        return next;
+      });
       if (correctOption === index) setCorrectOption(0);
       if (correctOption > index) setCorrectOption(correctOption - 1);
     }
@@ -617,6 +654,20 @@ export function QuestionDetail({
       const [movedItem] = newOptions.splice(sourceIndex, 1);
       newOptions.splice(targetIndex, 0, movedItem);
       setOptions(newOptions);
+      // Update correctOptions set for reorder
+      setCorrectOptions((prev) => {
+        const next = new Set<number>();
+        prev.forEach((i) => {
+          if (i === sourceIndex) {
+            next.add(targetIndex);
+          } else if (sourceIndex < targetIndex) {
+            next.add(i > sourceIndex && i <= targetIndex ? i - 1 : i);
+          } else {
+            next.add(i >= targetIndex && i < sourceIndex ? i + 1 : i);
+          }
+        });
+        return next;
+      });
       if (correctOption === sourceIndex) setCorrectOption(targetIndex);else
       if (sourceIndex < correctOption && targetIndex >= correctOption)
       setCorrectOption(correctOption - 1);else
@@ -636,10 +687,13 @@ export function QuestionDetail({
   const getAnswerSummary = () => {
     if (type === 'multiple') {
       const filled = options.filter((o) => o.trim() !== '').length;
-      return `${filled} of ${options.length} options configured`;
+      const correctCount = correctOptions.size;
+      return `${filled} options, ${correctCount} correct · ${scoringMode === 'all' ? 'Require all' : 'At least one'}`;
     }
     if (type === 'true-false')
-    return correctOption === 0 ? 'Correct: True' : 'Correct: False';
+    return correctOption === 0 ?
+    `Correct: ${binaryLabels[0] || 'True'}` :
+    `Correct: ${binaryLabels[1] || 'False'}`;
     if (type === 'open')
     return correctAnswer.trim() ?
     `Answer set, ${matchValue}% match` :
@@ -647,13 +701,20 @@ export function QuestionDetail({
     if (type === 'matching') return 'Coming soon';
     return '';
   };
-  const hasAnswerErrors = !!(errors.options || errors.correctAnswer);
+  const hasAnswerErrors = !!(
+  errors.options ||
+  errors.correctAnswer ||
+  errors.correctOptions);
+
   const validateAnswers = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (type === 'multiple') {
       const filledOptions = options.filter((o) => o.trim() !== '');
       if (filledOptions.length < 2)
       newErrors.options = 'At least 2 answer options are required';
+      if (correctOptions.size === 0)
+      newErrors.correctOptions =
+      'At least one correct answer must be selected';
     }
     if (type === 'open') {
       if (!correctAnswer.trim())
@@ -848,6 +909,9 @@ export function QuestionDetail({
                     // Reset all answer state
                     setOptions(['', '']);
                     setCorrectOption(0);
+                    setCorrectOptions(new Set());
+                    setScoringMode('all');
+                    setBinaryLabels(['True', 'False']);
                     setCorrectAnswer('');
                     setMatchValue(1);
                     setTestAnswer('');
@@ -859,6 +923,7 @@ export function QuestionDetail({
                       };
                       delete next.options;
                       delete next.correctAnswer;
+                      delete next.correctOptions;
                       return next;
                     });
                     setShowTypeChangeConfirm(false);
@@ -1265,7 +1330,9 @@ export function QuestionDetail({
                           className={`text-xs mt-0.5 ${hasAnswerErrors ? 'text-red-500' : 'text-gray-500'}`}>
 
                                 {hasAnswerErrors ?
-                          errors.options || errors.correctAnswer :
+                          errors.options ||
+                          errors.correctAnswer ||
+                          errors.correctOptions :
                           getAnswerSummary()}
                               </p>
                             </div>
@@ -1390,7 +1457,7 @@ export function QuestionDetail({
                                 <span className="text-red-400 ml-0.5">*</span>
                               </span>
                               <span className="text-xs text-gray-400">
-                                Mark the correct answer
+                                Mark correct answers
                               </span>
                             </div>
                             {errors.options &&
@@ -1399,8 +1466,14 @@ export function QuestionDetail({
                                 {errors.options}
                               </p>
                     }
+                            {errors.correctOptions &&
+                    <p className="text-xs text-red-500 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {errors.correctOptions}
+                              </p>
+                    }
                             <div
-                      className={`space-y-2.5 ${errors.options ? 'rounded-md ring-2 ring-red-100 p-2 -m-2' : ''}`}>
+                      className={`space-y-2.5 ${errors.options || errors.correctOptions ? 'rounded-md ring-2 ring-red-100 p-2 -m-2' : ''}`}>
 
                               {options.map((option, index) =>
                       <div
@@ -1416,13 +1489,13 @@ export function QuestionDetail({
                                     <GripVertical className="w-4 h-4" />
                                   </div>
                                   <button
-                          onClick={() => setCorrectOption(index)}
-                          className={`flex-shrink-0 transition-colors ${correctOption === index ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}>
+                          onClick={() => toggleCorrectOption(index)}
+                          className={`flex-shrink-0 transition-colors ${correctOptions.has(index) ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}>
 
-                                    {correctOption === index ?
-                          <CheckCircle2 className="w-5 h-5" /> :
+                                    {correctOptions.has(index) ?
+                          <CheckSquare className="w-5 h-5" /> :
 
-                          <Circle className="w-5 h-5" />
+                          <Square className="w-5 h-5" />
                           }
                                   </button>
                                   <input
@@ -1451,30 +1524,179 @@ export function QuestionDetail({
                               <Plus className="w-4 h-4" />
                               Add Option
                             </button>
+
+                            {/* Scoring Mode */}
+                            {correctOptions.size > 1 &&
+                    <div className="pt-2 border-t border-gray-100">
+                                <span className="text-xs text-gray-500 uppercase tracking-wide font-medium block mb-2.5">
+                                  Scoring Mode
+                                </span>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <button
+                          onClick={() => setScoringMode('all')}
+                          className={`px-3 py-2.5 rounded-lg border-2 text-left transition-all ${scoringMode === 'all' ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+
+                                    <span
+                            className={`text-xs font-bold block ${scoringMode === 'all' ? 'text-teal-700' : 'text-gray-700'}`}>
+
+                                      Require All
+                                    </span>
+                                    <span className="text-[11px] text-gray-500 leading-tight block mt-0.5">
+                                      All correct answers must be selected
+                                    </span>
+                                  </button>
+                                  <button
+                          onClick={() => setScoringMode('any')}
+                          className={`px-3 py-2.5 rounded-lg border-2 text-left transition-all ${scoringMode === 'any' ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+
+                                    <span
+                            className={`text-xs font-bold block ${scoringMode === 'any' ? 'text-teal-700' : 'text-gray-700'}`}>
+
+                                      At Least One
+                                    </span>
+                                    <span className="text-[11px] text-gray-500 leading-tight block mt-0.5">
+                                      Any one correct answer is sufficient
+                                    </span>
+                                  </button>
+                                </div>
+                              </div>
+                    }
                           </div>
                   }
 
                         {type === 'true-false' &&
                   <div className="space-y-3">
-                            <span className="text-xs text-gray-500 uppercase tracking-wide font-medium block">
-                              Select the correct answer
-                            </span>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                                Select the correct answer
+                              </span>
+                            </div>
                             <div className="grid grid-cols-2 gap-3">
-                              {['True', 'False'].map((opt, idx) =>
-                      <button
-                        key={opt}
-                        onClick={() => setCorrectOption(idx)}
-                        className={`relative p-4 rounded-lg border-2 text-center transition-all ${correctOption === idx ? 'border-teal-500 bg-teal-50/50 text-teal-700' : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200'}`}>
+                              {binaryLabels.map((label, idx) =>
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          if (editingBinaryIndex !== idx) {
+                            setCorrectOption(idx);
+                          }
+                        }}
+                        className={`relative rounded-lg border-2 text-center transition-all ${editingBinaryIndex !== idx ? 'cursor-pointer' : ''} ${correctOption === idx ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
 
-                                  <span className="text-sm font-bold">
-                                    {opt}
-                                  </span>
-                                  {correctOption === idx &&
-                        <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-teal-500" />
+                                  {editingBinaryIndex !== idx &&
+                        <div
+                          className={`absolute top-2 right-2 transition-colors pointer-events-none ${correctOption === idx ? 'text-green-500' : 'text-gray-300'}`}>
+
+                                      {correctOption === idx ?
+                          <CheckCircle2 className="w-4 h-4" /> :
+
+                          <Circle className="w-4 h-4" />
+                          }
+                                    </div>
                         }
-                                </button>
+                                  <div className="px-3 py-3 pt-2">
+                                    {editingBinaryIndex === idx ?
+                          <div className="flex items-center gap-1">
+                                        <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const revertLabels: [
+                                  string,
+                                  string] =
+                                [...binaryLabels] as [
+                                  string,
+                                  string];
+
+                                revertLabels[idx] =
+                                editingBinaryOriginal;
+                                setBinaryLabels(revertLabels);
+                                setEditingBinaryIndex(null);
+                              }}
+                              className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                              title="Cancel">
+
+                                          <X className="w-3.5 h-3.5" />
+                                        </button>
+                                        <input
+                              ref={binaryInputRef}
+                              type="text"
+                              value={label}
+                              onChange={(e) => {
+                                const newLabels: [string, string] =
+                                [...binaryLabels] as [
+                                  string,
+                                  string];
+
+                                newLabels[idx] = e.target.value;
+                                setBinaryLabels(newLabels);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  setEditingBinaryIndex(null);
+                                }
+                                if (e.key === 'Escape') {
+                                  const revertLabels: [
+                                    string,
+                                    string] =
+                                  [...binaryLabels] as [
+                                    string,
+                                    string];
+
+                                  revertLabels[idx] =
+                                  editingBinaryOriginal;
+                                  setBinaryLabels(revertLabels);
+                                  setEditingBinaryIndex(null);
+                                }
+                              }}
+                              className="flex-1 min-w-0 text-center text-sm font-bold rounded border border-gray-200 bg-white px-2 py-1 outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-gray-700"
+                              placeholder={
+                              idx === 0 ? 'True' : 'False'
+                              }
+                              autoFocus />
+
+                                        <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingBinaryIndex(null);
+                              }}
+                              className="flex-shrink-0 p-1 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
+                              title="Save">
+
+                                          <CheckCircle2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div> :
+
+                          <div className="flex items-center justify-center gap-1.5">
+                                        <span
+                              className={`text-sm font-bold ${correctOption === idx ? 'text-teal-700' : 'text-gray-600'}`}>
+
+                                          {label || (
+                              idx === 0 ? 'True' : 'False')}
+                                        </span>
+                                        <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingBinaryOriginal(label);
+                                setEditingBinaryIndex(idx);
+                                setTimeout(
+                                  () =>
+                                  binaryInputRef.current?.focus(),
+                                  0
+                                );
+                              }}
+                              className="p-0.5 text-gray-300 hover:text-gray-500 transition-colors rounded">
+
+                                          <PenSquare className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                          }
+                                  </div>
+                                </div>
                       )}
                             </div>
+                            <p className="text-xs text-gray-400">
+                              Click the circle to mark correct. Click the edit
+                              icon to rename labels.
+                            </p>
                           </div>
                   }
 
