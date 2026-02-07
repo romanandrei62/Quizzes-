@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   X,
   Plus,
@@ -17,7 +17,11 @@ import {
   Edit,
   Copy,
   PenSquare,
-  SlidersHorizontal } from
+  SlidersHorizontal,
+  Save,
+  Send,
+  AlertCircle,
+  Sparkles } from
 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
@@ -125,10 +129,124 @@ export function QuestionDetail({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const dragIndexRef = useRef<number | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [correctAnswer, setCorrectAnswer] = useState('');
+  const [matchValue, setMatchValue] = useState(1);
+  const [testAnswer, setTestAnswer] = useState('');
+  const [testResult, setTestResult] = useState<{
+    similarity: number;
+    passed: boolean;
+  } | null>(null);
+  const [showTestMatch, setShowTestMatch] = useState(false);
+  const configureAnswersRef = useRef<HTMLDivElement>(null);
+  const testMatchRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollToRef = (ref: React.RefObject<HTMLDivElement>) => {
+    setTimeout(() => {
+      ref.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 250);
+  };
+  const calculateSimilarity = (a: string, b: string): number => {
+    if (!a || !b) return 0;
+    const strA = a.toLowerCase().trim();
+    const strB = b.toLowerCase().trim();
+    if (strA === strB) return 100;
+    const longer = strA.length > strB.length ? strA : strB;
+    const shorter = strA.length > strB.length ? strB : strA;
+    const longerLength = longer.length;
+    if (longerLength === 0) return 100;
+    // Levenshtein distance
+    const costs: number[] = [];
+    for (let i = 0; i <= longer.length; i++) {
+      let lastValue = i;
+      for (let j = 0; j <= shorter.length; j++) {
+        if (i === 0) {
+          costs[j] = j;
+        } else if (j > 0) {
+          let newValue = costs[j - 1];
+          if (longer.charAt(i - 1) !== shorter.charAt(j - 1)) {
+            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+          }
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+      if (i > 0) costs[shorter.length] = lastValue;
+    }
+    return Math.round(
+      (longerLength - costs[shorter.length]) / longerLength * 100
+    );
+  };
+  const handleTestMatch = () => {
+    const similarity = calculateSimilarity(correctAnswer, testAnswer);
+    setTestResult({
+      similarity,
+      passed: similarity >= matchValue
+    });
+  };
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = {
+          ...prev
+        };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+  const validateForPublish = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    if (!title.trim() || title.trim() === 'New Question') {
+      newErrors.title = 'Reference title is required';
+    }
+    if (!text.trim()) {
+      newErrors.text = 'Content is required';
+    }
+    if (type === 'multiple') {
+      const filledOptions = options.filter((o) => o.trim() !== '');
+      if (filledOptions.length < 2) {
+        newErrors.options = 'At least 2 answer options are required';
+      }
+    }
+    if (type === 'open') {
+      if (!correctAnswer.trim()) {
+        newErrors.correctAnswer = 'Correct answer is required';
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  const handleSave = (saveStatus: 'draft' | 'active') => {
+    if (saveStatus === 'active') {
+      if (!validateForPublish()) {
+        setShowConfigureAnswers(true);
+        return;
+      }
+    } else {
+      setErrors({});
+    }
+    const updatedQuestion: Question = {
+      id: question?.id || `q-${Date.now()}`,
+      title,
+      text,
+      type,
+      category,
+      status: saveStatus,
+      createdAt: question?.createdAt || new Date(),
+      options: type === 'multiple' ? options : undefined
+    };
+    onSave?.(updatedQuestion);
+    setActiveTab('info');
+  };
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
     newOptions[index] = value;
     setOptions(newOptions);
+    clearError('options');
   };
   const addOption = () => setOptions([...options, '']);
   const removeOption = (index: number) => {
@@ -176,6 +294,30 @@ export function QuestionDetail({
     setDragIndex(null);
     setDragOverIndex(null);
   };
+  // CSS-based accordion with measured heights for smooth collapse
+  const configureContentRef = useRef<HTMLDivElement>(null);
+  const testMatchContentRef = useRef<HTMLDivElement>(null);
+  const [configureHeight, setConfigureHeight] = useState<number | 'auto'>(
+    'auto'
+  );
+  const [testMatchHeight, setTestMatchHeight] = useState<number | 'auto'>(0);
+  useEffect(() => {
+    if (showConfigureAnswers && configureContentRef.current) {
+      setConfigureHeight(configureContentRef.current.scrollHeight);
+    }
+  }, [
+  showConfigureAnswers,
+  type,
+  options,
+  errors,
+  correctAnswer,
+  correctOption]
+  );
+  useEffect(() => {
+    if (showTestMatch && testMatchContentRef.current) {
+      setTestMatchHeight(testMatchContentRef.current.scrollHeight);
+    }
+  }, [showTestMatch, testAnswer, testResult]);
   if (!question) {
     return (
       <div className="w-full h-full bg-white flex items-center justify-center p-8">
@@ -368,14 +510,24 @@ export function QuestionDetail({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Reference Title
+                    <span className="text-red-400 ml-0.5">*</span>
                   </label>
                   <input
                   type="text"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    clearError('title');
+                  }}
                   placeholder="Enter a descriptive title..."
-                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+                  className={`w-full rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors ${errors.title ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`} />
 
+                  {errors.title &&
+                <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.title}
+                    </p>
+                }
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -444,13 +596,23 @@ export function QuestionDetail({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Content
+                    <span className="text-red-400 ml-0.5">*</span>
                   </label>
                   <textarea
-                  className="w-full min-h-[120px] rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors"
+                  className={`w-full min-h-[120px] rounded-md border bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors ${errors.text ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`}
                   placeholder="Enter your question content..."
                   value={text}
-                  onChange={(e) => setText(e.target.value)} />
+                  onChange={(e) => {
+                    setText(e.target.value);
+                    clearError('text');
+                  }} />
 
+                  {errors.text &&
+                <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.text}
+                    </p>
+                }
                 </div>
 
                 <div>
@@ -489,152 +651,288 @@ export function QuestionDetail({
                 </div>
 
                 <div>
-                  <button
-                  onClick={() =>
-                  setShowConfigureAnswers(!showConfigureAnswers)
-                  }
-                  className="w-full flex items-center gap-2 py-3 text-teal-600 hover:text-teal-700 transition-colors">
-
-                    <SlidersHorizontal className="w-4 h-4" />
-                    <span className="text-sm font-bold uppercase tracking-wide">
-                      Configure Answers
-                    </span>
-                    <ChevronRight
-                    className={`w-4 h-4 ml-auto transition-transform ${showConfigureAnswers ? 'rotate-90' : ''}`} />
-
-                  </button>
-
-                  <AnimatePresence>
-                    {showConfigureAnswers &&
-                  <motion.div
-                    initial={{
-                      height: 0,
-                      opacity: 0
+                  <div ref={configureAnswersRef}>
+                    <button
+                    onClick={() => {
+                      const next = !showConfigureAnswers;
+                      setShowConfigureAnswers(next);
+                      if (next) scrollToRef(configureAnswersRef);
                     }}
-                    animate={{
-                      height: 'auto',
-                      opacity: 1
-                    }}
-                    exit={{
-                      height: 0,
-                      opacity: 0
-                    }}
-                    transition={{
-                      duration: 0.2
-                    }}
-                    className="overflow-hidden">
+                    className="w-full flex items-center gap-2 py-3 text-teal-600 hover:text-teal-700 transition-colors">
 
-                        <div className="pt-3 space-y-3">
-                          {type === 'multiple' &&
+                      <SlidersHorizontal className="w-4 h-4" />
+                      <span className="text-sm font-bold uppercase tracking-wide">
+                        Configure Answers
+                      </span>
+                      <ChevronRight
+                      className={`w-4 h-4 ml-auto transition-transform duration-300 ${showConfigureAnswers ? 'rotate-90' : ''}`} />
+
+                    </button>
+                  </div>
+
+                  <div
+                  style={{
+                    height: showConfigureAnswers ?
+                    configureHeight === 'auto' ?
+                    'auto' :
+                    `${configureHeight}px` :
+                    '0px',
+                    opacity: showConfigureAnswers ? 1 : 0,
+                    overflow: 'hidden',
+                    transition:
+                    'height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease'
+                  }}>
+
+                    <div ref={configureContentRef}>
+                      <div className="pt-3 space-y-3">
+                        {type === 'multiple' &&
                       <>
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
-                                  Answer Options
-                                </span>
-                                <span className="text-xs text-gray-400">
-                                  Mark the correct answer
-                                </span>
-                              </div>
-                              <div className="space-y-2.5">
-                                {options.map((option, index) =>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                                Answer Options
+                                <span className="text-red-400 ml-0.5">*</span>
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                Mark the correct answer
+                              </span>
+                            </div>
+                            {errors.options &&
+                        <p className="mb-2 text-xs text-red-500 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {errors.options}
+                              </p>
+                        }
+                            <div
+                          className={`space-y-2.5 ${errors.options ? 'rounded-md ring-2 ring-red-100 p-2 -m-2' : ''}`}>
+
+                              {options.map((option, index) =>
                           <div
                             key={index}
                             draggable
-                            onDragStart={(e) =>
-                            handleDragStart(e, index)
-                            }
+                            onDragStart={(e) => handleDragStart(e, index)}
                             onDragOver={(e) => handleDragOver(e, index)}
                             onDrop={(e) => handleDrop(e, index)}
                             onDragEnd={handleDragEnd}
                             className={`flex items-center gap-2.5 group rounded-md p-1 -m-1 transition-all ${dragIndex === index ? 'opacity-30 scale-95' : ''} ${dragOverIndex === index && dragIndex !== index ? 'ring-2 ring-teal-400 bg-teal-50/30' : ''}`}>
 
-                                    <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
-                                      <GripVertical className="w-4 h-4" />
-                                    </div>
-                                    <button
+                                  <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
+                                    <GripVertical className="w-4 h-4" />
+                                  </div>
+                                  <button
                               onClick={() => setCorrectOption(index)}
                               className={`flex-shrink-0 transition-colors ${correctOption === index ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}>
 
-                                      {correctOption === index ?
+                                    {correctOption === index ?
                               <CheckCircle2 className="w-5 h-5" /> :
 
                               <Circle className="w-5 h-5" />
                               }
-                                    </button>
-                                    <input
+                                  </button>
+                                  <input
                               type="text"
                               value={option}
                               onChange={(e) =>
-                              handleOptionChange(
-                                index,
-                                e.target.value
-                              )
+                              handleOptionChange(index, e.target.value)
                               }
                               placeholder={`Option ${index + 1}`}
                               className="flex-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 focus:bg-white transition-all" />
 
 
-                                    <button
+                                  <button
                               onClick={() => removeOption(index)}
                               disabled={options.length <= 2}
                               className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30">
 
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
                           )}
-                              </div>
-                              <button
+                            </div>
+                            <button
                           onClick={addOption}
                           className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
 
-                                <Plus className="w-4 h-4" />
-                                Add Option
-                              </button>
-                            </>
+                              <Plus className="w-4 h-4" />
+                              Add Option
+                            </button>
+                          </>
                       }
 
-                          {type === 'true-false' &&
+                        {type === 'true-false' &&
                       <div className="grid grid-cols-2 gap-3">
-                              {['True', 'False'].map((opt, idx) =>
+                            {['True', 'False'].map((opt, idx) =>
                         <button
                           key={opt}
                           onClick={() => setCorrectOption(idx)}
                           className={`relative p-3 rounded-md border-2 text-center transition-all ${correctOption === idx ? 'border-teal-500 bg-teal-50/50 text-teal-700' : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200'}`}>
 
-                                  <span className="text-sm font-bold">
-                                    {opt}
-                                  </span>
-                                  {correctOption === idx &&
+                                <span className="text-sm font-bold">{opt}</span>
+                                {correctOption === idx &&
                           <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-teal-500" />
                           }
-                                </button>
+                              </button>
                         )}
-                            </div>
+                          </div>
                       }
 
-                          {type === 'open' &&
-                      <div className="p-4 bg-gray-50 rounded-md border border-dashed border-gray-200 text-center">
-                              <Type className="w-5 h-5 text-gray-400 mx-auto mb-2" />
-                              <p className="text-xs text-gray-500">
-                                Open-ended response. No predefined options
-                                needed.
+                        {type === 'open' &&
+                      <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Correct Answer
+                                <span className="text-red-400 ml-0.5">*</span>
+                              </label>
+                              <textarea
+                            className={`w-full min-h-[100px] rounded-md border bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors ${errors.correctAnswer ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`}
+                            placeholder="Enter the correct answer..."
+                            value={correctAnswer}
+                            onChange={(e) => {
+                              setCorrectAnswer(e.target.value);
+                              clearError('correctAnswer');
+                            }} />
+
+                              {errors.correctAnswer &&
+                          <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                                  <AlertCircle className="w-3 h-3" />
+                                  {errors.correctAnswer}
+                                </p>
+                          }
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Match Value (%)
+                              </label>
+                              <input
+                            type="number"
+                            min={1}
+                            max={100}
+                            value={matchValue}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setMatchValue(
+                                val < 1 ? 1 : val > 100 ? 100 : val
+                              );
+                            }}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+
+                              <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                                What threshold in % do you want to use for the
+                                correct answer? A 90% value means that the
+                                submitted answer must be at least 90% similar to
+                                correct answer to be marked as correct. - Ex.
+                                the correct answer is 'Apple Inc.', but the
+                                Target answered with 'Apple Inc' without the
+                                period. At 90% value this answer would be marked
+                                as correct.
                               </p>
                             </div>
+
+                            <button
+                          type="button"
+                          onClick={() => {
+                            const next = !showTestMatch;
+                            setShowTestMatch(next);
+                            if (next) scrollToRef(testMatchRef);
+                          }}
+                          className="w-full flex items-center gap-2 py-3 text-teal-600 hover:text-teal-700 transition-colors">
+
+                              <Sparkles className="w-4 h-4" />
+                              <span className="text-sm font-bold uppercase tracking-wide">
+                                Test Match Value
+                              </span>
+                              <ChevronRight
+                            className={`w-4 h-4 ml-auto transition-transform duration-300 ${showTestMatch ? 'rotate-90' : ''}`} />
+
+                            </button>
+
+                            <div ref={testMatchRef}>
+                              <div
+                            style={{
+                              height: showTestMatch ?
+                              `${testMatchHeight}px` :
+                              '0px',
+                              opacity: showTestMatch ? 1 : 0,
+                              overflow: 'hidden',
+                              transition:
+                              'height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease'
+                            }}>
+
+                                <div ref={testMatchContentRef}>
+                                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      Enter a test answer
+                                    </label>
+                                    <input
+                                  type="text"
+                                  value={testAnswer}
+                                  onChange={(e) => {
+                                    setTestAnswer(e.target.value);
+                                    setTestResult(null);
+                                  }}
+                                  placeholder="Type a test answer to compare..."
+                                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+
+                                    <button
+                                  type="button"
+                                  onClick={handleTestMatch}
+                                  disabled={
+                                  !correctAnswer.trim() ||
+                                  !testAnswer.trim()
+                                  }
+                                  className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+
+                                      Run Test
+                                    </button>
+
+                                    {testResult &&
+                                <div
+                                  className={`p-3 rounded-md border ${testResult.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+
+                                        <div className="flex items-center gap-2 mb-1">
+                                          {testResult.passed ?
+                                    <CheckCircle2 className="w-4 h-4 text-green-600" /> :
+
+                                    <AlertCircle className="w-4 h-4 text-red-500" />
+                                    }
+                                          <span
+                                      className={`text-sm font-semibold ${testResult.passed ? 'text-green-700' : 'text-red-600'}`}>
+
+                                            {testResult.passed ?
+                                      'PASS' :
+                                      'FAIL'}
+                                          </span>
+                                        </div>
+                                        <p className="text-xs text-gray-600">
+                                          Similarity:{' '}
+                                          <span className="font-bold">
+                                            {testResult.similarity}%
+                                          </span>{' '}
+                                          — Threshold:{' '}
+                                          <span className="font-bold">
+                                            {matchValue}%
+                                          </span>
+                                        </p>
+                                      </div>
+                                }
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                       }
 
-                          {type === 'matching' &&
+                        {type === 'matching' &&
                       <div className="p-4 bg-gray-50 rounded-md border border-dashed border-gray-200 text-center">
-                              <GitMerge className="w-5 h-5 text-gray-400 mx-auto mb-2" />
-                              <p className="text-xs text-gray-500">
-                                Matching pairs configuration coming soon.
-                              </p>
-                            </div>
+                            <GitMerge className="w-5 h-5 text-gray-400 mx-auto mb-2" />
+                            <p className="text-xs text-gray-500">
+                              Matching pairs configuration coming soon.
+                            </p>
+                          </div>
                       }
-                        </div>
-                      </motion.div>
-                  }
-                  </AnimatePresence>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -645,6 +943,7 @@ export function QuestionDetail({
               variant="secondary"
               onClick={() => {
                 setActiveTab('info');
+                setErrors({});
                 // Reset form to original values
                 setTitle(question?.title || 'New Question');
                 setText(question?.text || '');
@@ -656,25 +955,22 @@ export function QuestionDetail({
 
                 Cancel
               </Button>
-              <Button
-              variant="primary"
-              onClick={() => {
-                const updatedQuestion: Question = {
-                  id: question?.id || `q-${Date.now()}`,
-                  title,
-                  text,
-                  type,
-                  category,
-                  status,
-                  createdAt: question?.createdAt || new Date(),
-                  options: type === 'multiple' ? options : undefined
-                };
-                onSave?.(updatedQuestion);
-                setActiveTab('info');
-              }}>
+              <div className="flex items-center gap-2">
+                <Button
+                variant="outline"
+                onClick={() => handleSave('draft')}
+                leftIcon={<Save className="w-4 h-4" />}>
 
-                {isNewQuestion ? 'Create Question' : 'Save Changes'}
-              </Button>
+                  Save as Draft
+                </Button>
+                <Button
+                variant="primary"
+                onClick={() => handleSave('active')}
+                leftIcon={<Send className="w-4 h-4" />}>
+
+                  Publish
+                </Button>
+              </div>
             </div>
           </div>
         }
