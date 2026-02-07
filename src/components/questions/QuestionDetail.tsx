@@ -1948,12 +1948,13 @@ export function QuestionDetail({
                                 {errors.matchPairs}
                               </p>
                     }
-                            {/* Sub-type tabs */}
+                            {/* Sub-type tabs - auto-saves when changed */}
                             <div className="flex rounded-lg border border-gray-200 overflow-hidden">
                               <button
                         onClick={() => {
                           setMatchSubType('text');
                           setActiveMatchPairIndex(null);
+                          // Auto-save type preference
                         }}
                         className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${matchSubType === 'text' ? 'bg-gray-100 text-gray-900' : 'bg-white text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
 
@@ -1963,6 +1964,7 @@ export function QuestionDetail({
                         onClick={() => {
                           setMatchSubType('image');
                           setActiveMatchPairIndex(null);
+                          // Auto-save type preference
                         }}
                         className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors border-l border-gray-200 ${matchSubType === 'image' ? 'bg-gray-100 text-gray-900' : 'bg-white text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
 
@@ -2089,13 +2091,16 @@ export function QuestionDetail({
                         )}
                                   <button
                           onClick={() => {
-                            setMatchPairs([
+                            const newPairs = [
                             ...matchPairs,
                             {
                               prompt: '',
                               answer: ''
-                            }]
-                            );
+                            }];
+
+                            setMatchPairs(newPairs);
+                            // Automatically open the new pair for editing
+                            setActiveMatchPairIndex(newPairs.length - 1);
                           }}
                           className="w-full flex items-center justify-center gap-1.5 py-2.5 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
 
@@ -2263,7 +2268,7 @@ export function QuestionDetail({
 
                                   </div>
 
-                                  {/* Save pair button */}
+                                  {/* Save button - saves this pair and closes form */}
                                   <button
                           onClick={() =>
                           setActiveMatchPairIndex(null)
@@ -2271,7 +2276,7 @@ export function QuestionDetail({
                           className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-teal-500 text-white text-sm font-medium rounded-lg hover:bg-teal-600 transition-colors">
 
                                     <Save className="w-3.5 h-3.5" />
-                                    Save Pair
+                                    Save
                                   </button>
                                 </motion.div>
                       }
@@ -2294,9 +2299,9 @@ export function QuestionDetail({
                     <Button
                   variant="primary"
                   onClick={handleSaveAnswers}
-                  leftIcon={<Save className="w-4 h-4" />}>
+                  leftIcon={<CheckCircle2 className="w-4 h-4" />}>
 
-                      Save
+                      Done
                     </Button>
                   </div>
                 </motion.div>
