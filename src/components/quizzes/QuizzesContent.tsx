@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { Search, Filter, SortAsc, MoreVertical, HelpCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { QuizItem } from './QuizItem';
+import { QuestionListSkeleton } from '../questions/QuestionListSkeleton';
+import { BulkEditBar } from '../questions/BulkEditBar';
+import { BulkEditForm } from '../questions/BulkEditForm';
+import { TableActionBar } from '../questions/TableActionBar';
 
 interface Quiz {
   id: string;
@@ -17,18 +21,11 @@ interface Quiz {
   description?: string;
 }
 
-interface QuizzesContentProps {
-  selectedStatus: string;
-  selectedCategory: string;
-  selectedQuiz: Quiz | null;
-  onSelectQuiz: (quiz: Quiz) => void;
-}
-
 const MOCK_QUIZZES: Quiz[] = [
   {
     id: '1',
     title: 'Platform Onboarding Quiz',
-    numQuestions: 0,
+    numQuestions: 5,
     passingScore: 75,
     category: 'FEEDBACK',
     scoreDisplay: false,
@@ -42,7 +39,7 @@ const MOCK_QUIZZES: Quiz[] = [
   {
     id: '2',
     title: 'Customer Satisfaction Survey',
-    numQuestions: 0,
+    numQuestions: 8,
     passingScore: 75,
     category: 'FEEDBACK',
     scoreDisplay: false,
@@ -56,22 +53,22 @@ const MOCK_QUIZZES: Quiz[] = [
   {
     id: '3',
     title: 'LMS Course Assessment',
-    numQuestions: 0,
-    passingScore: 75,
+    numQuestions: 12,
+    passingScore: 80,
     category: 'LMS',
-    scoreDisplay: false,
+    scoreDisplay: true,
     hints: true,
-    showPercentComplete: false,
-    showNumQuestions: false,
-    showProgressBar: false,
+    showPercentComplete: true,
+    showNumQuestions: true,
+    showProgressBar: true,
     status: 'ready',
     description: ''
   },
   {
     id: '4',
     title: 'Feature Testing Quiz',
-    numQuestions: 0,
-    passingScore: 75,
+    numQuestions: 6,
+    passingScore: 70,
     category: 'TEST',
     scoreDisplay: false,
     hints: true,
@@ -84,7 +81,49 @@ const MOCK_QUIZZES: Quiz[] = [
   {
     id: '5',
     title: 'Product Knowledge Test',
-    numQuestions: 0,
+    numQuestions: 15,
+    passingScore: 85,
+    category: 'LMS',
+    scoreDisplay: true,
+    hints: false,
+    showPercentComplete: true,
+    showNumQuestions: true,
+    showProgressBar: true,
+    status: 'archived',
+    description: ''
+  },
+  {
+    id: '6',
+    title: 'User Experience Evaluation',
+    numQuestions: 10,
+    passingScore: 75,
+    category: 'FEEDBACK',
+    scoreDisplay: false,
+    hints: true,
+    showPercentComplete: false,
+    showNumQuestions: false,
+    showProgressBar: false,
+    status: 'ready',
+    description: ''
+  },
+  {
+    id: '7',
+    title: 'Technical Skills Assessment',
+    numQuestions: 20,
+    passingScore: 90,
+    category: 'TEST',
+    scoreDisplay: true,
+    hints: false,
+    showPercentComplete: true,
+    showNumQuestions: true,
+    showProgressBar: true,
+    status: 'ready',
+    description: ''
+  },
+  {
+    id: '8',
+    title: 'New Employee Orientation',
+    numQuestions: 7,
     passingScore: 75,
     category: 'LMS',
     scoreDisplay: false,
@@ -92,23 +131,17 @@ const MOCK_QUIZZES: Quiz[] = [
     showPercentComplete: false,
     showNumQuestions: false,
     showProgressBar: false,
-    status: 'archived',
+    status: 'draft',
     description: ''
   }
 ];
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'ready':
-      return 'bg-green-500';
-    case 'draft':
-      return 'bg-yellow-500';
-    case 'archived':
-      return 'bg-gray-400';
-    default:
-      return 'bg-gray-300';
-  }
-};
+interface QuizzesContentProps {
+  selectedStatus: string;
+  selectedCategory: string;
+  selectedQuiz: Quiz | null;
+  onSelectQuiz: (quiz: Quiz) => void;
+}
 
 export function QuizzesContent({
   selectedStatus,
@@ -116,91 +149,182 @@ export function QuizzesContent({
   selectedQuiz,
   onSelectQuiz
 }: QuizzesContentProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('created_desc');
+  const [filterBy, setFilterBy] = useState('all');
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const filteredQuizzes = MOCK_QUIZZES.filter((quiz) => {
+  // Pagination state (simulated)
+  const totalItems = 100;
+  const currentPageItems = MOCK_QUIZZES;
+
+  const allCurrentPageSelected = currentPageItems.every((item) =>
+    selectedIds.has(item.id)
+  );
+
+  const someCurrentPageSelected =
+    currentPageItems.some((item) => selectedIds.has(item.id)) &&
+    !allCurrentPageSelected;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, [selectedStatus, selectedCategory]);
+
+  useEffect(() => {
+    if (selectedIds.size === 0) {
+      setShowCheckboxes(false);
+      setShowEditForm(false);
+    }
+  }, [selectedIds.size]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const newSet = new Set(selectedIds);
+      currentPageItems.forEach((item) => newSet.add(item.id));
+      setSelectedIds(newSet);
+    } else {
+      const newSet = new Set(selectedIds);
+      currentPageItems.forEach((item) => newSet.delete(item.id));
+      setSelectedIds(newSet);
+    }
+  };
+
+  const handleBulkActionStart = () => {
+    setShowCheckboxes(true);
+  };
+
+  const handleBulkActionCancel = () => {
+    setShowCheckboxes(false);
+    setSelectedIds(new Set());
+    setShowEditForm(false);
+  };
+
+  const handleApplyActionsClick = () => {
+    setShowEditForm(true);
+  };
+
+  const handleEditFormClose = () => {
+    setShowEditForm(false);
+  };
+
+  const handleBulkEditSubmit = (formData: any) => {
+    console.log('Bulk edit submit:', formData, 'for IDs:', Array.from(selectedIds));
+    setShowEditForm(false);
+    setShowCheckboxes(false);
+    setSelectedIds(new Set());
+  };
+
+  const filteredQuizzes = currentPageItems.filter((quiz) => {
     const matchesStatus =
       selectedStatus === 'all' || quiz.status === selectedStatus;
     const matchesCategory =
       selectedCategory === 'all' ||
       quiz.category.toLowerCase() === selectedCategory.toLowerCase();
     const matchesSearch =
-      searchTerm === '' ||
-      quiz.title.toLowerCase().includes(searchTerm.toLowerCase());
+      searchQuery === '' ||
+      quiz.title.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesStatus && matchesCategory && matchesSearch;
   });
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Action Bar */}
-      <div className="h-[57px] px-4 border-b border-gray-200 flex items-center gap-3 flex-shrink-0">
-        <button className="p-1.5 hover:bg-gray-100 rounded transition-colors">
-          <Search className="w-4 h-4 text-gray-600" />
-        </button>
-        <button className="p-1.5 hover:bg-gray-100 rounded transition-colors">
-          <Filter className="w-4 h-4 text-gray-600" />
-        </button>
-        <button className="p-1.5 hover:bg-gray-100 rounded transition-colors">
-          <SortAsc className="w-4 h-4 text-gray-600" />
-        </button>
-        <div className="flex-1" />
-        <select className="text-sm text-gray-700 border border-gray-300 rounded px-2 py-1">
-          <option>10</option>
-          <option>25</option>
-          <option>50</option>
-        </select>
-      </div>
+    <div className="flex flex-col h-full bg-white">
+      {/* Table Action Bar */}
+      <TableActionBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        filterBy={filterBy}
+        onFilterChange={setFilterBy}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={setItemsPerPage}
+        totalItems={totalItems}
+        showCheckboxes={showCheckboxes}
+        onBulkActionStart={handleBulkActionStart}
+        onApplyActionsClick={handleApplyActionsClick}
+        selectedCount={selectedIds.size}
+        isAllSelected={allCurrentPageSelected}
+        isSomeSelected={someCurrentPageSelected}
+        onSelectAll={handleSelectAll}
+      />
+
+      {/* Bulk Edit Bar */}
+      <AnimatePresence>
+        {showCheckboxes && selectedIds.size > 0 && (
+          <BulkEditBar
+            selectedCount={selectedIds.size}
+            onCancel={handleBulkActionCancel}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Quiz List */}
       <div className="flex-1 overflow-y-auto">
-        {filteredQuizzes.length === 0 ? (
-          <div className="flex items-center justify-center h-full p-8">
-            <p className="text-gray-500 text-sm">No quizzes found</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-200">
-            {filteredQuizzes.map((quiz) => (
-              <motion.div
-                key={quiz.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors flex items-center gap-3 ${
-                  selectedQuiz?.id === quiz.id ? 'bg-gray-50' : ''
-                }`}
-                onClick={() => onSelectQuiz(quiz)}
-              >
-                {/* Quiz Icon */}
-                <HelpCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
-
-                {/* Quiz Title */}
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 truncate">
-                    {quiz.title}
-                  </div>
-                </div>
-
-                {/* Status Dot */}
-                <div
-                  className={`w-2 h-2 rounded-full ${getStatusColor(
-                    quiz.status
-                  )} flex-shrink-0`}
-                />
-
-                {/* Menu Button */}
-                <button
-                  className="p-1 hover:bg-gray-200 rounded transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <QuestionListSkeleton key="skeleton" />
+          ) : filteredQuizzes.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-center h-full p-8"
+            >
+              <p className="text-gray-500 text-sm">No quizzes found</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="divide-y divide-gray-200"
+            >
+              {filteredQuizzes.map((quiz) => (
+                <QuizItem
+                  key={quiz.id}
+                  quiz={quiz}
+                  isHovered={hoveredId === quiz.id}
+                  isSelected={selectedQuiz?.id === quiz.id}
+                  onMouseEnter={() => setHoveredId(quiz.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  onClick={() => onSelectQuiz(quiz)}
+                  showCheckbox={showCheckboxes}
+                  isChecked={selectedIds.has(quiz.id)}
+                  onCheckboxChange={(checked) => {
+                    const newSet = new Set(selectedIds);
+                    if (checked) {
+                      newSet.add(quiz.id);
+                    } else {
+                      newSet.delete(quiz.id);
+                    }
+                    setSelectedIds(newSet);
                   }}
-                >
-                  <MoreVertical className="w-4 h-4 text-gray-600" />
-                </button>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+      {/* Bulk Edit Form Overlay */}
+      <AnimatePresence>
+        {showEditForm && (
+          <BulkEditForm
+            selectedCount={selectedIds.size}
+            onClose={handleEditFormClose}
+            onSubmit={handleBulkEditSubmit}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
