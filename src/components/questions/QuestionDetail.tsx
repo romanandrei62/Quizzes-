@@ -126,6 +126,281 @@ const slideVariants = {
     opacity: 0
   }
 };
+// Skeleton components
+function FormSkeleton() {
+  return (
+    <div className="px-6 pt-6 pb-8 space-y-6">
+      {/* Title field */}
+      <div>
+        <div className="h-3.5 w-28 bg-gray-200 rounded animate-pulse mb-2.5" />
+        <div
+          className="h-10 w-full bg-gray-100 rounded-md animate-pulse"
+          style={{
+            animationDelay: '50ms'
+          }} />
+
+      </div>
+      {/* Type + Category row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <div
+            className="h-3.5 w-12 bg-gray-200 rounded animate-pulse mb-2.5"
+            style={{
+              animationDelay: '100ms'
+            }} />
+
+          <div
+            className="h-10 w-full bg-gray-100 rounded-md animate-pulse"
+            style={{
+              animationDelay: '150ms'
+            }} />
+
+        </div>
+        <div>
+          <div
+            className="h-3.5 w-20 bg-gray-200 rounded animate-pulse mb-2.5"
+            style={{
+              animationDelay: '100ms'
+            }} />
+
+          <div
+            className="h-10 w-full bg-gray-100 rounded-md animate-pulse"
+            style={{
+              animationDelay: '150ms'
+            }} />
+
+        </div>
+      </div>
+      {/* Content textarea */}
+      <div>
+        <div
+          className="h-3.5 w-16 bg-gray-200 rounded animate-pulse mb-2.5"
+          style={{
+            animationDelay: '200ms'
+          }} />
+
+        <div
+          className="h-[120px] w-full bg-gray-100 rounded-md animate-pulse"
+          style={{
+            animationDelay: '250ms'
+          }} />
+
+      </div>
+      {/* Image area */}
+      <div>
+        <div
+          className="h-3.5 w-14 bg-gray-200 rounded animate-pulse mb-2.5"
+          style={{
+            animationDelay: '300ms'
+          }} />
+
+        <div
+          className="h-[120px] w-full bg-gray-50 rounded-md border-2 border-dashed border-gray-200 animate-pulse"
+          style={{
+            animationDelay: '350ms'
+          }} />
+
+      </div>
+      {/* Hint field */}
+      <div>
+        <div
+          className="h-3.5 w-10 bg-gray-200 rounded animate-pulse mb-2.5"
+          style={{
+            animationDelay: '400ms'
+          }} />
+
+        <div
+          className="h-10 w-full bg-gray-100 rounded-md animate-pulse"
+          style={{
+            animationDelay: '450ms'
+          }} />
+
+      </div>
+      {/* Configure Answers card */}
+      <div
+        className="rounded-lg border-2 border-gray-200 p-4 animate-pulse"
+        style={{
+          animationDelay: '500ms'
+        }}>
+
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-gray-200" />
+          <div className="flex-1">
+            <div className="h-3.5 w-32 bg-gray-200 rounded mb-1.5" />
+            <div className="h-3 w-48 bg-gray-100 rounded" />
+          </div>
+          <div className="w-5 h-5 bg-gray-100 rounded" />
+        </div>
+      </div>
+    </div>);
+
+}
+function AnswersSkeleton() {
+  return (
+    <div className="px-6 pt-6 pb-8 space-y-4">
+      {/* Type indicator */}
+      <div className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 rounded-lg border border-gray-100 animate-pulse">
+        <div className="w-4 h-4 bg-gray-200 rounded" />
+        <div className="h-3.5 w-24 bg-gray-200 rounded" />
+      </div>
+      {/* Label row */}
+      <div className="flex items-center justify-between">
+        <div
+          className="h-3 w-28 bg-gray-200 rounded animate-pulse"
+          style={{
+            animationDelay: '75ms'
+          }} />
+
+        <div
+          className="h-3 w-36 bg-gray-100 rounded animate-pulse"
+          style={{
+            animationDelay: '75ms'
+          }} />
+
+      </div>
+      {/* Option rows */}
+      {[0, 1, 2, 3].map((i) =>
+      <div
+        key={i}
+        className="flex items-center gap-2.5 animate-pulse"
+        style={{
+          animationDelay: `${150 + i * 75}ms`
+        }}>
+
+          <div className="w-4 h-4 bg-gray-100 rounded" />
+          <div className="w-5 h-5 bg-gray-200 rounded-full" />
+          <div className="flex-1 h-9 bg-gray-100 rounded-md" />
+          <div className="w-6 h-6 bg-gray-50 rounded" />
+        </div>
+      )}
+      {/* Add option button */}
+      <div
+        className="h-9 w-full bg-gray-50 rounded-md border-2 border-dashed border-gray-200 animate-pulse"
+        style={{
+          animationDelay: '500ms'
+        }} />
+
+    </div>);
+
+}
+function InfoSkeleton() {
+  return (
+    <div className="p-6 space-y-6">
+      {/* Status badge */}
+      <div className="h-5 w-16 bg-gray-200 rounded-full animate-pulse" />
+      {/* Question */}
+      <div>
+        <div
+          className="h-3 w-20 bg-gray-200 rounded animate-pulse mb-3"
+          style={{
+            animationDelay: '50ms'
+          }} />
+
+        <div
+          className="h-4 w-3/4 bg-gray-200 rounded animate-pulse mb-2"
+          style={{
+            animationDelay: '100ms'
+          }} />
+
+        <div
+          className="h-3.5 w-full bg-gray-100 rounded animate-pulse"
+          style={{
+            animationDelay: '150ms'
+          }} />
+
+      </div>
+      {/* Type */}
+      <div>
+        <div
+          className="h-3 w-12 bg-gray-200 rounded animate-pulse mb-3"
+          style={{
+            animationDelay: '200ms'
+          }} />
+
+        <div className="flex items-center gap-2">
+          <div
+            className="w-7 h-7 bg-gray-100 rounded-md animate-pulse"
+            style={{
+              animationDelay: '250ms'
+            }} />
+
+          <div
+            className="h-3.5 w-28 bg-gray-200 rounded animate-pulse"
+            style={{
+              animationDelay: '250ms'
+            }} />
+
+        </div>
+      </div>
+      {/* Category */}
+      <div>
+        <div
+          className="h-3 w-20 bg-gray-200 rounded animate-pulse mb-3"
+          style={{
+            animationDelay: '300ms'
+          }} />
+
+        <div className="flex items-center gap-2">
+          <div
+            className="w-3 h-3 bg-gray-200 rounded-full animate-pulse"
+            style={{
+              animationDelay: '350ms'
+            }} />
+
+          <div
+            className="h-3.5 w-20 bg-gray-200 rounded animate-pulse"
+            style={{
+              animationDelay: '350ms'
+            }} />
+
+        </div>
+      </div>
+      {/* Answer options */}
+      <div>
+        <div
+          className="h-3 w-28 bg-gray-200 rounded animate-pulse mb-3"
+          style={{
+            animationDelay: '400ms'
+          }} />
+
+        <div className="space-y-2">
+          {[0, 1, 2, 3].map((i) =>
+          <div
+            key={i}
+            className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100 animate-pulse"
+            style={{
+              animationDelay: `${450 + i * 75}ms`
+            }}>
+
+              <div className="w-6 h-6 rounded-full bg-gray-200" />
+              <div
+              className="h-3.5 bg-gray-200 rounded"
+              style={{
+                width: `${40 + i * 15}%`
+              }} />
+
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Created */}
+      <div>
+        <div
+          className="h-3 w-16 bg-gray-200 rounded animate-pulse mb-3"
+          style={{
+            animationDelay: '750ms'
+          }} />
+
+        <div
+          className="h-3.5 w-36 bg-gray-200 rounded animate-pulse"
+          style={{
+            animationDelay: '800ms'
+          }} />
+
+      </div>
+    </div>);
+
+}
 export function QuestionDetail({
   question,
   onClose,
@@ -148,7 +423,7 @@ export function QuestionDetail({
     question?.status || 'draft'
   );
   const [options, setOptions] = useState<string[]>(
-    question?.options || ['', '', '', '']
+    question?.options || ['', '']
   );
   const [correctOption, setCorrectOption] = useState<number>(0);
   const [hint, setHint] = useState('');
@@ -168,12 +443,39 @@ export function QuestionDetail({
   const testMatchRef = useRef<HTMLDivElement>(null);
   const testMatchContentRef = useRef<HTMLDivElement>(null);
   const [testMatchHeight, setTestMatchHeight] = useState<number>(0);
+  const [isInfoLoading, setIsInfoLoading] = useState(true);
+  const [isFormLoading, setIsFormLoading] = useState(true);
+  const [isAnswersLoading, setIsAnswersLoading] = useState(false);
+  // Simulate server loading for info view
+  useEffect(() => {
+    if (activeTab === 'info' && question) {
+      setIsInfoLoading(true);
+      const timer = setTimeout(() => setIsInfoLoading(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, question?.id]);
+  // Simulate server loading for form view
+  useEffect(() => {
+    if (activeTab === 'edit' && editView === 'form' && isFormLoading) {
+      const timer = setTimeout(() => setIsFormLoading(false), 700);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, editView, isFormLoading]);
+  // Simulate server loading for answers view
+  useEffect(() => {
+    if (editView === 'answers' && isAnswersLoading) {
+      const timer = setTimeout(() => setIsAnswersLoading(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [editView, isAnswersLoading]);
   const navigateToAnswers = () => {
     setSlideDirection('right');
+    setIsAnswersLoading(true);
     setEditView('answers');
   };
   const navigateToForm = () => {
     setSlideDirection('left');
+    setIsFormLoading(true);
     setEditView('form');
   };
   const scrollToRef = (ref: React.RefObject<HTMLDivElement>) => {
@@ -257,10 +559,6 @@ export function QuestionDetail({
   const handleSave = (saveStatus: 'draft' | 'active') => {
     if (saveStatus === 'active') {
       if (!validateForPublish()) {
-        // If answer errors, navigate to answers view
-        if (errors.options || errors.correctAnswer) {
-          navigateToAnswers();
-        }
         return;
       }
     } else {
@@ -345,6 +643,28 @@ export function QuestionDetail({
     return '';
   };
   const hasAnswerErrors = !!(errors.options || errors.correctAnswer);
+  const validateAnswers = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    if (type === 'multiple') {
+      const filledOptions = options.filter((o) => o.trim() !== '');
+      if (filledOptions.length < 2)
+      newErrors.options = 'At least 2 answer options are required';
+    }
+    if (type === 'open') {
+      if (!correctAnswer.trim())
+      newErrors.correctAnswer = 'Correct answer is required';
+    }
+    setErrors((prev) => ({
+      ...prev,
+      ...newErrors
+    }));
+    return Object.keys(newErrors).length === 0;
+  };
+  const handleSaveAnswers = () => {
+    if (validateAnswers()) {
+      navigateToForm();
+    }
+  };
   if (!question) {
     return (
       <div className="w-full h-full bg-white flex items-center justify-center p-8">
@@ -409,98 +729,106 @@ export function QuestionDetail({
                 <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              <div>
-                <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${question.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+            <div className="flex-1 overflow-y-auto">
+              {isInfoLoading ?
+            <InfoSkeleton /> :
 
-                  {question.status === 'active' ? 'Published' : 'Draft'}
-                </span>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
-                  Question
-                </label>
-                <p className="text-base text-gray-900 font-medium leading-relaxed">
-                  {question.title}
-                </p>
-                {question.text &&
-              <p className="text-sm text-gray-600 mt-2 leading-relaxed">
-                    {question.text}
-                  </p>
-              }
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
-                  Type
-                </label>
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-gray-100 rounded-md">
-                    {(() => {
-                    const TypeIcon = QUESTION_TYPES.find(
-                      (t) => t.id === question.type
-                    )?.icon;
-                    return TypeIcon ?
-                    <TypeIcon className="w-4 h-4 text-gray-500" /> :
+            <div className="p-6 space-y-6">
+                  <div>
+                    <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${question.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
 
-                    <HelpCircle className="w-4 h-4" />;
-
-                  })()}
+                      {question.status === 'active' ? 'Published' : 'Draft'}
+                    </span>
                   </div>
-                  <p className="text-sm text-gray-900">
-                    {TYPE_LABELS[question.type]}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
-                  Category
-                </label>
-                <div className="flex items-center gap-2">
-                  <div
-                  className="w-3 h-3 rounded-full"
-                  style={{
-                    backgroundColor:
-                    CATEGORIES.find((c) => c.id === question.category)?.
-                    color || '#6B7280'
-                  }} />
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+                      Question
+                    </label>
+                    <p className="text-base text-gray-900 font-medium leading-relaxed">
+                      {question.title}
+                    </p>
+                    {question.text &&
+                <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+                        {question.text}
+                      </p>
+                }
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+                      Type
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-gray-100 rounded-md">
+                        {(() => {
+                      const TypeIcon = QUESTION_TYPES.find(
+                        (t) => t.id === question.type
+                      )?.icon;
+                      return TypeIcon ?
+                      <TypeIcon className="w-4 h-4 text-gray-500" /> :
 
-                  <span className="text-sm text-gray-900 capitalize">
-                    {CATEGORIES.find((c) => c.id === question.category)?.
-                  label || question.category}
-                  </span>
-                </div>
-              </div>
-              {question.type === 'multiple' && question.options &&
-            <div>
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
-                    Answer Options
-                  </label>
-                  <div className="space-y-2">
-                    {question.options.map((option, index) =>
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                      <HelpCircle className="w-4 h-4" />;
 
-                        <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0 bg-white">
-                          <span className="text-xs font-medium text-gray-600">
-                            {String.fromCharCode(65 + index)}
-                          </span>
-                        </div>
-                        <span className="text-sm text-gray-700">{option}</span>
+                    })()}
                       </div>
-                )}
+                      <p className="text-sm text-gray-900">
+                        {TYPE_LABELS[question.type]}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+                      Category
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <div
+                    className="w-3 h-3 rounded-full"
+                    style={{
+                      backgroundColor:
+                      CATEGORIES.find((c) => c.id === question.category)?.
+                      color || '#6B7280'
+                    }} />
+
+                      <span className="text-sm text-gray-900 capitalize">
+                        {CATEGORIES.find((c) => c.id === question.category)?.
+                    label || question.category}
+                      </span>
+                    </div>
+                  </div>
+                  {question.type === 'multiple' && question.options &&
+              <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+                        Answer Options
+                      </label>
+                      <div className="space-y-2">
+                        {question.options.map((option, index) =>
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+
+                            <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0 bg-white">
+                              <span className="text-xs font-medium text-gray-600">
+                                {String.fromCharCode(65 + index)}
+                              </span>
+                            </div>
+                            <span className="text-sm text-gray-700">
+                              {option}
+                            </span>
+                          </div>
+                  )}
+                      </div>
+                    </div>
+              }
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+                      Created
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {formatDate(question.createdAt)}
+                    </p>
                   </div>
                 </div>
             }
-              <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
-                  Created
-                </label>
-                <p className="text-sm text-gray-900">
-                  {formatDate(question.createdAt)}
-                </p>
-              </div>
             </div>
             <div className="px-6 py-4 border-t border-gray-200 flex items-center gap-2 bg-gray-50">
               <Button
@@ -545,19 +873,28 @@ export function QuestionDetail({
                   {/* Form Header */}
                   <div className="h-[57px] px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
                     <h2 className="text-lg font-bold text-gray-900">
-                      {isNewQuestion ? 'New Question' : question.title}
+                      {isFormLoading ?
+                  <div className="h-5 w-40 bg-gray-200 rounded animate-pulse" /> :
+                  isNewQuestion ?
+                  'New Question' :
+
+                  question.title
+                  }
                     </h2>
                   </div>
 
                   {/* Form Content */}
                   <div className="flex-1 overflow-y-auto">
-                    <div className="px-6 pt-6 pb-8 space-y-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Reference Title
-                          <span className="text-red-400 ml-0.5">*</span>
-                        </label>
-                        <input
+                    {isFormLoading ?
+                <FormSkeleton /> :
+
+                <div className="px-6 pt-6 pb-8 space-y-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            Reference Title
+                            <span className="text-red-400 ml-0.5">*</span>
+                          </label>
+                          <input
                       type="text"
                       value={title}
                       onChange={(e) => {
@@ -567,33 +904,44 @@ export function QuestionDetail({
                       placeholder="Enter a descriptive title..."
                       className={`w-full rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors ${errors.title ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`} />
 
-                        {errors.title &&
+                          {errors.title &&
                     <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" />
-                            {errors.title}
-                          </p>
+                              <AlertCircle className="w-3 h-3" />
+                              {errors.title}
+                            </p>
                     }
-                      </div>
+                        </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            Type
-                          </label>
-                          <div className="relative">
-                            <select
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                              Type
+                            </label>
+                            <div className="relative">
+                              <select
                           value={type}
-                          onChange={(e) => setType(e.target.value)}
+                          onChange={(e) => {
+                            setType(e.target.value);
+                            // Clear answer-related errors when type changes
+                            setErrors((prev) => {
+                              const next = {
+                                ...prev
+                              };
+                              delete next.options;
+                              delete next.correctAnswer;
+                              return next;
+                            });
+                          }}
                           className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
 
-                              {QUESTION_TYPES.map((t) =>
+                                {QUESTION_TYPES.map((t) =>
                           <option key={t.id} value={t.id}>
-                                  {t.label}
-                                </option>
+                                    {t.label}
+                                  </option>
                           )}
-                            </select>
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                              {(() => {
+                              </select>
+                              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                {(() => {
                             const TypeIcon = QUESTION_TYPES.find(
                               (t) => t.id === type
                             )?.icon;
@@ -603,27 +951,27 @@ export function QuestionDetail({
                             <List className="w-4 h-4" />;
 
                           })()}
+                              </div>
+                              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                             </div>
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                           </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            Category
-                          </label>
-                          <div className="relative">
-                            <select
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                              Category
+                            </label>
+                            <div className="relative">
+                              <select
                           value={category}
                           onChange={(e) => setCategory(e.target.value)}
                           className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
 
-                              {CATEGORIES.map((c) =>
+                                {CATEGORIES.map((c) =>
                           <option key={c.id} value={c.id}>
-                                  {c.label}
-                                </option>
+                                    {c.label}
+                                  </option>
                           )}
-                            </select>
-                            <div
+                              </select>
+                              <div
                           className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full pointer-events-none"
                           style={{
                             backgroundColor:
@@ -631,16 +979,17 @@ export function QuestionDetail({
                             color || '#6B7280'
                           }} />
 
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Content<span className="text-red-400 ml-0.5">*</span>
-                        </label>
-                        <textarea
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            Content
+                            <span className="text-red-400 ml-0.5">*</span>
+                          </label>
+                          <textarea
                       className={`w-full min-h-[120px] rounded-md border bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors ${errors.text ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`}
                       placeholder="Enter your question content..."
                       value={text}
@@ -649,19 +998,19 @@ export function QuestionDetail({
                         clearError('text');
                       }} />
 
-                        {errors.text &&
+                          {errors.text &&
                     <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" />
-                            {errors.text}
-                          </p>
+                              <AlertCircle className="w-3 h-3" />
+                              {errors.text}
+                            </p>
                     }
-                      </div>
+                        </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Image
-                        </label>
-                        <div
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            Image
+                          </label>
+                          <div
                       className={`w-full min-h-[120px] rounded-md border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${isDragOver ? 'border-teal-400 bg-teal-50/30' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                       onDragOver={(e) => {
                         e.preventDefault();
@@ -673,59 +1022,60 @@ export function QuestionDetail({
                         setIsDragOver(false);
                       }}>
 
-                          <span className="text-sm text-gray-500">
-                            Drag & Drop File(s)
-                          </span>
+                            <span className="text-sm text-gray-500">
+                              Drag & Drop File(s)
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          Hint
-                        </label>
-                        <input
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            Hint
+                          </label>
+                          <input
                       type="text"
                       value={hint}
                       onChange={(e) => setHint(e.target.value)}
                       placeholder="Optional hint for the respondent..."
                       className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
 
-                      </div>
+                        </div>
 
-                      {/* Configure Answers Navigation Card */}
-                      <button
+                        {/* Configure Answers Navigation Card */}
+                        <button
                     onClick={navigateToAnswers}
                     className={`w-full text-left rounded-lg border-2 p-4 transition-all group ${hasAnswerErrors ? 'border-red-200 bg-red-50/50 hover:border-red-300' : 'border-gray-200 bg-gray-50/50 hover:border-teal-400 hover:bg-teal-50/30'}`}>
 
-                        <div className="flex items-center gap-3">
-                          <div
+                          <div className="flex items-center gap-3">
+                            <div
                         className={`p-2 rounded-lg ${hasAnswerErrors ? 'bg-red-100' : 'bg-teal-100'}`}>
 
-                            <SlidersHorizontal
+                              <SlidersHorizontal
                           className={`w-5 h-5 ${hasAnswerErrors ? 'text-red-600' : 'text-teal-600'}`} />
 
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-gray-900">
-                                Configure Answers
-                              </span>
-                              <span className="text-red-400 text-sm">*</span>
                             </div>
-                            <p
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-gray-900">
+                                  Configure Answers
+                                </span>
+                                <span className="text-red-400 text-sm">*</span>
+                              </div>
+                              <p
                           className={`text-xs mt-0.5 ${hasAnswerErrors ? 'text-red-500' : 'text-gray-500'}`}>
 
-                              {hasAnswerErrors ?
+                                {hasAnswerErrors ?
                           errors.options || errors.correctAnswer :
                           getAnswerSummary()}
-                            </p>
-                          </div>
-                          <ChevronRight
+                              </p>
+                            </div>
+                            <ChevronRight
                         className={`w-5 h-5 transition-transform group-hover:translate-x-0.5 ${hasAnswerErrors ? 'text-red-400' : 'text-gray-400'}`} />
 
-                        </div>
-                      </button>
-                    </div>
+                          </div>
+                        </button>
+                      </div>
+                }
                   </div>
 
                   {/* Form Footer */}
@@ -741,7 +1091,7 @@ export function QuestionDetail({
                     setType(question?.type || 'multiple');
                     setCategory(question?.category || 'feedback');
                     setStatus(question?.status || 'draft');
-                    setOptions(question?.options || ['', '', '', '']);
+                    setOptions(question?.options || ['', '']);
                   }}>
 
                       Cancel
@@ -801,10 +1151,13 @@ export function QuestionDetail({
 
                   {/* Answers Content */}
                   <div className="flex-1 overflow-y-auto">
-                    <div className="px-6 pt-6 pb-8 space-y-4">
-                      {/* Type indicator */}
-                      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
-                        {(() => {
+                    {isAnswersLoading ?
+                <AnswersSkeleton /> :
+
+                <div className="px-6 pt-6 pb-8 space-y-4">
+                        {/* Type indicator */}
+                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
+                          {(() => {
                       const TypeIcon = QUESTION_TYPES.find(
                         (t) => t.id === type
                       )?.icon;
@@ -814,32 +1167,32 @@ export function QuestionDetail({
                       <HelpCircle className="w-4 h-4" />;
 
                     })()}
-                        <span className="text-sm text-gray-600">
-                          {TYPE_LABELS[type]}
-                        </span>
-                      </div>
+                          <span className="text-sm text-gray-600">
+                            {TYPE_LABELS[type]}
+                          </span>
+                        </div>
 
-                      {type === 'multiple' &&
+                        {type === 'multiple' &&
                   <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
-                              Answer Options
-                              <span className="text-red-400 ml-0.5">*</span>
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              Mark the correct answer
-                            </span>
-                          </div>
-                          {errors.options &&
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                                Answer Options
+                                <span className="text-red-400 ml-0.5">*</span>
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                Mark the correct answer
+                              </span>
+                            </div>
+                            {errors.options &&
                     <p className="text-xs text-red-500 flex items-center gap-1">
-                              <AlertCircle className="w-3 h-3" />
-                              {errors.options}
-                            </p>
+                                <AlertCircle className="w-3 h-3" />
+                                {errors.options}
+                              </p>
                     }
-                          <div
+                            <div
                       className={`space-y-2.5 ${errors.options ? 'rounded-md ring-2 ring-red-100 p-2 -m-2' : ''}`}>
 
-                            {options.map((option, index) =>
+                              {options.map((option, index) =>
                       <div
                         key={index}
                         draggable
@@ -849,20 +1202,20 @@ export function QuestionDetail({
                         onDragEnd={handleDragEnd}
                         className={`flex items-center gap-2.5 group rounded-md p-1 -m-1 transition-all ${dragIndex === index ? 'opacity-30 scale-95' : ''} ${dragOverIndex === index && dragIndex !== index ? 'ring-2 ring-teal-400 bg-teal-50/30' : ''}`}>
 
-                                <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
-                                  <GripVertical className="w-4 h-4" />
-                                </div>
-                                <button
+                                  <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
+                                    <GripVertical className="w-4 h-4" />
+                                  </div>
+                                  <button
                           onClick={() => setCorrectOption(index)}
                           className={`flex-shrink-0 transition-colors ${correctOption === index ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}>
 
-                                  {correctOption === index ?
+                                    {correctOption === index ?
                           <CheckCircle2 className="w-5 h-5" /> :
 
                           <Circle className="w-5 h-5" />
                           }
-                                </button>
-                                <input
+                                  </button>
+                                  <input
                           type="text"
                           value={option}
                           onChange={(e) =>
@@ -871,56 +1224,58 @@ export function QuestionDetail({
                           placeholder={`Option ${index + 1}`}
                           className="flex-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 focus:bg-white transition-all" />
 
-                                <button
+                                  <button
                           onClick={() => removeOption(index)}
                           disabled={options.length <= 2}
                           className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30">
 
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
                       )}
-                          </div>
-                          <button
+                            </div>
+                            <button
                       onClick={addOption}
                       className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
 
-                            <Plus className="w-4 h-4" />
-                            Add Option
-                          </button>
-                        </div>
+                              <Plus className="w-4 h-4" />
+                              Add Option
+                            </button>
+                          </div>
                   }
 
-                      {type === 'true-false' &&
+                        {type === 'true-false' &&
                   <div className="space-y-3">
-                          <span className="text-xs text-gray-500 uppercase tracking-wide font-medium block">
-                            Select the correct answer
-                          </span>
-                          <div className="grid grid-cols-2 gap-3">
-                            {['True', 'False'].map((opt, idx) =>
+                            <span className="text-xs text-gray-500 uppercase tracking-wide font-medium block">
+                              Select the correct answer
+                            </span>
+                            <div className="grid grid-cols-2 gap-3">
+                              {['True', 'False'].map((opt, idx) =>
                       <button
                         key={opt}
                         onClick={() => setCorrectOption(idx)}
                         className={`relative p-4 rounded-lg border-2 text-center transition-all ${correctOption === idx ? 'border-teal-500 bg-teal-50/50 text-teal-700' : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200'}`}>
 
-                                <span className="text-sm font-bold">{opt}</span>
-                                {correctOption === idx &&
+                                  <span className="text-sm font-bold">
+                                    {opt}
+                                  </span>
+                                  {correctOption === idx &&
                         <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-teal-500" />
                         }
-                              </button>
+                                </button>
                       )}
+                            </div>
                           </div>
-                        </div>
                   }
 
-                      {type === 'open' &&
+                        {type === 'open' &&
                   <div className="space-y-5">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                              Correct Answer
-                              <span className="text-red-400 ml-0.5">*</span>
-                            </label>
-                            <textarea
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Correct Answer
+                                <span className="text-red-400 ml-0.5">*</span>
+                              </label>
+                              <textarea
                         className={`w-full min-h-[120px] rounded-md border bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors ${errors.correctAnswer ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`}
                         placeholder="Enter the correct answer..."
                         value={correctAnswer}
@@ -929,19 +1284,19 @@ export function QuestionDetail({
                           clearError('correctAnswer');
                         }} />
 
-                            {errors.correctAnswer &&
+                              {errors.correctAnswer &&
                       <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                {errors.correctAnswer}
-                              </p>
+                                  <AlertCircle className="w-3 h-3" />
+                                  {errors.correctAnswer}
+                                </p>
                       }
-                          </div>
+                            </div>
 
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                              Match Value (%)
-                            </label>
-                            <input
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Match Value (%)
+                              </label>
+                              <input
                         type="number"
                         min={1}
                         max={100}
@@ -954,20 +1309,21 @@ export function QuestionDetail({
                         }}
                         className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
 
-                            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                              What threshold in % do you want to use for the
-                              correct answer? A 90% value means that the
-                              submitted answer must be at least 90% similar to
-                              correct answer to be marked as correct. - Ex. the
-                              correct answer is 'Apple Inc.', but the Target
-                              answered with 'Apple Inc' without the period. At
-                              90% value this answer would be marked as correct.
-                            </p>
-                          </div>
+                              <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                                What threshold in % do you want to use for the
+                                correct answer? A 90% value means that the
+                                submitted answer must be at least 90% similar to
+                                correct answer to be marked as correct. - Ex.
+                                the correct answer is 'Apple Inc.', but the
+                                Target answered with 'Apple Inc' without the
+                                period. At 90% value this answer would be marked
+                                as correct.
+                              </p>
+                            </div>
 
-                          {/* Test Match Value Accordion */}
-                          <div>
-                            <button
+                            {/* Test Match Value Accordion */}
+                            <div>
+                              <button
                         type="button"
                         onClick={() => {
                           const next = !showTestMatch;
@@ -976,17 +1332,17 @@ export function QuestionDetail({
                         }}
                         className="w-full flex items-center gap-2 py-3 text-teal-600 hover:text-teal-700 transition-colors">
 
-                              <Sparkles className="w-4 h-4" />
-                              <span className="text-sm font-bold uppercase tracking-wide">
-                                Test Match Value
-                              </span>
-                              <ChevronRight
+                                <Sparkles className="w-4 h-4" />
+                                <span className="text-sm font-bold uppercase tracking-wide">
+                                  Test Match Value
+                                </span>
+                                <ChevronRight
                           className={`w-4 h-4 ml-auto transition-transform duration-300 ${showTestMatch ? 'rotate-90' : ''}`} />
 
-                            </button>
+                              </button>
 
-                            <div ref={testMatchRef}>
-                              <div
+                              <div ref={testMatchRef}>
+                                <div
                           style={{
                             height: showTestMatch ?
                             `${testMatchHeight}px` :
@@ -997,12 +1353,12 @@ export function QuestionDetail({
                             'height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease'
                           }}>
 
-                                <div ref={testMatchContentRef}>
-                                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                      Enter a test answer
-                                    </label>
-                                    <input
+                                  <div ref={testMatchContentRef}>
+                                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+                                      <label className="block text-sm font-medium text-gray-700">
+                                        Enter a test answer
+                                      </label>
+                                      <input
                                 type="text"
                                 value={testAnswer}
                                 onChange={(e) => {
@@ -1012,7 +1368,7 @@ export function QuestionDetail({
                                 placeholder="Type a test answer to compare..."
                                 className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
 
-                                    <button
+                                      <button
                                 type="button"
                                 onClick={handleTestMatch}
                                 disabled={
@@ -1021,55 +1377,56 @@ export function QuestionDetail({
                                 }
                                 className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
 
-                                      Run Test
-                                    </button>
-                                    {testResult &&
+                                        Run Test
+                                      </button>
+                                      {testResult &&
                               <div
                                 className={`p-3 rounded-md border ${testResult.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
 
-                                        <div className="flex items-center gap-2 mb-1">
-                                          {testResult.passed ?
+                                          <div className="flex items-center gap-2 mb-1">
+                                            {testResult.passed ?
                                   <CheckCircle2 className="w-4 h-4 text-green-600" /> :
 
                                   <AlertCircle className="w-4 h-4 text-red-500" />
                                   }
-                                          <span
+                                            <span
                                     className={`text-sm font-semibold ${testResult.passed ? 'text-green-700' : 'text-red-600'}`}>
 
-                                            {testResult.passed ?
+                                              {testResult.passed ?
                                     'PASS' :
                                     'FAIL'}
-                                          </span>
+                                            </span>
+                                          </div>
+                                          <p className="text-xs text-gray-600">
+                                            Similarity:{' '}
+                                            <span className="font-bold">
+                                              {testResult.similarity}%
+                                            </span>{' '}
+                                            — Threshold:{' '}
+                                            <span className="font-bold">
+                                              {matchValue}%
+                                            </span>
+                                          </p>
                                         </div>
-                                        <p className="text-xs text-gray-600">
-                                          Similarity:{' '}
-                                          <span className="font-bold">
-                                            {testResult.similarity}%
-                                          </span>{' '}
-                                          — Threshold:{' '}
-                                          <span className="font-bold">
-                                            {matchValue}%
-                                          </span>
-                                        </p>
-                                      </div>
                               }
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </div>
                   }
 
-                      {type === 'matching' &&
+                        {type === 'matching' &&
                   <div className="p-6 bg-gray-50 rounded-lg border border-dashed border-gray-200 text-center">
-                          <GitMerge className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-500">
-                            Matching pairs configuration coming soon.
-                          </p>
-                        </div>
+                            <GitMerge className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-500">
+                              Matching pairs configuration coming soon.
+                            </p>
+                          </div>
                   }
-                    </div>
+                      </div>
+                }
                   </div>
 
                   {/* Answers Footer */}
@@ -1083,10 +1440,10 @@ export function QuestionDetail({
                     </Button>
                     <Button
                   variant="primary"
-                  onClick={navigateToForm}
+                  onClick={handleSaveAnswers}
                   leftIcon={<Save className="w-4 h-4" />}>
 
-                      Save Answers
+                      Save
                     </Button>
                   </div>
                 </motion.div>
