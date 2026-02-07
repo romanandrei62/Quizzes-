@@ -64,6 +64,7 @@ export function QuestionsPage() {
     'info'
   );
   const [detailKey, setDetailKey] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   // Quiz-specific state
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -171,9 +172,28 @@ export function QuestionsPage() {
     setDetailKey((prev) => prev + 1);
     setSelectedQuestion(newQuestion);
   };
+  
   const handleSelectQuestion = (question: Question) => {
     setDetailDefaultTab('info');
     setDetailKey((prev) => prev + 1);
+    setSelectedQuestion(question);
+  };
+
+  const handleSaveQuestion = (question: Question) => {
+    setQuestions(prevQuestions => {
+      // Check if it's a new question or update
+      const existingIndex = prevQuestions.findIndex(q => q.id === question.id);
+      if (existingIndex >= 0) {
+        // Update existing question
+        const updated = [...prevQuestions];
+        updated[existingIndex] = question;
+        return updated;
+      } else {
+        // Add new question
+        return [question, ...prevQuestions];
+      }
+    });
+    // Update selectedQuestion to reflect saved state
     setSelectedQuestion(question);
   };
   return (
@@ -570,7 +590,9 @@ export function QuestionsPage() {
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 selectedQuestion={selectedQuestion}
-                onSelectQuestion={handleSelectQuestion} />
+                onSelectQuestion={handleSelectQuestion}
+                questions={questions}
+                setQuestions={setQuestions} />
 
               }
               {activeTab === 'quizzes' &&
@@ -612,6 +634,7 @@ export function QuestionsPage() {
                 question={selectedQuestion}
                 onClose={() => setSelectedQuestion(null)}
                 defaultTab={detailDefaultTab}
+                onSave={handleSaveQuestion}
               />
             ) : (
               <QuizDetail
@@ -641,7 +664,8 @@ export function QuestionsPage() {
           key={`overlay-${detailKey}`}
           question={selectedQuestion}
           onClose={() => setSelectedQuestion(null)}
-          defaultTab={detailDefaultTab} />
+          defaultTab={detailDefaultTab}
+          onSave={handleSaveQuestion} />
 
         </div>
       }

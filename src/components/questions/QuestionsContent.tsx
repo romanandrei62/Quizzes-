@@ -176,6 +176,8 @@ interface QuestionsContentProps {
   onTabChange: (tab: 'questions' | 'quizzes') => void;
   selectedQuestion: Question | null;
   onSelectQuestion: (question: Question) => void;
+  questions?: Question[];
+  setQuestions?: React.Dispatch<React.SetStateAction<Question[]>>;
 }
 export function QuestionsContent({
   selectedType,
@@ -183,9 +185,15 @@ export function QuestionsContent({
   activeTab,
   onTabChange,
   selectedQuestion,
-  onSelectQuestion
+  onSelectQuestion,
+  questions: propsQuestions,
+  setQuestions: propsSetQuestions
 }: QuestionsContentProps) {
-  const [questions, setQuestions] = useState<Question[]>(MOCK_QUESTIONS);
+  const [localQuestions, setLocalQuestions] = useState<Question[]>(MOCK_QUESTIONS);
+  
+  // Use props questions if provided, otherwise use local state
+  const questions = propsQuestions || localQuestions;
+  const setQuestions = propsSetQuestions || setLocalQuestions;
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('created_desc');

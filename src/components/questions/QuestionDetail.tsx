@@ -37,6 +37,7 @@ interface QuestionDetailProps {
   question: Question | null;
   onClose: () => void;
   defaultTab?: 'info' | 'edit';
+  onSave?: (question: Question) => void;
 }
 const QUESTION_TYPES = [
 {
@@ -101,7 +102,8 @@ function formatDate(date: Date): string {
 export function QuestionDetail({
   question,
   onClose,
-  defaultTab
+  defaultTab,
+  onSave
 }: QuestionDetailProps) {
   const isNewQuestion = question?.id?.startsWith('new-') ?? false;
   const [activeTab, setActiveTab] = useState<'info' | 'edit'>(
@@ -602,6 +604,44 @@ export function QuestionDetail({
                   </AnimatePresence>
                 </div>
               </div>
+            </div>
+
+            {/* Footer with Save/Cancel buttons */}
+            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-2 bg-gray-50">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setActiveTab('info');
+                  // Reset form to original values
+                  setTitle(question?.title || 'New Question');
+                  setText(question?.text || '');
+                  setType(question?.type || 'multiple');
+                  setCategory(question?.category || 'feedback');
+                  setStatus(question?.status || 'draft');
+                  setOptions(question?.options || ['', '', '', '']);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  const updatedQuestion: Question = {
+                    id: question?.id || `q-${Date.now()}`,
+                    title,
+                    text,
+                    type,
+                    category,
+                    status,
+                    createdAt: question?.createdAt || new Date(),
+                    options: type === 'multiple' ? options : undefined
+                  };
+                  onSave?.(updatedQuestion);
+                  setActiveTab('info');
+                }}
+              >
+                {isNewQuestion ? 'Create Question' : 'Save Changes'}
+              </Button>
             </div>
           </div>
         }
