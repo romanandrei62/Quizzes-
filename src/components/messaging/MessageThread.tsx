@@ -1,51 +1,35 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Reply,
-  ReplyAll,
-  Trash2,
-  ArrowLeft,
-  MoreHorizontal,
-  Printer,
-  Star,
-  Share2 } from
-'lucide-react';
+import { Reply, ReplyAll, Trash2, ArrowLeft, MoreHorizontal, Printer, Star, Share2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Avatar } from '../ui/Avatar';
 interface MessageThreadProps {
   onBack: () => void;
 }
-export function MessageThread({ onBack }: MessageThreadProps) {
+export function MessageThread({
+  onBack
+}: MessageThreadProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, []);
-  return (
-    <motion.div
-      initial={{
-        opacity: 0,
-        x: 20
-      }}
-      animate={{
-        opacity: 1,
-        x: 0
-      }}
-      exit={{
-        opacity: 0,
-        x: 20
-      }}
-      className="flex flex-col h-full bg-white">
+  return <motion.div initial={{
+    opacity: 0,
+    x: 20
+  }} animate={{
+    opacity: 1,
+    x: 0
+  }} exit={{
+    opacity: 0,
+    x: 20
+  }} className="flex flex-col h-full bg-white">
 
       {/* Thread Header */}
       <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            className="hover:bg-gray-100 rounded-full">
+          <Button variant="ghost" size="icon" onClick={onBack} className="hover:bg-gray-100 rounded-full">
 
             <ArrowLeft className="h-5 w-5 text-gray-600" />
           </Button>
@@ -77,21 +61,16 @@ export function MessageThread({ onBack }: MessageThreadProps) {
       </div>
 
       {/* Messages Area */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-8 space-y-8 bg-gray-50/50">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 bg-gray-50/50">
 
         {/* Previous Message */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 20
-          }}
-          animate={{
-            opacity: 1,
-            y: 0
-          }}
-          className="flex gap-4 max-w-4xl mx-auto opacity-75">
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} className="flex gap-4 max-w-4xl mx-auto opacity-75">
 
           <Avatar fallback="RA" className="mt-1" />
           <div className="flex-1">
@@ -125,19 +104,15 @@ export function MessageThread({ onBack }: MessageThreadProps) {
         </div>
 
         {/* Latest Message */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 20
-          }}
-          animate={{
-            opacity: 1,
-            y: 0
-          }}
-          transition={{
-            delay: 0.1
-          }}
-          className="flex gap-4 max-w-4xl mx-auto">
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        delay: 0.1
+      }} className="flex gap-4 max-w-4xl mx-auto">
 
           <Avatar fallback="MK" status="online" className="mt-1" />
           <div className="flex-1">
@@ -199,9 +174,7 @@ export function MessageThread({ onBack }: MessageThreadProps) {
           <Button variant="primary" leftIcon={<Reply className="h-4 w-4" />}>
             Reply
           </Button>
-          <Button
-            variant="secondary"
-            leftIcon={<ReplyAll className="h-4 w-4" />}>
+          <Button variant="secondary" leftIcon={<ReplyAll className="h-4 w-4" />}>
 
             Reply All
           </Button>
@@ -211,6 +184,5 @@ export function MessageThread({ onBack }: MessageThreadProps) {
           </Button>
         </div>
       </div>
-    </motion.div>);
-
+    </motion.div>;
 }

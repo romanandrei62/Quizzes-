@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   X,
   Plus,
@@ -17,8 +17,7 @@ import {
   Edit,
   Copy,
   PenSquare,
-  SlidersHorizontal,
-  ChevronsRight } from
+  SlidersHorizontal } from
 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
@@ -121,8 +120,11 @@ export function QuestionDetail({
   );
   const [correctOption, setCorrectOption] = useState<number>(0);
   const [hint, setHint] = useState('');
-  const [showConfigureAnswers, setShowConfigureAnswers] = useState(false);
+  const [showConfigureAnswers, setShowConfigureAnswers] = useState(true);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const dragIndexRef = useRef<number | null>(null);
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
     newOptions[index] = value;
@@ -136,6 +138,43 @@ export function QuestionDetail({
       if (correctOption === index) setCorrectOption(0);
       if (correctOption > index) setCorrectOption(correctOption - 1);
     }
+  };
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    dragIndexRef.current = index;
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+  };
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const sourceIndex = dragIndexRef.current;
+    if (sourceIndex !== null && sourceIndex !== targetIndex) {
+      const newOptions = [...options];
+      const [movedItem] = newOptions.splice(sourceIndex, 1);
+      newOptions.splice(targetIndex, 0, movedItem);
+      setOptions(newOptions);
+      // Update correctOption to follow the moved item
+      if (correctOption === sourceIndex) {
+        setCorrectOption(targetIndex);
+      } else if (sourceIndex < correctOption && targetIndex >= correctOption) {
+        setCorrectOption(correctOption - 1);
+      } else if (sourceIndex > correctOption && targetIndex <= correctOption) {
+        setCorrectOption(correctOption + 1);
+      }
+    }
+    dragIndexRef.current = null;
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
+  const handleDragEnd = () => {
+    dragIndexRef.current = null;
+    setDragIndex(null);
+    setDragOverIndex(null);
   };
   if (!question) {
     return (
@@ -164,8 +203,7 @@ export function QuestionDetail({
       <div className="w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex flex-col items-center pt-4 gap-3">
         <button
           onClick={() => setActiveTab('info')}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
-          title="Question Info">
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
 
           <Info className="w-[18px] h-[18px]" />
           {activeTab === 'info' &&
@@ -174,8 +212,7 @@ export function QuestionDetail({
         </button>
         <button
           onClick={() => setActiveTab('edit')}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
-          title="Edit Question">
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
 
           <PenSquare className="w-[18px] h-[18px]" />
           {activeTab === 'edit' &&
@@ -189,13 +226,7 @@ export function QuestionDetail({
         {/* INFO TAB */}
         {activeTab === 'info' &&
         <div className="flex flex-col h-full">
-            <div className="h-[57px] px-6 border-b border-gray-200 flex items-center justify-between flex-shrink-0 bg-white">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <ChevronsRight className="w-4 h-4" />
-                <span>Question</span>
-                <ChevronRight className="w-3 h-3" />
-                <span className="text-gray-900">Details</span>
-              </div>
+            <div className="h-[57px] px-6 border-b border-gray-200 flex items-center justify-end flex-shrink-0 bg-white">
               <button
               onClick={onClose}
               className="p-1 hover:bg-gray-100 rounded transition-colors">
@@ -263,6 +294,7 @@ export function QuestionDetail({
                     color || '#6B7280'
                   }} />
 
+
                   <span className="text-sm text-gray-900 capitalize">
                     {CATEGORIES.find((c) => c.id === question.category)?.
                   label || question.category}
@@ -325,23 +357,8 @@ export function QuestionDetail({
         {/* EDIT TAB */}
         {activeTab === 'edit' &&
         <div className="flex flex-col h-full">
-            <div className="px-6 pt-4 pb-1 flex items-center gap-2 text-sm text-gray-500 flex-shrink-0">
-              <ChevronsRight className="w-4 h-4" />
-              <span>Question</span>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-gray-900">
-                {isNewQuestion ? 'Create' : 'Edit'}
-              </span>
-            </div>
-
-            <div className="px-6 pt-2 pb-4 flex-shrink-0">
-              <h2 className="text-lg font-bold text-gray-900">
-                {isNewQuestion ? 'New Question' : question.title}
-              </h2>
-            </div>
-
             <div className="flex-1 overflow-y-auto">
-              <div className="px-6 pb-8 space-y-6">
+              <div className="px-6 pt-6 pb-8 space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Reference Title
@@ -350,8 +367,8 @@ export function QuestionDetail({
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="New Question"
-                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+                  placeholder="Enter a descriptive title..."
+                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
 
                 </div>
 
@@ -364,7 +381,7 @@ export function QuestionDetail({
                       <select
                       value={type}
                       onChange={(e) => setType(e.target.value)}
-                      className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
+                      className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
 
                         {QUESTION_TYPES.map((t) =>
                       <option key={t.id} value={t.id}>
@@ -396,7 +413,7 @@ export function QuestionDetail({
                       <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
+                      className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
 
                         {CATEGORIES.map((c) =>
                       <option key={c.id} value={c.id}>
@@ -412,6 +429,7 @@ export function QuestionDetail({
                         '#6B7280'
                       }} />
 
+
                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
@@ -419,10 +437,10 @@ export function QuestionDetail({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Question Content
+                    Content
                   </label>
                   <textarea
-                  className="w-full min-h-[120px] rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors"
+                  className="w-full min-h-[120px] rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors"
                   placeholder="Enter your question content..."
                   value={text}
                   onChange={(e) => setText(e.target.value)} />
@@ -431,10 +449,10 @@ export function QuestionDetail({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Question Image
+                    Image
                   </label>
                   <div
-                  className={`w-full min-h-[140px] rounded-md border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${isDragOver ? 'border-teal-400 bg-teal-50/30' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                  className={`w-full min-h-[120px] rounded-md border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${isDragOver ? 'border-teal-400 bg-teal-50/30' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                   onDragOver={(e) => {
                     e.preventDefault();
                     setIsDragOver(true);
@@ -453,13 +471,14 @@ export function QuestionDetail({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Question Hint
+                    Hint
                   </label>
                   <input
                   type="text"
                   value={hint}
                   onChange={(e) => setHint(e.target.value)}
-                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+                  placeholder="Optional hint for the respondent..."
+                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
 
                 </div>
 
@@ -514,11 +533,18 @@ export function QuestionDetail({
                                 {options.map((option, index) =>
                           <div
                             key={index}
-                            className="flex items-center gap-2.5 group">
+                            draggable
+                            onDragStart={(e) =>
+                            handleDragStart(e, index)
+                            }
+                            onDragOver={(e) => handleDragOver(e, index)}
+                            onDrop={(e) => handleDrop(e, index)}
+                            onDragEnd={handleDragEnd}
+                            className={`flex items-center gap-2.5 group rounded-md p-1 -m-1 transition-all ${dragIndex === index ? 'opacity-30 scale-95' : ''} ${dragOverIndex === index && dragIndex !== index ? 'ring-2 ring-teal-400 bg-teal-50/30' : ''}`}>
 
-                                    <button className="cursor-grab text-gray-300 hover:text-gray-500 transition-colors">
+                                    <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
                                       <GripVertical className="w-4 h-4" />
-                                    </button>
+                                    </div>
                                     <button
                               onClick={() => setCorrectOption(index)}
                               className={`flex-shrink-0 transition-colors ${correctOption === index ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}>
@@ -539,7 +565,8 @@ export function QuestionDetail({
                               )
                               }
                               placeholder={`Option ${index + 1}`}
-                              className="flex-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 focus:bg-white transition-all" />
+                              className="flex-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 focus:bg-white transition-all" />
+
 
                                     <button
                               onClick={() => removeOption(index)}
@@ -607,39 +634,39 @@ export function QuestionDetail({
             </div>
 
             {/* Footer with Save/Cancel buttons */}
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-2 bg-gray-50">
+            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between gap-2 bg-gray-50">
               <Button
-                variant="secondary"
-                onClick={() => {
-                  setActiveTab('info');
-                  // Reset form to original values
-                  setTitle(question?.title || 'New Question');
-                  setText(question?.text || '');
-                  setType(question?.type || 'multiple');
-                  setCategory(question?.category || 'feedback');
-                  setStatus(question?.status || 'draft');
-                  setOptions(question?.options || ['', '', '', '']);
-                }}
-              >
+              variant="secondary"
+              onClick={() => {
+                setActiveTab('info');
+                // Reset form to original values
+                setTitle(question?.title || 'New Question');
+                setText(question?.text || '');
+                setType(question?.type || 'multiple');
+                setCategory(question?.category || 'feedback');
+                setStatus(question?.status || 'draft');
+                setOptions(question?.options || ['', '', '', '']);
+              }}>
+
                 Cancel
               </Button>
               <Button
-                variant="primary"
-                onClick={() => {
-                  const updatedQuestion: Question = {
-                    id: question?.id || `q-${Date.now()}`,
-                    title,
-                    text,
-                    type,
-                    category,
-                    status,
-                    createdAt: question?.createdAt || new Date(),
-                    options: type === 'multiple' ? options : undefined
-                  };
-                  onSave?.(updatedQuestion);
-                  setActiveTab('info');
-                }}
-              >
+              variant="primary"
+              onClick={() => {
+                const updatedQuestion: Question = {
+                  id: question?.id || `q-${Date.now()}`,
+                  title,
+                  text,
+                  type,
+                  category,
+                  status,
+                  createdAt: question?.createdAt || new Date(),
+                  options: type === 'multiple' ? options : undefined
+                };
+                onSave?.(updatedQuestion);
+                setActiveTab('info');
+              }}>
+
                 {isNewQuestion ? 'Create Question' : 'Save Changes'}
               </Button>
             </div>

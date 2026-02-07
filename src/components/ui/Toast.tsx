@@ -12,16 +12,15 @@ interface ToastProps {
   toasts: ToastMessage[];
   onDismiss: (id: string) => void;
 }
-export function ToastContainer({ toasts, onDismiss }: ToastProps) {
-  return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+export function ToastContainer({
+  toasts,
+  onDismiss
+}: ToastProps) {
+  return <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
       <AnimatePresence mode="popLayout">
-        {toasts.map((toast) =>
-        <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
-        )}
+        {toasts.map((toast) => <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />)}
       </AnimatePresence>
-    </div>);
-
+    </div>;
 }
 function ToastItem({
   toast,
@@ -48,30 +47,23 @@ function ToastItem({
     info: 'border-l-blue-500',
     warning: 'border-l-amber-500'
   };
-  return (
-    <motion.div
-      layout
-      initial={{
-        opacity: 0,
-        x: 50,
-        scale: 0.9
-      }}
-      animate={{
-        opacity: 1,
-        x: 0,
-        scale: 1
-      }}
-      exit={{
-        opacity: 0,
-        x: 20,
-        scale: 0.9
-      }}
-      transition={{
-        type: 'spring',
-        stiffness: 400,
-        damping: 30
-      }}
-      className={`
+  return <motion.div layout initial={{
+    opacity: 0,
+    x: 50,
+    scale: 0.9
+  }} animate={{
+    opacity: 1,
+    x: 0,
+    scale: 1
+  }} exit={{
+    opacity: 0,
+    x: 20,
+    scale: 0.9
+  }} transition={{
+    type: 'spring',
+    stiffness: 400,
+    damping: 30
+  }} className={`
         pointer-events-auto w-80 bg-white rounded-lg shadow-lg border border-gray-100 
         border-l-4 p-4 flex items-start gap-3 backdrop-blur-sm bg-white/95
         ${borders[toast.type]}
@@ -80,16 +72,11 @@ function ToastItem({
       <div className="flex-shrink-0 mt-0.5">{icons[toast.type]}</div>
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-semibold text-gray-900">{toast.title}</h4>
-        {toast.message &&
-        <p className="text-sm text-gray-500 mt-1">{toast.message}</p>
-        }
+        {toast.message && <p className="text-sm text-gray-500 mt-1">{toast.message}</p>}
       </div>
-      <button
-        onClick={() => onDismiss(toast.id)}
-        className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors">
+      <button onClick={() => onDismiss(toast.id)} className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors">
 
         <X className="h-4 w-4" />
       </button>
-    </motion.div>);
-
+    </motion.div>;
 }

@@ -1,23 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import {
-  Mail,
-  Send,
-  Trash2,
-  Archive,
-  Star,
-  Settings,
-  User,
-  Menu,
-  X,
-  Plus,
-  ChevronRight,
-  ChevronLeft,
-  Search,
-  Bell,
-  MessageSquare,
-  GripVertical } from
-'lucide-react';
+import { Mail, Send, Trash2, Archive, Star, Settings, User, Menu, X, Plus, ChevronRight, ChevronLeft, Search, Bell, MessageSquare, GripVertical } from 'lucide-react';
 import { QuestionsSidebar } from '../components/questions/QuestionsSidebar';
 import { QuestionsContent, MOCK_QUESTIONS } from '../components/questions/QuestionsContent';
 import { QuestionDetail } from '../components/questions/QuestionDetail';
@@ -34,7 +17,6 @@ interface Question {
   description?: string;
   options?: string[];
 }
-
 interface Quiz {
   id: string;
   title: string;
@@ -49,20 +31,13 @@ interface Quiz {
   status: 'draft' | 'ready' | 'archived';
   description?: string;
 }
-
 export function QuestionsPage() {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'questions' | 'quizzes'>(
-    'questions'
-  );
+  const [activeTab, setActiveTab] = useState<'questions' | 'quizzes'>('questions');
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null
-  );
-  const [detailDefaultTab, setDetailDefaultTab] = useState<'info' | 'edit'>(
-    'info'
-  );
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [detailDefaultTab, setDetailDefaultTab] = useState<'info' | 'edit'>('info');
   const [detailKey, setDetailKey] = useState(0);
   const [questions, setQuestions] = useState<Question[]>(MOCK_QUESTIONS);
 
@@ -82,15 +57,11 @@ export function QuestionsPage() {
   useEffect(() => {
     const calculateWidths = () => {
       if (containerRef.current) {
-        const containerWidth =
-        containerRef.current.getBoundingClientRect().width;
+        const containerWidth = containerRef.current.getBoundingClientRect().width;
         const availableWidth = containerWidth - 64;
         const targetLeft = Math.max(240, Math.floor(availableWidth * 0.25));
         const targetMiddle = Math.max(320, Math.floor(availableWidth * 0.25));
-        const targetRight = Math.max(
-          360,
-          availableWidth - targetLeft - targetMiddle
-        );
+        const targetRight = Math.max(360, availableWidth - targetLeft - targetMiddle);
         const left = targetLeft;
         const middle = targetMiddle;
         const right = Math.max(360, availableWidth - left - middle);
@@ -130,10 +101,7 @@ export function QuestionsPage() {
         }
       }
       if (isDraggingRight) {
-        const newRightWidth = Math.max(
-          360,
-          Math.min(totalWidth * 0.7, totalWidth - mouseX - 8)
-        );
+        const newRightWidth = Math.max(360, Math.min(totalWidth * 0.7, totalWidth - mouseX - 8));
         const newMiddleWidth = totalWidth - leftWidth - newRightWidth;
         if (newMiddleWidth >= 320) {
           setMiddleWidth(newMiddleWidth);
@@ -172,17 +140,15 @@ export function QuestionsPage() {
     setDetailKey((prev) => prev + 1);
     setSelectedQuestion(newQuestion);
   };
-  
   const handleSelectQuestion = (question: Question) => {
     setDetailDefaultTab('info');
     setDetailKey((prev) => prev + 1);
     setSelectedQuestion(question);
   };
-
   const handleSaveQuestion = (question: Question) => {
-    setQuestions(prevQuestions => {
+    setQuestions((prevQuestions) => {
       // Check if it's a new question or update
-      const existingIndex = prevQuestions.findIndex(q => q.id === question.id);
+      const existingIndex = prevQuestions.findIndex((q) => q.id === question.id);
       if (existingIndex >= 0) {
         // Update existing question
         const updated = [...prevQuestions];
@@ -196,16 +162,12 @@ export function QuestionsPage() {
     // Update selectedQuestion to reflect saved state
     setSelectedQuestion(question);
   };
-  return (
-    <div className="h-screen flex bg-gray-50 overflow-hidden">
+  return <div className="h-screen flex bg-gray-50 overflow-hidden">
       {/* Main Navigation Sidebar (Left) - 229px width */}
       <div className="w-[229px] bg-[#1a1a1a] flex flex-col shadow-xl hidden lg:flex">
         {/* SuiteDash Logo - 230×90 */}
         <div className="h-[90px] flex items-center justify-center border-b border-gray-800 px-4">
-          <img
-            src="/2025-logo-mrclean_7caceb4b2be73a7d7c60895567e55bd2.png"
-            alt="SuiteDash"
-            className="h-10 w-auto object-contain" />
+          <img src="/2025-logo-mrclean_7caceb4b2be73a7d7c60895567e55bd2.png" alt="SuiteDash" className="h-10 w-auto object-contain" />
 
         </div>
 
@@ -213,10 +175,7 @@ export function QuestionsPage() {
         <div className="px-4 py-4 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-gray-700 flex-shrink-0">
-              <img
-                src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
-                alt="George"
-                className="h-full w-full object-cover" />
+              <img src="/george_747d2e2b146642ac46c1bd46552ca9a3.png" alt="George" className="h-full w-full object-cover" />
 
             </div>
             <div className="flex-1 min-w-0">
@@ -365,55 +324,35 @@ export function QuestionsPage() {
 
       {/* Mobile Header with Menu Button */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-[#1a1a1a] flex items-center justify-between px-4 z-50 shadow-lg">
-        <button
-          onClick={() => setIsMainMenuOpen(!isMainMenuOpen)}
-          className="p-2 text-white hover:bg-gray-800 rounded-lg transition-colors">
+        <button onClick={() => setIsMainMenuOpen(!isMainMenuOpen)} className="p-2 text-white hover:bg-gray-800 rounded-lg transition-colors">
 
-          {isMainMenuOpen ?
-          <X className="w-6 h-6" /> :
-
-          <Menu className="w-6 h-6" />
-          }
+          {isMainMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        <img
-          src="/2025-logo-mrclean_7caceb4b2be73a7d7c60895567e55bd2.png"
-          alt="SuiteDash"
-          className="h-6 w-auto object-contain" />
+        <img src="/2025-logo-mrclean_7caceb4b2be73a7d7c60895567e55bd2.png" alt="SuiteDash" className="h-6 w-auto object-contain" />
 
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleCreateQuestion}
-            className="p-1.5 bg-white/10 text-white hover:bg-white/20 rounded-lg transition-colors">
+          <button onClick={handleCreateQuestion} className="p-1.5 bg-white/10 text-white hover:bg-white/20 rounded-lg transition-colors">
 
             <Plus className="w-5 h-5" />
           </button>
           <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-gray-700 cursor-pointer hover:border-gray-500 transition-colors">
-            <img
-              src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
-              alt="George"
-              className="h-full w-full object-cover" />
+            <img src="/george_747d2e2b146642ac46c1bd46552ca9a3.png" alt="George" className="h-full w-full object-cover" />
 
           </div>
         </div>
       </div>
 
       {/* Mobile Main Menu Overlay */}
-      {isMainMenuOpen &&
-      <>
-          <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40 mt-14"
-          onClick={() => setIsMainMenuOpen(false)} />
+      {isMainMenuOpen && <>
+          <div className="lg:hidden fixed inset-0 bg-black/50 z-40 mt-14" onClick={() => setIsMainMenuOpen(false)} />
 
           <div className="lg:hidden fixed left-0 top-14 bottom-0 w-64 bg-[#1a1a1a] z-50 shadow-xl overflow-y-auto">
             <div className="px-4 py-4 border-b border-gray-800">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-gray-700">
-                  <img
-                  src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
-                  alt="George"
-                  className="h-full w-full object-cover" />
+                  <img src="/george_747d2e2b146642ac46c1bd46552ca9a3.png" alt="George" className="h-full w-full object-cover" />
 
                 </div>
                 <div>
@@ -438,8 +377,7 @@ export function QuestionsPage() {
               </div>
             </nav>
           </div>
-        </>
-      }
+        </>}
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden pt-14 lg:pt-0 bg-gray-50">
@@ -450,9 +388,7 @@ export function QuestionsPage() {
               <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <button
-                onClick={handleCreateQuestion}
-                className="p-2 bg-black text-white hover:bg-gray-800 rounded-lg transition-colors">
+              <button onClick={handleCreateQuestion} className="p-2 bg-black text-white hover:bg-gray-800 rounded-lg transition-colors">
 
                 <Plus className="w-5 h-5" />
               </button>
@@ -470,19 +406,14 @@ export function QuestionsPage() {
                 <MessageSquare className="w-5 h-5" />
               </button>
               <div className="h-[60px] w-[60px] rounded-full overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-gray-300 transition-colors">
-                <img
-                  src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
-                  alt="George"
-                  className="h-full w-full object-cover" />
+                <img src="/george_747d2e2b146642ac46c1bd46552ca9a3.png" alt="George" className="h-full w-full object-cover" />
 
               </div>
             </div>
           </div>
           {/* Always-visible create button row for non-lg screens */}
           <div className="lg:hidden flex items-center justify-between px-4 h-full">
-            <button
-              onClick={handleCreateQuestion}
-              className="p-2 bg-black text-white hover:bg-gray-800 rounded-lg transition-colors">
+            <button onClick={handleCreateQuestion} className="p-2 bg-black text-white hover:bg-gray-800 rounded-lg transition-colors">
 
               <Plus className="w-5 h-5" />
             </button>
@@ -499,74 +430,42 @@ export function QuestionsPage() {
 
         {/* Tabs Row - with horizontal padding and rounded edges */}
         <div className="px-4 pb-4">
-          <div
-            className="bg-white border border-gray-200 rounded-lg"
-            style={{
-              boxSizing: 'border-box',
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'rgb(238, 238, 238) transparent'
-            }}>
+          <div className="bg-white border border-gray-200 rounded-lg" style={{
+          boxSizing: 'border-box',
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgb(238, 238, 238) transparent'
+        }}>
 
             <div className="flex items-center justify-center gap-12 px-6 py-4">
-              <button
-                onClick={() => setActiveTab('questions')}
-                className={`text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'questions' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+              <button onClick={() => setActiveTab('questions')} className={`text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'questions' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
 
                 QUESTIONS
-                {activeTab === 'questions' &&
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
-                }
+                {activeTab === 'questions' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />}
               </button>
-              <button
-                onClick={() => setActiveTab('quizzes')}
-                className={`text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'quizzes' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+              <button onClick={() => setActiveTab('quizzes')} className={`text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'quizzes' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
 
                 QUIZZES
-                {activeTab === 'quizzes' &&
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
-                }
+                {activeTab === 'quizzes' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />}
               </button>
             </div>
           </div>
         </div>
 
         {/* Three-Column Layout with Resize Handles */}
-        <div
-          ref={containerRef}
-          className="flex-1 flex gap-4 px-4 pb-4 overflow-hidden">
+        <div ref={containerRef} className="flex-1 flex gap-4 px-4 pb-4 overflow-hidden">
 
           {/* Left Column: Sidebar - 25% width */}
-          <div
-            className="flex-shrink-0 shadow-lg rounded-lg overflow-hidden h-full hidden lg:flex"
-            style={{
-              width: `${leftWidth}px`
-            }}>
+          <div className="flex-shrink-0 shadow-lg rounded-lg overflow-hidden h-full hidden lg:flex" style={{
+          width: `${leftWidth}px`
+        }}>
 
-            {activeTab === 'questions' ? (
-              <QuestionsSidebar
-                selectedType={selectedType}
-                onSelectType={setSelectedType}
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
-                onCreateQuestion={handleCreateQuestion}
-              />
-            ) : (
-              <QuizzesSidebar
-                selectedStatus={selectedStatus}
-                onSelectStatus={setSelectedStatus}
-                selectedCategory={selectedQuizCategory}
-                onSelectCategory={setSelectedQuizCategory}
-              />
-            )}
+            {activeTab === 'questions' ? <QuestionsSidebar selectedType={selectedType} onSelectType={setSelectedType} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} onCreateQuestion={handleCreateQuestion} /> : <QuizzesSidebar selectedStatus={selectedStatus} onSelectStatus={setSelectedStatus} selectedCategory={selectedQuizCategory} onSelectCategory={setSelectedQuizCategory} />}
           </div>
 
           {/* Resize Handle - Left */}
-          <div
-            className="hidden lg:flex items-stretch justify-center flex-shrink-0 cursor-col-resize group relative -mx-2"
-            style={{
-              width: '4px'
-            }}
-            onMouseDown={handleLeftMouseDown}>
+          <div className="hidden lg:flex items-stretch justify-center flex-shrink-0 cursor-col-resize group relative -mx-2" style={{
+          width: '4px'
+        }} onMouseDown={handleLeftMouseDown}>
 
             <div className="w-px bg-gray-300 group-hover:bg-gray-400 transition-colors" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded p-1 shadow-sm">
@@ -575,45 +474,20 @@ export function QuestionsPage() {
           </div>
 
           {/* Middle Column: Questions List - 25% width */}
-          <div
-            className="flex-shrink-0 bg-white shadow-lg rounded-lg overflow-hidden h-full"
-            style={{
-              width: `${middleWidth}px`
-            }}>
+          <div className="flex-shrink-0 bg-white shadow-lg rounded-lg overflow-hidden h-full" style={{
+          width: `${middleWidth}px`
+        }}>
 
             <AnimatePresence mode="wait">
-              {activeTab === 'questions' &&
-              <QuestionsContent
-                key="questions"
-                selectedType={selectedType}
-                selectedCategory={selectedCategory}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                selectedQuestion={selectedQuestion}
-                onSelectQuestion={handleSelectQuestion}
-                questions={questions}
-                setQuestions={setQuestions} />
-
-              }
-              {activeTab === 'quizzes' &&
-              <QuizzesContent
-                key="quizzes"
-                selectedStatus={selectedStatus}
-                selectedCategory={selectedQuizCategory}
-                selectedQuiz={selectedQuiz}
-                onSelectQuiz={setSelectedQuiz}
-              />
-              }
+              {activeTab === 'questions' && <QuestionsContent key="questions" selectedType={selectedType} selectedCategory={selectedCategory} activeTab={activeTab} onTabChange={setActiveTab} selectedQuestion={selectedQuestion} onSelectQuestion={handleSelectQuestion} questions={questions} setQuestions={setQuestions} />}
+              {activeTab === 'quizzes' && <QuizzesContent key="quizzes" selectedStatus={selectedStatus} selectedCategory={selectedQuizCategory} selectedQuiz={selectedQuiz} onSelectQuiz={setSelectedQuiz} />}
             </AnimatePresence>
           </div>
 
           {/* Resize Handle - Right */}
-          <div
-            className="hidden lg:flex items-stretch justify-center flex-shrink-0 cursor-col-resize group relative -mx-2"
-            style={{
-              width: '4px'
-            }}
-            onMouseDown={handleRightMouseDown}>
+          <div className="hidden lg:flex items-stretch justify-center flex-shrink-0 cursor-col-resize group relative -mx-2" style={{
+          width: '4px'
+        }} onMouseDown={handleRightMouseDown}>
 
             <div className="w-px bg-gray-300 group-hover:bg-gray-400 transition-colors" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded p-1 shadow-sm">
@@ -622,53 +496,28 @@ export function QuestionsPage() {
           </div>
 
           {/* Right Column: Detail - 50% width (desktop) */}
-          <div
-            className="hidden lg:flex flex-shrink-0 bg-white shadow-lg rounded-lg overflow-hidden h-full"
-            style={{
-              width: `${rightWidth}px`
-            }}>
+          <div className="hidden lg:flex flex-shrink-0 bg-white shadow-lg rounded-lg overflow-hidden h-full" style={{
+          width: `${rightWidth}px`
+        }}>
 
-            {activeTab === 'questions' ? (
-              <QuestionDetail
-                key={detailKey}
-                question={selectedQuestion}
-                onClose={() => setSelectedQuestion(null)}
-                defaultTab={detailDefaultTab}
-                onSave={handleSaveQuestion}
-              />
-            ) : (
-              <QuizDetail
-                quiz={selectedQuiz}
-                onClose={() => setSelectedQuiz(null)}
-              />
-            )}
+            {activeTab === 'questions' ? <QuestionDetail key={detailKey} question={selectedQuestion} onClose={() => setSelectedQuestion(null)} defaultTab={detailDefaultTab} onSave={handleSaveQuestion} /> : <QuizDetail quiz={selectedQuiz} onClose={() => setSelectedQuiz(null)} />}
           </div>
         </div>
       </div>
 
       {/* Detail Overlay - shown on mobile only when a question is selected/created */}
-      {selectedQuestion &&
-      <div
-        className="lg:hidden"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 9999,
-          backgroundColor: '#ffffff'
-        }}>
+      {selectedQuestion && <div className="lg:hidden" style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 9999,
+      backgroundColor: '#ffffff'
+    }}>
 
-          <QuestionDetail
-          key={`overlay-${detailKey}`}
-          question={selectedQuestion}
-          onClose={() => setSelectedQuestion(null)}
-          defaultTab={detailDefaultTab}
-          onSave={handleSaveQuestion} />
+          <QuestionDetail key={`overlay-${detailKey}`} question={selectedQuestion} onClose={() => setSelectedQuestion(null)} defaultTab={detailDefaultTab} onSave={handleSaveQuestion} />
 
-        </div>
-      }
-    </div>);
-
+        </div>}
+    </div>;
 }

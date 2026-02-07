@@ -28,34 +28,22 @@ export function Avatar({
     busy: 'bg-red-500',
     away: 'bg-amber-500'
   };
-  return (
-    <div className={`relative inline-block ${className}`}>
-      <motion.div
-        whileHover={{
-          scale: 1.05
-        }}
-        className={`
+  return <div className={`relative inline-block ${className}`}>
+      <motion.div whileHover={{
+      scale: 1.05
+    }} className={`
           relative overflow-hidden rounded-full flex items-center justify-center
           bg-gradient-to-br from-teal-500 to-teal-600 text-white font-medium shadow-sm
           border-2 border-white ring-1 ring-gray-100
           ${sizeClasses[size]}
         `}>
 
-        {src ?
-        <img src={src} alt={alt} className="h-full w-full object-cover" /> :
-
-        <span>{fallback}</span>
-        }
+        {src ? <img src={src} alt={alt} className="h-full w-full object-cover" /> : <span>{fallback}</span>}
       </motion.div>
 
-      {status &&
-      <span
-        className={`
+      {status && <span className={`
           absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white
           ${statusColors[status]}
-        `} />
-
-      }
-    </div>);
-
+        `} />}
+    </div>;
 }

@@ -2,13 +2,7 @@ import React, { Component } from 'react';
 import { motion } from 'framer-motion';
 interface BadgeProps {
   children: React.ReactNode;
-  variant?:
-  'default' |
-  'outline' |
-  'secondary' |
-  'danger' |
-  'success' |
-  'warning';
+  variant?: 'default' | 'outline' | 'secondary' | 'danger' | 'success' | 'warning';
   className?: string;
   animate?: boolean;
 }
@@ -27,8 +21,7 @@ export function Badge({
     warning: 'bg-amber-100 text-amber-800 border-amber-200'
   };
   const Component = animate ? motion.span : 'span';
-  const animationProps = animate ?
-  {
+  const animationProps = animate ? {
     initial: {
       scale: 0.8,
       opacity: 0
@@ -42,17 +35,12 @@ export function Badge({
       stiffness: 500,
       damping: 30
     }
-  } :
-  {};
-  return (
-    <Component
-      className={`
+  } : {};
+  return <Component className={`
         inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
         ${variants[variant]} ${className}
-      `}
-      {...animationProps}>
+      `} {...animationProps}>
 
       {children}
-    </Component>);
-
+    </Component>;
 }
