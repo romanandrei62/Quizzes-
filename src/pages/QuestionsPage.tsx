@@ -162,12 +162,14 @@ export function QuestionsPage() {
     const newQuestion: Question = {
       id: `new-${Date.now()}`,
       title: 'New Question',
-      type: 'multiple',
-      category: 'feedback',
+      type: selectedType !== 'all' ? selectedType : 'multiple',
+      category: selectedCategory !== 'all' ? selectedCategory : 'feedback',
       createdAt: new Date(),
       status: 'draft',
       options: ['', '']
     };
+    // Add to list immediately as draft
+    setQuestions((prev) => [newQuestion, ...prev]);
     setDetailDefaultTab('edit');
     setDetailKey((prev) => prev + 1);
     setSelectedQuestion(newQuestion);
@@ -193,6 +195,10 @@ export function QuestionsPage() {
     });
     // Update selectedQuestion to reflect saved state
     setSelectedQuestion(question);
+  };
+  const handleDeleteQuestion = (questionId: string) => {
+    setQuestions((prev) => prev.filter((q) => q.id !== questionId));
+    setSelectedQuestion(null);
   };
   return (
     <div className="h-screen flex bg-gray-50 overflow-hidden">
@@ -633,7 +639,8 @@ export function QuestionsPage() {
               question={selectedQuestion}
               onClose={() => setSelectedQuestion(null)}
               defaultTab={detailDefaultTab}
-              onSave={handleSaveQuestion} /> :
+              onSave={handleSaveQuestion}
+              onDelete={handleDeleteQuestion} /> :
 
 
             <QuizDetail
@@ -664,7 +671,8 @@ export function QuestionsPage() {
           question={selectedQuestion}
           onClose={() => setSelectedQuestion(null)}
           defaultTab={detailDefaultTab}
-          onSave={handleSaveQuestion} />
+          onSave={handleSaveQuestion}
+          onDelete={handleDeleteQuestion} />
 
         </div>
       }

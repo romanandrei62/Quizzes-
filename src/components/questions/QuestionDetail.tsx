@@ -43,6 +43,7 @@ interface QuestionDetailProps {
   onClose: () => void;
   defaultTab?: 'info' | 'edit';
   onSave?: (question: Question) => void;
+  onDelete?: (questionId: string) => void;
 }
 const QUESTION_TYPES = [
 {
@@ -405,7 +406,8 @@ export function QuestionDetail({
   question,
   onClose,
   defaultTab,
-  onSave
+  onSave,
+  onDelete
 }: QuestionDetailProps) {
   const isNewQuestion = question?.id?.startsWith('new-') ?? false;
   const [activeTab, setActiveTab] = useState<'info' | 'edit'>(
@@ -1080,7 +1082,20 @@ export function QuestionDetail({
 
                   {/* Form Footer */}
                   <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between gap-2 bg-gray-50">
-                    <Button
+                    {isNewQuestion ?
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    if (question) {
+                      onDelete?.(question.id);
+                    }
+                  }}
+                  leftIcon={<Trash2 className="w-4 h-4" />}>
+
+                        Delete
+                      </Button> :
+
+                <Button
                   variant="secondary"
                   onClick={() => {
                     setActiveTab('info');
@@ -1094,8 +1109,9 @@ export function QuestionDetail({
                     setOptions(question?.options || ['', '']);
                   }}>
 
-                      Cancel
-                    </Button>
+                        Cancel
+                      </Button>
+                }
                     <div className="flex items-center gap-2">
                       <Button
                     variant="outline"
