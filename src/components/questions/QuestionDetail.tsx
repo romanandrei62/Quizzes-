@@ -13,6 +13,7 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronRight,
+  ChevronLeft,
   Info,
   Edit,
   Copy,
@@ -21,7 +22,8 @@ import {
   Save,
   Send,
   AlertCircle,
-  Sparkles } from
+  Sparkles,
+  ArrowLeft } from
 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
@@ -102,6 +104,28 @@ function formatDate(date: Date): string {
     return 'Unknown date';
   }
 }
+const slideVariants = {
+  enterFromRight: {
+    x: '100%',
+    opacity: 0
+  },
+  enterFromLeft: {
+    x: '-100%',
+    opacity: 0
+  },
+  center: {
+    x: 0,
+    opacity: 1
+  },
+  exitToLeft: {
+    x: '-100%',
+    opacity: 0
+  },
+  exitToRight: {
+    x: '100%',
+    opacity: 0
+  }
+};
 export function QuestionDetail({
   question,
   onClose,
@@ -111,6 +135,10 @@ export function QuestionDetail({
   const isNewQuestion = question?.id?.startsWith('new-') ?? false;
   const [activeTab, setActiveTab] = useState<'info' | 'edit'>(
     defaultTab || 'info'
+  );
+  const [editView, setEditView] = useState<'form' | 'answers'>('form');
+  const [slideDirection, setSlideDirection] = useState<'right' | 'left'>(
+    'right'
   );
   const [title, setTitle] = useState(question?.title || 'New Question');
   const [text, setText] = useState(question?.text || '');
@@ -124,7 +152,6 @@ export function QuestionDetail({
   );
   const [correctOption, setCorrectOption] = useState<number>(0);
   const [hint, setHint] = useState('');
-  const [showConfigureAnswers, setShowConfigureAnswers] = useState(true);
   const [isDragOver, setIsDragOver] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -138,9 +165,17 @@ export function QuestionDetail({
     passed: boolean;
   } | null>(null);
   const [showTestMatch, setShowTestMatch] = useState(false);
-  const configureAnswersRef = useRef<HTMLDivElement>(null);
   const testMatchRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const testMatchContentRef = useRef<HTMLDivElement>(null);
+  const [testMatchHeight, setTestMatchHeight] = useState<number>(0);
+  const navigateToAnswers = () => {
+    setSlideDirection('right');
+    setEditView('answers');
+  };
+  const navigateToForm = () => {
+    setSlideDirection('left');
+    setEditView('form');
+  };
   const scrollToRef = (ref: React.RefObject<HTMLDivElement>) => {
     setTimeout(() => {
       ref.current?.scrollIntoView({
@@ -149,6 +184,11 @@ export function QuestionDetail({
       });
     }, 250);
   };
+  useEffect(() => {
+    if (showTestMatch && testMatchContentRef.current) {
+      setTestMatchHeight(testMatchContentRef.current.scrollHeight);
+    }
+  }, [showTestMatch, testAnswer, testResult]);
   const calculateSimilarity = (a: string, b: string): number => {
     if (!a || !b) return 0;
     const strA = a.toLowerCase().trim();
@@ -158,7 +198,6 @@ export function QuestionDetail({
     const shorter = strA.length > strB.length ? strB : strA;
     const longerLength = longer.length;
     if (longerLength === 0) return 100;
-    // Levenshtein distance
     const costs: number[] = [];
     for (let i = 0; i <= longer.length; i++) {
       let lastValue = i;
@@ -200,22 +239,17 @@ export function QuestionDetail({
   };
   const validateForPublish = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!title.trim() || title.trim() === 'New Question') {
-      newErrors.title = 'Reference title is required';
-    }
-    if (!text.trim()) {
-      newErrors.text = 'Content is required';
-    }
+    if (!title.trim() || title.trim() === 'New Question')
+    newErrors.title = 'Reference title is required';
+    if (!text.trim()) newErrors.text = 'Content is required';
     if (type === 'multiple') {
       const filledOptions = options.filter((o) => o.trim() !== '');
-      if (filledOptions.length < 2) {
-        newErrors.options = 'At least 2 answer options are required';
-      }
+      if (filledOptions.length < 2)
+      newErrors.options = 'At least 2 answer options are required';
     }
     if (type === 'open') {
-      if (!correctAnswer.trim()) {
-        newErrors.correctAnswer = 'Correct answer is required';
-      }
+      if (!correctAnswer.trim())
+      newErrors.correctAnswer = 'Correct answer is required';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -223,7 +257,10 @@ export function QuestionDetail({
   const handleSave = (saveStatus: 'draft' | 'active') => {
     if (saveStatus === 'active') {
       if (!validateForPublish()) {
-        setShowConfigureAnswers(true);
+        // If answer errors, navigate to answers view
+        if (errors.options || errors.correctAnswer) {
+          navigateToAnswers();
+        }
         return;
       }
     } else {
@@ -240,6 +277,7 @@ export function QuestionDetail({
       options: type === 'multiple' ? options : undefined
     };
     onSave?.(updatedQuestion);
+    setEditView('form');
     setActiveTab('info');
   };
   const handleOptionChange = (index: number, value: string) => {
@@ -276,14 +314,11 @@ export function QuestionDetail({
       const [movedItem] = newOptions.splice(sourceIndex, 1);
       newOptions.splice(targetIndex, 0, movedItem);
       setOptions(newOptions);
-      // Update correctOption to follow the moved item
-      if (correctOption === sourceIndex) {
-        setCorrectOption(targetIndex);
-      } else if (sourceIndex < correctOption && targetIndex >= correctOption) {
-        setCorrectOption(correctOption - 1);
-      } else if (sourceIndex > correctOption && targetIndex <= correctOption) {
-        setCorrectOption(correctOption + 1);
-      }
+      if (correctOption === sourceIndex) setCorrectOption(targetIndex);else
+      if (sourceIndex < correctOption && targetIndex >= correctOption)
+      setCorrectOption(correctOption - 1);else
+      if (sourceIndex > correctOption && targetIndex <= correctOption)
+      setCorrectOption(correctOption + 1);
     }
     dragIndexRef.current = null;
     setDragIndex(null);
@@ -294,30 +329,22 @@ export function QuestionDetail({
     setDragIndex(null);
     setDragOverIndex(null);
   };
-  // CSS-based accordion with measured heights for smooth collapse
-  const configureContentRef = useRef<HTMLDivElement>(null);
-  const testMatchContentRef = useRef<HTMLDivElement>(null);
-  const [configureHeight, setConfigureHeight] = useState<number | 'auto'>(
-    'auto'
-  );
-  const [testMatchHeight, setTestMatchHeight] = useState<number | 'auto'>(0);
-  useEffect(() => {
-    if (showConfigureAnswers && configureContentRef.current) {
-      setConfigureHeight(configureContentRef.current.scrollHeight);
+  // Get answer summary for the form view card
+  const getAnswerSummary = () => {
+    if (type === 'multiple') {
+      const filled = options.filter((o) => o.trim() !== '').length;
+      return `${filled} of ${options.length} options configured`;
     }
-  }, [
-  showConfigureAnswers,
-  type,
-  options,
-  errors,
-  correctAnswer,
-  correctOption]
-  );
-  useEffect(() => {
-    if (showTestMatch && testMatchContentRef.current) {
-      setTestMatchHeight(testMatchContentRef.current.scrollHeight);
-    }
-  }, [showTestMatch, testAnswer, testResult]);
+    if (type === 'true-false')
+    return correctOption === 0 ? 'Correct: True' : 'Correct: False';
+    if (type === 'open')
+    return correctAnswer.trim() ?
+    `Answer set, ${matchValue}% match` :
+    'No answer configured';
+    if (type === 'matching') return 'Coming soon';
+    return '';
+  };
+  const hasAnswerErrors = !!(errors.options || errors.correctAnswer);
   if (!question) {
     return (
       <div className="w-full h-full bg-white flex items-center justify-center p-8">
@@ -344,7 +371,10 @@ export function QuestionDetail({
       {/* Icon Sidebar */}
       <div className="w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex flex-col items-center pt-4 gap-3">
         <button
-          onClick={() => setActiveTab('info')}
+          onClick={() => {
+            setActiveTab('info');
+            setEditView('form');
+          }}
           className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
 
           <Info className="w-[18px] h-[18px]" />
@@ -353,7 +383,10 @@ export function QuestionDetail({
           }
         </button>
         <button
-          onClick={() => setActiveTab('edit')}
+          onClick={() => {
+            setActiveTab('edit');
+            setEditView('form');
+          }}
           className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
 
           <PenSquare className="w-[18px] h-[18px]" />
@@ -376,7 +409,6 @@ export function QuestionDetail({
                 <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
-
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               <div>
                 <span
@@ -385,7 +417,6 @@ export function QuestionDetail({
                   {question.status === 'active' ? 'Published' : 'Draft'}
                 </span>
               </div>
-
               <div>
                 <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
                   Question
@@ -399,7 +430,6 @@ export function QuestionDetail({
                   </p>
               }
               </div>
-
               <div>
                 <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
                   Type
@@ -422,7 +452,6 @@ export function QuestionDetail({
                   </p>
                 </div>
               </div>
-
               <div>
                 <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
                   Category
@@ -436,14 +465,12 @@ export function QuestionDetail({
                     color || '#6B7280'
                   }} />
 
-
                   <span className="text-sm text-gray-900 capitalize">
                     {CATEGORIES.find((c) => c.id === question.category)?.
                   label || question.category}
                   </span>
                 </div>
               </div>
-
               {question.type === 'multiple' && question.options &&
             <div>
                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
@@ -466,7 +493,6 @@ export function QuestionDetail({
                   </div>
                 </div>
             }
-
               <div>
                 <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
                   Created
@@ -476,7 +502,6 @@ export function QuestionDetail({
                 </p>
               </div>
             </div>
-
             <div className="px-6 py-4 border-t border-gray-200 flex items-center gap-2 bg-gray-50">
               <Button
               variant="primary"
@@ -496,367 +521,481 @@ export function QuestionDetail({
           </div>
         }
 
-        {/* EDIT TAB */}
+        {/* EDIT TAB - Two sliding views */}
         {activeTab === 'edit' &&
-        <div className="flex flex-col h-full">
-            <div className="h-[57px] px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
-              <h2 className="text-lg font-bold text-gray-900">
-                {isNewQuestion ? 'New Question' : question.title}
-              </h2>
-            </div>
+        <div className="flex flex-col h-full overflow-hidden">
+            <AnimatePresence mode="wait" initial={false}>
+              {editView === 'form' &&
+            <motion.div
+              key="form-view"
+              initial={
+              slideDirection === 'left' ?
+              'enterFromLeft' :
+              'enterFromRight'
+              }
+              animate="center"
+              exit="exitToLeft"
+              variants={slideVariants}
+              transition={{
+                duration: 0.3,
+                ease: [0.4, 0, 0.2, 1]
+              }}
+              className="flex flex-col h-full">
 
-            <div className="flex-1 overflow-y-auto">
-              <div className="px-6 pt-6 pb-8 space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Reference Title
-                    <span className="text-red-400 ml-0.5">*</span>
-                  </label>
-                  <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => {
-                    setTitle(e.target.value);
-                    clearError('title');
-                  }}
-                  placeholder="Enter a descriptive title..."
-                  className={`w-full rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors ${errors.title ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`} />
-
-                  {errors.title &&
-                <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      {errors.title}
-                    </p>
-                }
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Type
-                    </label>
-                    <div className="relative">
-                      <select
-                      value={type}
-                      onChange={(e) => setType(e.target.value)}
-                      className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
-
-                        {QUESTION_TYPES.map((t) =>
-                      <option key={t.id} value={t.id}>
-                            {t.label}
-                          </option>
-                      )}
-                      </select>
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                        {(() => {
-                        const TypeIcon = QUESTION_TYPES.find(
-                          (t) => t.id === type
-                        )?.icon;
-                        return TypeIcon ?
-                        <TypeIcon className="w-4 h-4" /> :
-
-                        <List className="w-4 h-4" />;
-
-                      })()}
-                      </div>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                    </div>
+                  {/* Form Header */}
+                  <div className="h-[57px] px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
+                    <h2 className="text-lg font-bold text-gray-900">
+                      {isNewQuestion ? 'New Question' : question.title}
+                    </h2>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      Category
-                    </label>
-                    <div className="relative">
-                      <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
+                  {/* Form Content */}
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="px-6 pt-6 pb-8 space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                          Reference Title
+                          <span className="text-red-400 ml-0.5">*</span>
+                        </label>
+                        <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => {
+                        setTitle(e.target.value);
+                        clearError('title');
+                      }}
+                      placeholder="Enter a descriptive title..."
+                      className={`w-full rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors ${errors.title ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`} />
 
-                        {CATEGORIES.map((c) =>
-                      <option key={c.id} value={c.id}>
-                            {c.label}
-                          </option>
-                      )}
-                      </select>
-                      <div
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full pointer-events-none"
-                      style={{
-                        backgroundColor:
-                        CATEGORIES.find((c) => c.id === category)?.color ||
-                        '#6B7280'
+                        {errors.title &&
+                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {errors.title}
+                          </p>
+                    }
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            Type
+                          </label>
+                          <div className="relative">
+                            <select
+                          value={type}
+                          onChange={(e) => setType(e.target.value)}
+                          className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
+
+                              {QUESTION_TYPES.map((t) =>
+                          <option key={t.id} value={t.id}>
+                                  {t.label}
+                                </option>
+                          )}
+                            </select>
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                              {(() => {
+                            const TypeIcon = QUESTION_TYPES.find(
+                              (t) => t.id === type
+                            )?.icon;
+                            return TypeIcon ?
+                            <TypeIcon className="w-4 h-4" /> :
+
+                            <List className="w-4 h-4" />;
+
+                          })()}
+                            </div>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            Category
+                          </label>
+                          <div className="relative">
+                            <select
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value)}
+                          className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
+
+                              {CATEGORIES.map((c) =>
+                          <option key={c.id} value={c.id}>
+                                  {c.label}
+                                </option>
+                          )}
+                            </select>
+                            <div
+                          className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full pointer-events-none"
+                          style={{
+                            backgroundColor:
+                            CATEGORIES.find((c) => c.id === category)?.
+                            color || '#6B7280'
+                          }} />
+
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                          Content<span className="text-red-400 ml-0.5">*</span>
+                        </label>
+                        <textarea
+                      className={`w-full min-h-[120px] rounded-md border bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors ${errors.text ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`}
+                      placeholder="Enter your question content..."
+                      value={text}
+                      onChange={(e) => {
+                        setText(e.target.value);
+                        clearError('text');
                       }} />
 
+                        {errors.text &&
+                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {errors.text}
+                          </p>
+                    }
+                      </div>
 
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                          Image
+                        </label>
+                        <div
+                      className={`w-full min-h-[120px] rounded-md border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${isDragOver ? 'border-teal-400 bg-teal-50/30' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragOver(true);
+                      }}
+                      onDragLeave={() => setIsDragOver(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDragOver(false);
+                      }}>
+
+                          <span className="text-sm text-gray-500">
+                            Drag & Drop File(s)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                          Hint
+                        </label>
+                        <input
+                      type="text"
+                      value={hint}
+                      onChange={(e) => setHint(e.target.value)}
+                      placeholder="Optional hint for the respondent..."
+                      className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+
+                      </div>
+
+                      {/* Configure Answers Navigation Card */}
+                      <button
+                    onClick={navigateToAnswers}
+                    className={`w-full text-left rounded-lg border-2 p-4 transition-all group ${hasAnswerErrors ? 'border-red-200 bg-red-50/50 hover:border-red-300' : 'border-gray-200 bg-gray-50/50 hover:border-teal-400 hover:bg-teal-50/30'}`}>
+
+                        <div className="flex items-center gap-3">
+                          <div
+                        className={`p-2 rounded-lg ${hasAnswerErrors ? 'bg-red-100' : 'bg-teal-100'}`}>
+
+                            <SlidersHorizontal
+                          className={`w-5 h-5 ${hasAnswerErrors ? 'text-red-600' : 'text-teal-600'}`} />
+
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-900">
+                                Configure Answers
+                              </span>
+                              <span className="text-red-400 text-sm">*</span>
+                            </div>
+                            <p
+                          className={`text-xs mt-0.5 ${hasAnswerErrors ? 'text-red-500' : 'text-gray-500'}`}>
+
+                              {hasAnswerErrors ?
+                          errors.options || errors.correctAnswer :
+                          getAnswerSummary()}
+                            </p>
+                          </div>
+                          <ChevronRight
+                        className={`w-5 h-5 transition-transform group-hover:translate-x-0.5 ${hasAnswerErrors ? 'text-red-400' : 'text-gray-400'}`} />
+
+                        </div>
+                      </button>
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Content
-                    <span className="text-red-400 ml-0.5">*</span>
-                  </label>
-                  <textarea
-                  className={`w-full min-h-[120px] rounded-md border bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors ${errors.text ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`}
-                  placeholder="Enter your question content..."
-                  value={text}
-                  onChange={(e) => {
-                    setText(e.target.value);
-                    clearError('text');
-                  }} />
-
-                  {errors.text &&
-                <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      {errors.text}
-                    </p>
-                }
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Image
-                  </label>
-                  <div
-                  className={`w-full min-h-[120px] rounded-md border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${isDragOver ? 'border-teal-400 bg-teal-50/30' : 'border-gray-200 bg-white hover:border-gray-300'}`}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragOver(true);
-                  }}
-                  onDragLeave={() => setIsDragOver(false)}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setIsDragOver(false);
+                  {/* Form Footer */}
+                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between gap-2 bg-gray-50">
+                    <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setActiveTab('info');
+                    setEditView('form');
+                    setErrors({});
+                    setTitle(question?.title || 'New Question');
+                    setText(question?.text || '');
+                    setType(question?.type || 'multiple');
+                    setCategory(question?.category || 'feedback');
+                    setStatus(question?.status || 'draft');
+                    setOptions(question?.options || ['', '', '', '']);
                   }}>
 
-                    <span className="text-sm text-gray-500">
-                      Drag & Drop File(s)
-                    </span>
+                      Cancel
+                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                    variant="outline"
+                    onClick={() => handleSave('draft')}
+                    leftIcon={<Save className="w-4 h-4" />}>
+
+                        Save as Draft
+                      </Button>
+                      <Button
+                    variant="primary"
+                    onClick={() => handleSave('active')}
+                    leftIcon={<Send className="w-4 h-4" />}>
+
+                        Publish
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </motion.div>
+            }
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Hint
-                  </label>
-                  <input
-                  type="text"
-                  value={hint}
-                  onChange={(e) => setHint(e.target.value)}
-                  placeholder="Optional hint for the respondent..."
-                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+              {editView === 'answers' &&
+            <motion.div
+              key="answers-view"
+              initial={
+              slideDirection === 'right' ?
+              'enterFromRight' :
+              'enterFromLeft'
+              }
+              animate="center"
+              exit="exitToRight"
+              variants={slideVariants}
+              transition={{
+                duration: 0.3,
+                ease: [0.4, 0, 0.2, 1]
+              }}
+              className="flex flex-col h-full">
 
-                </div>
-
-                <div>
-                  <div ref={configureAnswersRef}>
+                  {/* Answers Header */}
+                  <div className="h-[57px] px-6 border-b border-gray-200 flex items-center gap-3 flex-shrink-0 bg-white">
                     <button
-                    onClick={() => {
-                      const next = !showConfigureAnswers;
-                      setShowConfigureAnswers(next);
-                      if (next) scrollToRef(configureAnswersRef);
-                    }}
-                    className="w-full flex items-center gap-2 py-3 text-teal-600 hover:text-teal-700 transition-colors">
+                  onClick={navigateToForm}
+                  className="p-1.5 -ml-1.5 hover:bg-gray-100 rounded-lg transition-colors">
 
-                      <SlidersHorizontal className="w-4 h-4" />
-                      <span className="text-sm font-bold uppercase tracking-wide">
-                        Configure Answers
-                      </span>
-                      <ChevronRight
-                      className={`w-4 h-4 ml-auto transition-transform duration-300 ${showConfigureAnswers ? 'rotate-90' : ''}`} />
-
+                      <ArrowLeft className="w-5 h-5 text-gray-500" />
                     </button>
+                    <div className="flex items-center gap-2">
+                      <SlidersHorizontal className="w-4 h-4 text-teal-600" />
+                      <h2 className="text-lg font-bold text-gray-900">
+                        Configure Answers
+                      </h2>
+                    </div>
                   </div>
 
-                  <div
-                  style={{
-                    height: showConfigureAnswers ?
-                    configureHeight === 'auto' ?
-                    'auto' :
-                    `${configureHeight}px` :
-                    '0px',
-                    opacity: showConfigureAnswers ? 1 : 0,
-                    overflow: 'hidden',
-                    transition:
-                    'height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease'
-                  }}>
+                  {/* Answers Content */}
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="px-6 pt-6 pb-8 space-y-4">
+                      {/* Type indicator */}
+                      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
+                        {(() => {
+                      const TypeIcon = QUESTION_TYPES.find(
+                        (t) => t.id === type
+                      )?.icon;
+                      return TypeIcon ?
+                      <TypeIcon className="w-4 h-4 text-gray-500" /> :
 
-                    <div ref={configureContentRef}>
-                      <div className="pt-3 space-y-3">
-                        {type === 'multiple' &&
-                      <>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
-                                Answer Options
-                                <span className="text-red-400 ml-0.5">*</span>
-                              </span>
-                              <span className="text-xs text-gray-400">
-                                Mark the correct answer
-                              </span>
-                            </div>
-                            {errors.options &&
-                        <p className="mb-2 text-xs text-red-500 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                {errors.options}
-                              </p>
-                        }
-                            <div
-                          className={`space-y-2.5 ${errors.options ? 'rounded-md ring-2 ring-red-100 p-2 -m-2' : ''}`}>
+                      <HelpCircle className="w-4 h-4" />;
 
-                              {options.map((option, index) =>
+                    })()}
+                        <span className="text-sm text-gray-600">
+                          {TYPE_LABELS[type]}
+                        </span>
+                      </div>
+
+                      {type === 'multiple' &&
+                  <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                              Answer Options
+                              <span className="text-red-400 ml-0.5">*</span>
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              Mark the correct answer
+                            </span>
+                          </div>
+                          {errors.options &&
+                    <p className="text-xs text-red-500 flex items-center gap-1">
+                              <AlertCircle className="w-3 h-3" />
+                              {errors.options}
+                            </p>
+                    }
                           <div
-                            key={index}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, index)}
-                            onDragOver={(e) => handleDragOver(e, index)}
-                            onDrop={(e) => handleDrop(e, index)}
-                            onDragEnd={handleDragEnd}
-                            className={`flex items-center gap-2.5 group rounded-md p-1 -m-1 transition-all ${dragIndex === index ? 'opacity-30 scale-95' : ''} ${dragOverIndex === index && dragIndex !== index ? 'ring-2 ring-teal-400 bg-teal-50/30' : ''}`}>
+                      className={`space-y-2.5 ${errors.options ? 'rounded-md ring-2 ring-red-100 p-2 -m-2' : ''}`}>
 
-                                  <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
-                                    <GripVertical className="w-4 h-4" />
-                                  </div>
-                                  <button
-                              onClick={() => setCorrectOption(index)}
-                              className={`flex-shrink-0 transition-colors ${correctOption === index ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}>
+                            {options.map((option, index) =>
+                      <div
+                        key={index}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDrop={(e) => handleDrop(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className={`flex items-center gap-2.5 group rounded-md p-1 -m-1 transition-all ${dragIndex === index ? 'opacity-30 scale-95' : ''} ${dragOverIndex === index && dragIndex !== index ? 'ring-2 ring-teal-400 bg-teal-50/30' : ''}`}>
 
-                                    {correctOption === index ?
-                              <CheckCircle2 className="w-5 h-5" /> :
-
-                              <Circle className="w-5 h-5" />
-                              }
-                                  </button>
-                                  <input
-                              type="text"
-                              value={option}
-                              onChange={(e) =>
-                              handleOptionChange(index, e.target.value)
-                              }
-                              placeholder={`Option ${index + 1}`}
-                              className="flex-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 focus:bg-white transition-all" />
-
-
-                                  <button
-                              onClick={() => removeOption(index)}
-                              disabled={options.length <= 2}
-                              className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30">
-
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
+                                <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
+                                  <GripVertical className="w-4 h-4" />
                                 </div>
-                          )}
-                            </div>
-                            <button
-                          onClick={addOption}
-                          className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
+                                <button
+                          onClick={() => setCorrectOption(index)}
+                          className={`flex-shrink-0 transition-colors ${correctOption === index ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}>
 
-                              <Plus className="w-4 h-4" />
-                              Add Option
-                            </button>
-                          </>
-                      }
+                                  {correctOption === index ?
+                          <CheckCircle2 className="w-5 h-5" /> :
 
-                        {type === 'true-false' &&
-                      <div className="grid grid-cols-2 gap-3">
+                          <Circle className="w-5 h-5" />
+                          }
+                                </button>
+                                <input
+                          type="text"
+                          value={option}
+                          onChange={(e) =>
+                          handleOptionChange(index, e.target.value)
+                          }
+                          placeholder={`Option ${index + 1}`}
+                          className="flex-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 focus:bg-white transition-all" />
+
+                                <button
+                          onClick={() => removeOption(index)}
+                          disabled={options.length <= 2}
+                          className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30">
+
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                      )}
+                          </div>
+                          <button
+                      onClick={addOption}
+                      className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
+
+                            <Plus className="w-4 h-4" />
+                            Add Option
+                          </button>
+                        </div>
+                  }
+
+                      {type === 'true-false' &&
+                  <div className="space-y-3">
+                          <span className="text-xs text-gray-500 uppercase tracking-wide font-medium block">
+                            Select the correct answer
+                          </span>
+                          <div className="grid grid-cols-2 gap-3">
                             {['True', 'False'].map((opt, idx) =>
-                        <button
-                          key={opt}
-                          onClick={() => setCorrectOption(idx)}
-                          className={`relative p-3 rounded-md border-2 text-center transition-all ${correctOption === idx ? 'border-teal-500 bg-teal-50/50 text-teal-700' : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200'}`}>
+                      <button
+                        key={opt}
+                        onClick={() => setCorrectOption(idx)}
+                        className={`relative p-4 rounded-lg border-2 text-center transition-all ${correctOption === idx ? 'border-teal-500 bg-teal-50/50 text-teal-700' : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200'}`}>
 
                                 <span className="text-sm font-bold">{opt}</span>
                                 {correctOption === idx &&
-                          <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-teal-500" />
-                          }
+                        <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-teal-500" />
+                        }
                               </button>
-                        )}
+                      )}
                           </div>
-                      }
+                        </div>
+                  }
 
-                        {type === 'open' &&
-                      <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                Correct Answer
-                                <span className="text-red-400 ml-0.5">*</span>
-                              </label>
-                              <textarea
-                            className={`w-full min-h-[100px] rounded-md border bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors ${errors.correctAnswer ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`}
-                            placeholder="Enter the correct answer..."
-                            value={correctAnswer}
-                            onChange={(e) => {
-                              setCorrectAnswer(e.target.value);
-                              clearError('correctAnswer');
-                            }} />
+                      {type === 'open' &&
+                  <div className="space-y-5">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                              Correct Answer
+                              <span className="text-red-400 ml-0.5">*</span>
+                            </label>
+                            <textarea
+                        className={`w-full min-h-[120px] rounded-md border bg-white px-3 py-2.5 text-sm placeholder:text-gray-400 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-y transition-colors ${errors.correctAnswer ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`}
+                        placeholder="Enter the correct answer..."
+                        value={correctAnswer}
+                        onChange={(e) => {
+                          setCorrectAnswer(e.target.value);
+                          clearError('correctAnswer');
+                        }} />
 
-                              {errors.correctAnswer &&
-                          <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                                  <AlertCircle className="w-3 h-3" />
-                                  {errors.correctAnswer}
-                                </p>
-                          }
-                            </div>
-
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                Match Value (%)
-                              </label>
-                              <input
-                            type="number"
-                            min={1}
-                            max={100}
-                            value={matchValue}
-                            onChange={(e) => {
-                              const val = Number(e.target.value);
-                              setMatchValue(
-                                val < 1 ? 1 : val > 100 ? 100 : val
-                              );
-                            }}
-                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
-
-                              <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                                What threshold in % do you want to use for the
-                                correct answer? A 90% value means that the
-                                submitted answer must be at least 90% similar to
-                                correct answer to be marked as correct. - Ex.
-                                the correct answer is 'Apple Inc.', but the
-                                Target answered with 'Apple Inc' without the
-                                period. At 90% value this answer would be marked
-                                as correct.
+                            {errors.correctAnswer &&
+                      <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {errors.correctAnswer}
                               </p>
-                            </div>
+                      }
+                          </div>
 
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                              Match Value (%)
+                            </label>
+                            <input
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={matchValue}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setMatchValue(
+                            val < 1 ? 1 : val > 100 ? 100 : val
+                          );
+                        }}
+                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+
+                            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                              What threshold in % do you want to use for the
+                              correct answer? A 90% value means that the
+                              submitted answer must be at least 90% similar to
+                              correct answer to be marked as correct. - Ex. the
+                              correct answer is 'Apple Inc.', but the Target
+                              answered with 'Apple Inc' without the period. At
+                              90% value this answer would be marked as correct.
+                            </p>
+                          </div>
+
+                          {/* Test Match Value Accordion */}
+                          <div>
                             <button
-                          type="button"
-                          onClick={() => {
-                            const next = !showTestMatch;
-                            setShowTestMatch(next);
-                            if (next) scrollToRef(testMatchRef);
-                          }}
-                          className="w-full flex items-center gap-2 py-3 text-teal-600 hover:text-teal-700 transition-colors">
+                        type="button"
+                        onClick={() => {
+                          const next = !showTestMatch;
+                          setShowTestMatch(next);
+                          if (next) scrollToRef(testMatchRef);
+                        }}
+                        className="w-full flex items-center gap-2 py-3 text-teal-600 hover:text-teal-700 transition-colors">
 
                               <Sparkles className="w-4 h-4" />
                               <span className="text-sm font-bold uppercase tracking-wide">
                                 Test Match Value
                               </span>
                               <ChevronRight
-                            className={`w-4 h-4 ml-auto transition-transform duration-300 ${showTestMatch ? 'rotate-90' : ''}`} />
+                          className={`w-4 h-4 ml-auto transition-transform duration-300 ${showTestMatch ? 'rotate-90' : ''}`} />
 
                             </button>
 
                             <div ref={testMatchRef}>
                               <div
-                            style={{
-                              height: showTestMatch ?
-                              `${testMatchHeight}px` :
-                              '0px',
-                              opacity: showTestMatch ? 1 : 0,
-                              overflow: 'hidden',
-                              transition:
-                              'height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease'
-                            }}>
+                          style={{
+                            height: showTestMatch ?
+                            `${testMatchHeight}px` :
+                            '0px',
+                            opacity: showTestMatch ? 1 : 0,
+                            overflow: 'hidden',
+                            transition:
+                            'height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease'
+                          }}>
 
                                 <div ref={testMatchContentRef}>
                                   <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
@@ -864,43 +1003,42 @@ export function QuestionDetail({
                                       Enter a test answer
                                     </label>
                                     <input
-                                  type="text"
-                                  value={testAnswer}
-                                  onChange={(e) => {
-                                    setTestAnswer(e.target.value);
-                                    setTestResult(null);
-                                  }}
-                                  placeholder="Type a test answer to compare..."
-                                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+                                type="text"
+                                value={testAnswer}
+                                onChange={(e) => {
+                                  setTestAnswer(e.target.value);
+                                  setTestResult(null);
+                                }}
+                                placeholder="Type a test answer to compare..."
+                                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
 
                                     <button
-                                  type="button"
-                                  onClick={handleTestMatch}
-                                  disabled={
-                                  !correctAnswer.trim() ||
-                                  !testAnswer.trim()
-                                  }
-                                  className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                                type="button"
+                                onClick={handleTestMatch}
+                                disabled={
+                                !correctAnswer.trim() ||
+                                !testAnswer.trim()
+                                }
+                                className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
 
                                       Run Test
                                     </button>
-
                                     {testResult &&
-                                <div
-                                  className={`p-3 rounded-md border ${testResult.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                              <div
+                                className={`p-3 rounded-md border ${testResult.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
 
                                         <div className="flex items-center gap-2 mb-1">
                                           {testResult.passed ?
-                                    <CheckCircle2 className="w-4 h-4 text-green-600" /> :
+                                  <CheckCircle2 className="w-4 h-4 text-green-600" /> :
 
-                                    <AlertCircle className="w-4 h-4 text-red-500" />
-                                    }
+                                  <AlertCircle className="w-4 h-4 text-red-500" />
+                                  }
                                           <span
-                                      className={`text-sm font-semibold ${testResult.passed ? 'text-green-700' : 'text-red-600'}`}>
+                                    className={`text-sm font-semibold ${testResult.passed ? 'text-green-700' : 'text-red-600'}`}>
 
                                             {testResult.passed ?
-                                      'PASS' :
-                                      'FAIL'}
+                                    'PASS' :
+                                    'FAIL'}
                                           </span>
                                         </div>
                                         <p className="text-xs text-gray-600">
@@ -914,64 +1052,46 @@ export function QuestionDetail({
                                           </span>
                                         </p>
                                       </div>
-                                }
+                              }
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                      }
+                        </div>
+                  }
 
-                        {type === 'matching' &&
-                      <div className="p-4 bg-gray-50 rounded-md border border-dashed border-gray-200 text-center">
-                            <GitMerge className="w-5 h-5 text-gray-400 mx-auto mb-2" />
-                            <p className="text-xs text-gray-500">
-                              Matching pairs configuration coming soon.
-                            </p>
-                          </div>
-                      }
-                      </div>
+                      {type === 'matching' &&
+                  <div className="p-6 bg-gray-50 rounded-lg border border-dashed border-gray-200 text-center">
+                          <GitMerge className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500">
+                            Matching pairs configuration coming soon.
+                          </p>
+                        </div>
+                  }
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Footer with Save/Cancel buttons */}
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between gap-2 bg-gray-50">
-              <Button
-              variant="secondary"
-              onClick={() => {
-                setActiveTab('info');
-                setErrors({});
-                // Reset form to original values
-                setTitle(question?.title || 'New Question');
-                setText(question?.text || '');
-                setType(question?.type || 'multiple');
-                setCategory(question?.category || 'feedback');
-                setStatus(question?.status || 'draft');
-                setOptions(question?.options || ['', '', '', '']);
-              }}>
+                  {/* Answers Footer */}
+                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+                    <Button
+                  variant="secondary"
+                  onClick={navigateToForm}
+                  leftIcon={<ArrowLeft className="w-4 h-4" />}>
 
-                Cancel
-              </Button>
-              <div className="flex items-center gap-2">
-                <Button
-                variant="outline"
-                onClick={() => handleSave('draft')}
-                leftIcon={<Save className="w-4 h-4" />}>
+                      Back
+                    </Button>
+                    <Button
+                  variant="primary"
+                  onClick={navigateToForm}
+                  leftIcon={<Save className="w-4 h-4" />}>
 
-                  Save as Draft
-                </Button>
-                <Button
-                variant="primary"
-                onClick={() => handleSave('active')}
-                leftIcon={<Send className="w-4 h-4" />}>
-
-                  Publish
-                </Button>
-              </div>
-            </div>
+                      Save Answers
+                    </Button>
+                  </div>
+                </motion.div>
+            }
+            </AnimatePresence>
           </div>
         }
       </div>
