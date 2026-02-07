@@ -2287,21 +2287,14 @@ export function QuestionDetail({
                 }
                   </div>
 
-                  {/* Answers Footer */}
-                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+                  {/* Answers Footer - only Back button, answers auto-save */}
+                  <div className="px-6 py-4 border-t border-gray-200 flex items-center bg-gray-50">
                     <Button
                   variant="secondary"
                   onClick={navigateToForm}
                   leftIcon={<ArrowLeft className="w-4 h-4" />}>
 
                       Back
-                    </Button>
-                    <Button
-                  variant="primary"
-                  onClick={handleSaveAnswers}
-                  leftIcon={<CheckCircle2 className="w-4 h-4" />}>
-
-                      Done
                     </Button>
                   </div>
                 </motion.div>
