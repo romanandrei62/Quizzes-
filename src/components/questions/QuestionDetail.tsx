@@ -2287,8 +2287,8 @@ export function QuestionDetail({
                 }
                   </div>
 
-                  {/* Answers Footer - only Back button, answers auto-save */}
-                  <div className="px-6 py-4 border-t border-gray-200 flex items-center bg-gray-50">
+                  {/* Answers Footer */}
+                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
                     <Button
                   variant="secondary"
                   onClick={navigateToForm}
@@ -2296,6 +2296,16 @@ export function QuestionDetail({
 
                       Back
                     </Button>
+                    {/* Show Save button for all types except Matching (matching uses individual Save Pair buttons) */}
+                    {type !== 'matching' && (
+                      <Button
+                    variant="primary"
+                    onClick={handleSaveAnswers}
+                    leftIcon={<Save className="w-4 h-4" />}>
+
+                        Save
+                      </Button>
+                    )}
                   </div>
                 </motion.div>
             }
