@@ -19,7 +19,7 @@ import {
   GripVertical } from
 'lucide-react';
 import { QuestionsSidebar } from '../components/questions/QuestionsSidebar';
-import { QuestionsContent } from '../components/questions/QuestionsContent';
+import { QuestionsContent, MOCK_QUESTIONS } from '../components/questions/QuestionsContent';
 import { QuestionDetail } from '../components/questions/QuestionDetail';
 import { QuizzesSidebar } from '../components/quizzes/QuizzesSidebar';
 import { QuizzesContent } from '../components/quizzes/QuizzesContent';
@@ -64,7 +64,7 @@ export function QuestionsPage() {
     'info'
   );
   const [detailKey, setDetailKey] = useState(0);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<Question[]>(MOCK_QUESTIONS);
 
   // Quiz-specific state
   const [selectedStatus, setSelectedStatus] = useState<string>('all');

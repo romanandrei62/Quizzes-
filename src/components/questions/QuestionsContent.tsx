@@ -16,7 +16,7 @@ interface Question {
   description?: string;
   options?: string[];
 }
-const MOCK_QUESTIONS: Question[] = [
+export const MOCK_QUESTIONS: Question[] = [
 {
   id: '1',
   title: 'Platform Access',
@@ -220,7 +220,7 @@ export function QuestionsContent({
     return () => clearTimeout(timer);
   }, [selectedType, selectedCategory]);
   // Filter questions by search query, type, category, and status
-  const filteredQuestions = MOCK_QUESTIONS.filter((q) => {
+  const filteredQuestions = questions.filter((q) => {
     const matchesSearch =
     q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     q.text.toLowerCase().includes(searchQuery.toLowerCase());
