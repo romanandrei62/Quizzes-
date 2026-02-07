@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
-const path = require('path');
+import { execSync } from 'child_process';
 
 console.log('🚀 MagicPatterns Pre-Work Check\n');
 
@@ -43,12 +42,12 @@ try {
   console.log('\n📊 Quick Analysis:');
   
   // Count components
-  const componentsCount = execSync('find src/components -name "*.tsx" -type f | wc -l', { encoding: 'utf8', shell: true }).trim();
+  const componentsCount = execSync('dir /b /s src\\components\\*.tsx | find /c ".tsx"', { encoding: 'utf8', shell: true }).trim();
   console.log(`   - Components: ${componentsCount}`);
   
-  // Check for TODOs
+  // Check for TODOs (Windows compatible)
   try {
-    const todos = execSync('grep -r "TODO\\|FIXME" src/ || true', { encoding: 'utf8' });
+    const todos = execSync('findstr /s /i "TODO FIXME" src\\*.tsx src\\*.ts', { encoding: 'utf8' });
     const todoCount = todos.split('\n').filter(line => line.trim()).length;
     if (todoCount > 0) {
       console.log(`   - TODOs/FIXMEs: ${todoCount}`);
