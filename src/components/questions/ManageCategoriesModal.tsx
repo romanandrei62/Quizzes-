@@ -485,9 +485,9 @@ export function ManageCategoriesModal({
                     <Button
                   variant="primary"
                   onClick={handleSaveDetail}
-                  leftIcon={<Save className="w-4 h-4" />}>
+                  leftIcon={<Plus className="w-4 h-4" />}>
 
-                      Save
+                      Add
                     </Button>
                   </> :
 

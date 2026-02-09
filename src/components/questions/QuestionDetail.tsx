@@ -695,6 +695,10 @@ export function QuestionDetail({
       if (next.has(index)) {
         next.delete(index);
       } else {
+        // Prevent marking ALL options as correct — at least one must be incorrect
+        if (next.size >= options.length - 1) {
+          return prev;
+        }
         next.add(index);
       }
       return next;
