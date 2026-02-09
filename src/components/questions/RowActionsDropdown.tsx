@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MoreVertical, Eye, Edit, Copy, Trash2 } from 'lucide-react';
+import { MoreVertical, Eye, Edit, GitFork, Trash2 } from 'lucide-react';
 interface RowActionsDropdownProps {
   onAction: (action: string) => void;
 }
@@ -35,9 +35,9 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
     icon: Edit
   },
   {
-    id: 'duplicate',
-    label: 'Duplicate',
-    icon: Copy
+    id: 'fork',
+    label: 'Fork',
+    icon: GitFork
   },
   {
     id: 'delete',

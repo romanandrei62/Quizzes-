@@ -36,6 +36,7 @@ interface Question {
   status: 'active' | 'draft';
   description?: string;
   options?: string[];
+  matchSubType?: 'text' | 'image';
 }
 interface Quiz {
   id: string;
@@ -66,6 +67,10 @@ export function QuestionsPage() {
   );
   const [detailKey, setDetailKey] = useState(0);
   const [questions, setQuestions] = useState<Question[]>(MOCK_QUESTIONS);
+  // Track question IDs that were originally published but are now being edited as drafts
+  const [draftOfPublishedIds, setDraftOfPublishedIds] = useState<Set<string>>(
+    new Set()
+  );
   // Quiz-specific state
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedQuizCategory, setSelectedQuizCategory] =
@@ -178,6 +183,22 @@ export function QuestionsPage() {
   question: Question,
   defaultTab?: 'info' | 'edit') =>
   {
+    // When opening a published question in edit mode (confirmed "Create Draft"),
+    // update its status to draft in the list and track it
+    if (defaultTab === 'edit' && question.status === 'active') {
+      const updatedQuestion = {
+        ...question,
+        status: 'draft' as const
+      };
+      setQuestions((prev) =>
+      prev.map((q) => q.id === question.id ? updatedQuestion : q)
+      );
+      setDraftOfPublishedIds((prev) => new Set(prev).add(question.id));
+      setDetailDefaultTab('edit');
+      setDetailKey((prev) => prev + 1);
+      setSelectedQuestion(updatedQuestion);
+      return;
+    }
     setDetailDefaultTab(defaultTab || 'info');
     setDetailKey((prev) => prev + 1);
     setSelectedQuestion(question);
@@ -187,6 +208,19 @@ export function QuestionsPage() {
       // Check if it's a new question or update
       const existingIndex = prevQuestions.findIndex((q) => q.id === question.id);
       if (existingIndex >= 0) {
+        const existing = prevQuestions[existingIndex];
+        // Track if a published question is being changed to draft
+        if (existing.status === 'active' && question.status === 'draft') {
+          setDraftOfPublishedIds((prev) => new Set(prev).add(question.id));
+        }
+        // If publishing again, remove from draft-of-published tracking
+        if (question.status === 'active') {
+          setDraftOfPublishedIds((prev) => {
+            const next = new Set(prev);
+            next.delete(question.id);
+            return next;
+          });
+        }
         // Update existing question
         const updated = [...prevQuestions];
         updated[existingIndex] = question;
@@ -200,6 +234,30 @@ export function QuestionsPage() {
     setSelectedQuestion(question);
   };
   const handleDeleteQuestion = (questionId: string) => {
+    // If this was a draft of a published question, restore the published version
+    if (draftOfPublishedIds.has(questionId)) {
+      // Find the original question from MOCK_QUESTIONS to restore it
+      const originalQuestion = MOCK_QUESTIONS.find((q) => q.id === questionId);
+      if (originalQuestion) {
+        setQuestions((prev) =>
+        prev.map((q) =>
+        q.id === questionId ?
+        {
+          ...originalQuestion
+        } :
+        q
+        )
+        );
+      }
+      setDraftOfPublishedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(questionId);
+        return next;
+      });
+      setSelectedQuestion(null);
+      return;
+    }
+    // Normal delete
     setQuestions((prev) => prev.filter((q) => q.id !== questionId));
     setSelectedQuestion(null);
   };
@@ -600,7 +658,9 @@ export function QuestionsPage() {
                 selectedQuestion={selectedQuestion}
                 onSelectQuestion={handleSelectQuestion}
                 questions={questions}
-                setQuestions={setQuestions} />
+                setQuestions={setQuestions}
+                draftOfPublishedIds={draftOfPublishedIds}
+                onDeleteQuestion={handleDeleteQuestion} />
 
               }
               {activeTab === 'quizzes' &&
@@ -643,7 +703,12 @@ export function QuestionsPage() {
               onClose={() => setSelectedQuestion(null)}
               defaultTab={detailDefaultTab}
               onSave={handleSaveQuestion}
-              onDelete={handleDeleteQuestion} /> :
+              onDelete={handleDeleteQuestion}
+              isDraftOfPublished={
+              selectedQuestion ?
+              draftOfPublishedIds.has(selectedQuestion.id) :
+              false
+              } /> :
 
 
             <QuizDetail
@@ -675,7 +740,12 @@ export function QuestionsPage() {
           onClose={() => setSelectedQuestion(null)}
           defaultTab={detailDefaultTab}
           onSave={handleSaveQuestion}
-          onDelete={handleDeleteQuestion} />
+          onDelete={handleDeleteQuestion}
+          isDraftOfPublished={
+          selectedQuestion ?
+          draftOfPublishedIds.has(selectedQuestion.id) :
+          false
+          } />
 
         </div>
       }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, Children } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2 } from 'lucide-react';
+import { Trash2, PenSquare, Save, ArrowLeft } from 'lucide-react';
 import { QuestionItem } from './QuestionItem';
 import { QuestionListSkeleton } from './QuestionListSkeleton';
 import { BulkEditBar } from './BulkEditBar';
@@ -9,13 +9,14 @@ import { TableActionBar } from './TableActionBar';
 interface Question {
   id: string;
   title: string;
-  text: string;
+  text?: string;
   type: string;
   category: string;
   createdAt: Date;
   status: 'active' | 'draft';
   description?: string;
   options?: string[];
+  matchSubType?: 'text' | 'image';
 }
 export const MOCK_QUESTIONS: Question[] = [
 {
@@ -62,12 +63,13 @@ export const MOCK_QUESTIONS: Question[] = [
 },
 {
   id: '5',
-  title: 'Workflow Description',
-  text: 'Please describe your ideal workflow in detail, including the tools you use, the processes you follow, and any pain points you currently experience in your daily operations.',
-  type: 'open',
-  category: 'feedback',
+  title: 'Identify the Icons',
+  text: 'Match each icon image with its correct label.',
+  type: 'matching',
+  matchSubType: 'image',
+  category: 'lms',
   createdAt: new Date('2024-01-11T11:00:00'),
-  status: 'draft'
+  status: 'active'
 },
 {
   id: '6',
@@ -178,6 +180,8 @@ interface QuestionsContentProps {
   onSelectQuestion: (question: Question, defaultTab?: 'info' | 'edit') => void;
   questions?: Question[];
   setQuestions?: React.Dispatch<React.SetStateAction<Question[]>>;
+  draftOfPublishedIds?: Set<string>;
+  onDeleteQuestion?: (questionId: string) => void;
 }
 export function QuestionsContent({
   selectedType,
@@ -187,7 +191,9 @@ export function QuestionsContent({
   selectedQuestion,
   onSelectQuestion,
   questions: propsQuestions,
-  setQuestions: propsSetQuestions
+  setQuestions: propsSetQuestions,
+  draftOfPublishedIds = new Set(),
+  onDeleteQuestion
 }: QuestionsContentProps) {
   const [localQuestions, setLocalQuestions] =
   useState<Question[]>(MOCK_QUESTIONS);
@@ -204,6 +210,8 @@ export function QuestionsContent({
   const [showEditForm, setShowEditForm] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [pendingEditQuestion, setPendingEditQuestion] =
+  useState<Question | null>(null);
   // Pagination state (simulated)
   const totalItems = questions.length;
   const currentPageItems = questions;
@@ -225,7 +233,7 @@ export function QuestionsContent({
   filter((q) => {
     const matchesSearch =
     q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    q.text.toLowerCase().includes(searchQuery.toLowerCase());
+    q.text?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = selectedType === 'all' || q.type === selectedType;
     const matchesCategory =
     selectedCategory === 'all' || q.category === selectedCategory;
@@ -318,23 +326,27 @@ export function QuestionsContent({
         onSelectQuestion(question, 'info');
         break;
       case 'edit':
-        // Open the question in edit mode
-        onSelectQuestion(question, 'edit');
+        // For published questions, show warning before opening
+        if (question.status === 'active') {
+          setPendingEditQuestion(question);
+        } else {
+          onSelectQuestion(question, 'edit');
+        }
         break;
-      case 'duplicate':
-        // Create a duplicate with a new ID and all answers/options preserved
-        const duplicate: Question = {
+      case 'fork':
+        // Fork: create an independent copy detached from quizzes
+        const forked: Question = {
           ...question,
-          id: `dup-${Date.now()}`,
-          title: `${question.title} (Copy)`,
+          id: `fork-${Date.now()}`,
+          title: `${question.title} (Fork)`,
           status: 'draft',
           createdAt: new Date(),
-          // Ensure options array is deeply copied
-          options: question.options ? [...question.options] : undefined
+          options: question.options ? [...question.options] : undefined,
+          matchSubType: question.matchSubType
         };
-        setQuestions([duplicate, ...questions]);
-        // Open the duplicate in edit mode immediately
-        setTimeout(() => onSelectQuestion(duplicate), 100);
+        setQuestions([forked, ...questions]);
+        // Open the fork in edit mode immediately
+        setTimeout(() => onSelectQuestion(forked, 'edit'), 100);
         break;
       case 'delete':
         // Show delete confirmation modal
@@ -372,6 +384,8 @@ export function QuestionsContent({
           const questionToDelete = questions.find(
             (q) => q.id === deleteConfirmId
           );
+          const isPublishedQuestion = questionToDelete?.status === 'active';
+          const isDraftOfPublished = draftOfPublishedIds.has(deleteConfirmId);
           return (
             <motion.div
               initial={{
@@ -414,15 +428,48 @@ export function QuestionsContent({
                 onClick={(e) => e.stopPropagation()}>
 
                   <div className="flex flex-col items-center text-center">
-                    <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
-                      <Trash2 className="w-5 h-5 text-red-500" />
+                    <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${isDraftOfPublished ? 'bg-amber-50' : 'bg-red-50'}`}>
+
+                      {isDraftOfPublished ?
+                    <ArrowLeft className="w-5 h-5 text-amber-500" /> :
+
+                    <Trash2
+                      className={`w-5 h-5 ${isPublishedQuestion ? 'text-red-600' : 'text-red-500'}`} />
+
+                    }
                     </div>
                     <h3 className="text-base font-semibold text-gray-900 mb-1">
-                      Delete this question?
+                      {isDraftOfPublished ?
+                    'Discard draft changes?' :
+                    isPublishedQuestion ?
+                    'Delete published question?' :
+                    'Delete this question?'}
                     </h3>
-                    <p className="text-sm text-gray-500 mb-6">
-                      This question will be permanently removed. This action
-                      cannot be undone.
+                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                      {isDraftOfPublished ?
+                    <>
+                          Your draft edits will be discarded. The{' '}
+                          <span className="font-medium text-gray-700">
+                            published version
+                          </span>{' '}
+                          will be restored and remain live and unchanged.
+                        </> :
+                    isPublishedQuestion ?
+                    <>
+                          This question will be{' '}
+                          <span className="font-medium text-gray-700">
+                            permanently deleted
+                          </span>{' '}
+                          and{' '}
+                          <span className="font-medium text-gray-700">
+                            removed from all quizzes
+                          </span>{' '}
+                          that use it. This action cannot be undone.
+                        </> :
+
+                    'This draft will be permanently removed. This action cannot be undone.'
+                    }
                     </p>
                     <div className="flex items-center gap-3 w-full">
                       <button
@@ -433,17 +480,39 @@ export function QuestionsContent({
                       </button>
                       <button
                       onClick={() => {
-                        setQuestions(
-                          questions.filter((q) => q.id !== deleteConfirmId)
-                        );
-                        if (selectedQuestion?.id === deleteConfirmId) {
-                          onSelectQuestion(null as any);
+                        if (isDraftOfPublished && onDeleteQuestion) {
+                          // Discard draft: parent handler restores published version
+                          onDeleteQuestion(deleteConfirmId);
+                        } else {
+                          // Normal delete
+                          if (onDeleteQuestion) {
+                            onDeleteQuestion(deleteConfirmId);
+                          } else {
+                            setQuestions(
+                              questions.filter(
+                                (q) => q.id !== deleteConfirmId
+                              )
+                            );
+                          }
+                          if (selectedQuestion?.id === deleteConfirmId) {
+                            onSelectQuestion(null as any);
+                          }
                         }
                         setDeleteConfirmId(null);
                       }}
-                      className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">
+                      className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 ${isDraftOfPublished ? 'bg-amber-500 hover:bg-amber-600' : 'bg-red-500 hover:bg-red-600'}`}>
 
-                        Delete
+                        {isDraftOfPublished ?
+                      <>
+                            <ArrowLeft className="w-4 h-4" />
+                            Discard Draft
+                          </> :
+
+                      <>
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </>
+                      }
                       </button>
                     </div>
                   </div>
@@ -451,6 +520,93 @@ export function QuestionsContent({
               </motion.div>);
 
         })()}
+      </AnimatePresence>
+
+      {/* Edit Published Warning Dialog */}
+      <AnimatePresence>
+        {pendingEditQuestion &&
+        <motion.div
+          initial={{
+            opacity: 0
+          }}
+          animate={{
+            opacity: 1
+          }}
+          exit={{
+            opacity: 0
+          }}
+          transition={{
+            duration: 0.15
+          }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
+          onClick={() => setPendingEditQuestion(null)}>
+
+            <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.9,
+              y: 8
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              y: 4
+            }}
+            transition={{
+              type: 'spring',
+              damping: 25,
+              stiffness: 400
+            }}
+            className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}>
+
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+                  <PenSquare className="w-5 h-5 text-amber-500" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 mb-1">
+                  Edit published question?
+                </h3>
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                  A new{' '}
+                  <span className="font-medium text-gray-700">
+                    draft version
+                  </span>{' '}
+                  will be created for editing. The currently published version
+                  will remain{' '}
+                  <span className="font-medium text-gray-700">
+                    live and unchanged
+                  </span>{' '}
+                  until you publish the new draft.
+                </p>
+                <div className="flex items-center gap-3 w-full">
+                  <button
+                  onClick={() => setPendingEditQuestion(null)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+
+                    Cancel
+                  </button>
+                  <button
+                  onClick={() => {
+                    const q = pendingEditQuestion;
+                    setPendingEditQuestion(null);
+                    onSelectQuestion(q, 'edit');
+                  }}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
+
+                    <Save className="w-4 h-4" />
+                    Create Draft
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        }
       </AnimatePresence>
 
       {/* Bulk Edit Form */}

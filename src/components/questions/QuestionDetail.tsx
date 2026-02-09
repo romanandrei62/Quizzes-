@@ -46,6 +46,7 @@ interface Question {
   status: 'active' | 'draft';
   description?: string;
   options?: string[];
+  matchSubType?: 'text' | 'image';
 }
 interface QuestionDetailProps {
   question: Question | null;
@@ -53,6 +54,7 @@ interface QuestionDetailProps {
   defaultTab?: 'info' | 'edit';
   onSave?: (question: Question) => void;
   onDelete?: (questionId: string) => void;
+  isDraftOfPublished?: boolean;
 }
 const QUESTION_TYPES = [
 {
@@ -399,12 +401,23 @@ export function QuestionDetail({
   onClose,
   defaultTab,
   onSave,
-  onDelete
+  onDelete,
+  isDraftOfPublished = false
 }: QuestionDetailProps) {
   const isNewQuestion = question?.id?.startsWith('new-') ?? false;
-  const [activeTab, setActiveTab] = useState<'info' | 'edit'>(
-    defaultTab || 'info'
-  );
+  const isPublished = question?.status === 'active';
+  const [activeTab, setActiveTab] = useState<'info' | 'edit'>(() => {
+    // If published and not new, and coming from confirmed QuestionsContent flow with defaultTab='edit',
+    // go directly to edit mode
+    if (
+    question?.status === 'active' &&
+    !question?.id?.startsWith('new-') &&
+    defaultTab === 'edit')
+    {
+      return 'edit';
+    }
+    return defaultTab || 'info';
+  });
   const [editView, setEditView] = useState<'form' | 'answers'>('form');
   const [slideDirection, setSlideDirection] = useState<'right' | 'left'>(
     'right'
@@ -413,9 +426,18 @@ export function QuestionDetail({
   const [text, setText] = useState(question?.text || '');
   const [type, setType] = useState(question?.type || 'multiple');
   const [category, setCategory] = useState(question?.category || 'feedback');
-  const [status, setStatus] = useState<'active' | 'draft'>(
-    question?.status || 'draft'
-  );
+  const [status, setStatus] = useState<'active' | 'draft'>(() => {
+    // When entering edit mode for a published question (confirmed from QuestionsContent dialog),
+    // start as draft since we're creating a new draft version
+    if (
+    question?.status === 'active' &&
+    !question?.id?.startsWith('new-') &&
+    defaultTab === 'edit')
+    {
+      return 'draft';
+    }
+    return question?.status || 'draft';
+  });
   const [options, setOptions] = useState<string[]>(
     question?.options || ['', '']
   );
@@ -441,7 +463,9 @@ export function QuestionDetail({
   );
   const [editingBinaryOriginal, setEditingBinaryOriginal] = useState<string>('');
   const binaryInputRef = useRef<HTMLInputElement>(null);
-  const [matchSubType, setMatchSubType] = useState<'text' | 'image'>('text');
+  const [matchSubType, setMatchSubType] = useState<'text' | 'image'>(
+    question?.matchSubType || 'text'
+  );
   const [matchPairs, setMatchPairs] = useState<
     Array<{
       prompt: string;
@@ -451,6 +475,30 @@ export function QuestionDetail({
     () => {
       // For existing matching questions, provide default pairs for demo
       if (question?.type === 'matching' && !question.id?.startsWith('new-')) {
+        if (question.matchSubType === 'image') {
+          return [
+          {
+            prompt: '',
+            answer: 'Dashboard',
+            imageUrl: 'https://cdn-icons-png.flaticon.com/128/1828/1828765.png'
+          },
+          {
+            prompt: '',
+            answer: 'Settings',
+            imageUrl: 'https://cdn-icons-png.flaticon.com/128/3524/3524659.png'
+          },
+          {
+            prompt: '',
+            answer: 'User Profile',
+            imageUrl: 'https://cdn-icons-png.flaticon.com/128/1077/1077114.png'
+          },
+          {
+            prompt: '',
+            answer: 'Notifications',
+            imageUrl: 'https://cdn-icons-png.flaticon.com/128/3602/3602145.png'
+          }];
+
+        }
         return [
         {
           prompt: 'Sprint',
@@ -518,11 +566,38 @@ export function QuestionDetail({
   const testMatchContentRef = useRef<HTMLDivElement>(null);
   const [testMatchHeight, setTestMatchHeight] = useState<number>(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteDialogMode, setDeleteDialogMode] = useState<
+    'draft' | 'discard-draft' | 'published' | null>(
+    null);
   const [showTypeChangeConfirm, setShowTypeChangeConfirm] = useState(false);
+  const [showEditPublishedWarning, setShowEditPublishedWarning] =
+  useState(false);
   const [pendingType, setPendingType] = useState<string | null>(null);
   const [isInfoLoading, setIsInfoLoading] = useState(true);
   const [isFormLoading, setIsFormLoading] = useState(true);
   const [isAnswersLoading, setIsAnswersLoading] = useState(false);
+  // Gate edit access for published questions
+  const requestEdit = () => {
+    if (question?.status === 'active' && !isNewQuestion) {
+      setShowEditPublishedWarning(true);
+    } else {
+      setActiveTab('edit');
+      setEditView('form');
+    }
+  };
+  const confirmEditPublished = () => {
+    setShowEditPublishedWarning(false);
+    setStatus('draft');
+    setActiveTab('edit');
+    setEditView('form');
+    // Notify parent to update the question status in the list
+    if (question && onSave) {
+      onSave({
+        ...question,
+        status: 'draft'
+      });
+    }
+  };
   useEffect(() => {
     if (activeTab === 'info' && question) {
       setIsInfoLoading(true);
@@ -865,9 +940,9 @@ export function QuestionDetail({
   }
   return (
     <div className="w-full h-full bg-white flex overflow-hidden relative">
-      {/* Delete Confirmation Dialog */}
+      {/* Delete / Discard Confirmation Dialog */}
       <AnimatePresence>
-        {showDeleteConfirm &&
+        {deleteDialogMode &&
         <motion.div
           initial={{
             opacity: 0
@@ -882,7 +957,7 @@ export function QuestionDetail({
             duration: 0.15
           }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
-          onClick={() => setShowDeleteConfirm(false)}>
+          onClick={() => setDeleteDialogMode(null)}>
 
             <motion.div
             initial={{
@@ -909,33 +984,182 @@ export function QuestionDetail({
             onClick={(e) => e.stopPropagation()}>
 
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
-                  <Trash2 className="w-5 h-5 text-red-500" />
+                {/* Icon */}
+                <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${deleteDialogMode === 'discard-draft' ? 'bg-amber-50' : 'bg-red-50'}`}>
+
+                  {deleteDialogMode === 'discard-draft' ?
+                <ArrowLeft className="w-5 h-5 text-amber-500" /> :
+
+                <Trash2
+                  className={`w-5 h-5 ${deleteDialogMode === 'published' ? 'text-red-600' : 'text-red-500'}`} />
+
+                }
                 </div>
+
+                {/* Title */}
                 <h3 className="text-base font-semibold text-gray-900 mb-1">
-                  Delete this question?
+                  {deleteDialogMode === 'draft' && 'Delete this question?'}
+                  {deleteDialogMode === 'discard-draft' &&
+                'Discard draft changes?'}
+                  {deleteDialogMode === 'published' &&
+                'Delete published question?'}
                 </h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  This draft will be permanently removed. This action cannot be
-                  undone.
+
+                {/* Description */}
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                  {deleteDialogMode === 'draft' &&
+                'This draft will be permanently removed. This action cannot be undone.'}
+                  {deleteDialogMode === 'discard-draft' &&
+                <>
+                      Your draft edits will be discarded. The{' '}
+                      <span className="font-medium text-gray-700">
+                        published version
+                      </span>{' '}
+                      will remain live and unchanged.
+                    </>
+                }
+                  {deleteDialogMode === 'published' &&
+                <>
+                      This question will be{' '}
+                      <span className="font-medium text-gray-700">
+                        permanently deleted
+                      </span>{' '}
+                      and{' '}
+                      <span className="font-medium text-gray-700">
+                        removed from all quizzes
+                      </span>{' '}
+                      that use it. This action cannot be undone.
+                    </>
+                }
                 </p>
+
+                {/* Actions */}
                 <div className="flex items-center gap-3 w-full">
                   <button
-                  onClick={() => setShowDeleteConfirm(false)}
+                  onClick={() => setDeleteDialogMode(null)}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
 
                     Cancel
                   </button>
                   <button
                   onClick={() => {
-                    setShowDeleteConfirm(false);
-                    if (question) {
-                      onDelete?.(question.id);
+                    if (deleteDialogMode === 'discard-draft') {
+                      // Discard draft: reset form and go back to info view
+                      setDeleteDialogMode(null);
+                      setErrors({});
+                      setTitle(question?.title || 'New Question');
+                      setText(question?.text || '');
+                      setType(question?.type || 'multiple');
+                      setCategory(question?.category || 'feedback');
+                      setStatus(question?.status || 'draft');
+                      setOptions(question?.options || ['', '']);
+                      setActiveTab('info');
+                      setEditView('form');
+                    } else {
+                      // Delete draft or published: remove the question
+                      setDeleteDialogMode(null);
+                      if (question) {
+                        onDelete?.(question.id);
+                      }
                     }
                   }}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">
+                  className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 ${deleteDialogMode === 'discard-draft' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-red-500 hover:bg-red-600'}`}>
 
-                    Delete
+                    {deleteDialogMode === 'discard-draft' ?
+                  <>
+                        <ArrowLeft className="w-4 h-4" />
+                        Discard Draft
+                      </> :
+
+                  <>
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </>
+                  }
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        }
+      </AnimatePresence>
+
+      {/* Edit Published Warning Dialog */}
+      <AnimatePresence>
+        {showEditPublishedWarning &&
+        <motion.div
+          initial={{
+            opacity: 0
+          }}
+          animate={{
+            opacity: 1
+          }}
+          exit={{
+            opacity: 0
+          }}
+          transition={{
+            duration: 0.15
+          }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
+          onClick={() => setShowEditPublishedWarning(false)}>
+
+            <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.9,
+              y: 8
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              y: 4
+            }}
+            transition={{
+              type: 'spring',
+              damping: 25,
+              stiffness: 400
+            }}
+            className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}>
+
+              <div className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+                  <PenSquare className="w-5 h-5 text-amber-500" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 mb-1">
+                  Edit published question?
+                </h3>
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                  A new{' '}
+                  <span className="font-medium text-gray-700">
+                    draft version
+                  </span>{' '}
+                  will be created for editing. The currently published version
+                  will remain{' '}
+                  <span className="font-medium text-gray-700">
+                    live and unchanged
+                  </span>{' '}
+                  until you publish the new draft.
+                </p>
+                <div className="flex items-center gap-3 w-full">
+                  <button
+                  onClick={() => setShowEditPublishedWarning(false)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+
+                    Cancel
+                  </button>
+                  <button
+                  onClick={confirmEditPublished}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
+
+                    <Save className="w-4 h-4" />
+                    Create Draft
                   </button>
                 </div>
               </div>
@@ -1078,8 +1302,7 @@ export function QuestionDetail({
         </button>
         <button
           onClick={() => {
-            setActiveTab('edit');
-            setEditView('form');
+            requestEdit();
           }}
           className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
 
@@ -1396,17 +1619,30 @@ export function QuestionDetail({
               <Button
               variant="primary"
               className="flex-1"
-              onClick={() => setActiveTab('edit')}
+              onClick={() => requestEdit()}
               leftIcon={<Edit className="w-4 h-4" />}>
 
                 Edit Question
               </Button>
-              <Button variant="secondary" size="icon">
-                <Copy className="w-4 h-4 text-gray-600" />
-              </Button>
-              <Button variant="danger" size="icon">
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              {isDraftOfPublished ?
+            <button
+              onClick={() => setDeleteDialogMode('discard-draft')}
+              className="inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
+
+                  <ArrowLeft className="w-4 h-4" />
+                  Discard
+                </button> :
+
+            <Button
+              variant="danger"
+              size="icon"
+              onClick={() =>
+              setDeleteDialogMode(isPublished ? 'published' : 'draft')
+              }>
+
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+            }
             </div>
           </div>
         }
@@ -1414,15 +1650,16 @@ export function QuestionDetail({
         {/* EDIT TAB */}
         {activeTab === 'edit' &&
         <div className="flex flex-col h-full overflow-hidden">
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence
+            mode="wait"
+            initial={false}
+            custom={slideDirection}>
+
               {editView === 'form' &&
             <motion.div
               key="form-view"
-              initial={
-              slideDirection === 'left' ?
-              'enterFromLeft' :
-              'enterFromRight'
-              }
+              custom={slideDirection}
+              initial="enterFromLeft"
               animate="center"
               exit="exitToLeft"
               variants={slideVariants}
@@ -1674,27 +1911,27 @@ export function QuestionDetail({
                     {isNewQuestion ?
                 <Button
                   variant="danger"
-                  onClick={() => setShowDeleteConfirm(true)}
+                  onClick={() => setDeleteDialogMode('draft')}
                   leftIcon={<Trash2 className="w-4 h-4" />}>
 
                         Delete
                       </Button> :
+                isDraftOfPublished ||
+                isPublished && status === 'draft' ?
+                <button
+                  onClick={() => setDeleteDialogMode('discard-draft')}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
+
+                        <ArrowLeft className="w-4 h-4" />
+                        Discard Draft
+                      </button> :
 
                 <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setActiveTab('info');
-                    setEditView('form');
-                    setErrors({});
-                    setTitle(question?.title || 'New Question');
-                    setText(question?.text || '');
-                    setType(question?.type || 'multiple');
-                    setCategory(question?.category || 'feedback');
-                    setStatus(question?.status || 'draft');
-                    setOptions(question?.options || ['', '']);
-                  }}>
+                  variant="danger"
+                  onClick={() => setDeleteDialogMode('draft')}
+                  leftIcon={<Trash2 className="w-4 h-4" />}>
 
-                        Cancel
+                        Delete
                       </Button>
                 }
                     <div className="flex items-center gap-2">
@@ -1720,11 +1957,8 @@ export function QuestionDetail({
               {editView === 'answers' &&
             <motion.div
               key="answers-view"
-              initial={
-              slideDirection === 'right' ?
-              'enterFromRight' :
-              'enterFromLeft'
-              }
+              custom={slideDirection}
+              initial="enterFromRight"
               animate="center"
               exit="exitToRight"
               variants={slideVariants}
@@ -1810,12 +2044,12 @@ export function QuestionDetail({
                                   </div>
                                   <button
                           onClick={() => toggleCorrectOption(index)}
-                          className={`flex-shrink-0 transition-colors ${correctOptions.has(index) ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}>
+                          className={`flex-shrink-0 transition-colors ${correctOptions.has(index) ? 'text-emerald-500' : 'text-gray-300 hover:text-gray-400'}`}>
 
                                     {correctOptions.has(index) ?
-                          <CheckSquare className="w-5 h-5" /> :
+                          <CheckCircle2 className="w-5 h-5" /> :
 
-                          <Square className="w-5 h-5" />
+                          <Circle className="w-5 h-5" />
                           }
                                   </button>
                                   <input
@@ -1898,11 +2132,11 @@ export function QuestionDetail({
                             setCorrectOption(idx);
                           }
                         }}
-                        className={`relative rounded-lg border-2 text-center transition-all ${editingBinaryIndex !== idx ? 'cursor-pointer' : ''} ${correctOption === idx ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+                        className={`relative rounded-lg border-2 text-center transition-all ${editingBinaryIndex !== idx ? 'cursor-pointer' : ''} ${correctOption === idx ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
 
                                   {editingBinaryIndex !== idx &&
                         <div
-                          className={`absolute top-2 right-2 transition-colors pointer-events-none ${correctOption === idx ? 'text-green-500' : 'text-gray-300'}`}>
+                          className={`absolute top-2 right-2 transition-colors pointer-events-none ${correctOption === idx ? 'text-emerald-500' : 'text-gray-300'}`}>
 
                                       {correctOption === idx ?
                           <CheckCircle2 className="w-4 h-4" /> :
@@ -1985,7 +2219,7 @@ export function QuestionDetail({
 
                           <div className="flex items-center justify-center gap-1.5">
                                         <span
-                              className={`text-sm font-bold ${correctOption === idx ? 'text-teal-700' : 'text-gray-600'}`}>
+                              className={`text-sm font-bold ${correctOption === idx ? 'text-emerald-700' : 'text-gray-600'}`}>
 
                                           {label || (
                               idx === 0 ? 'True' : 'False')}
@@ -2181,10 +2415,10 @@ export function QuestionDetail({
                             setMatchSubType('text');
                             setActiveMatchPairIndex(null);
                           }}
-                          className={`relative rounded-lg border-2 text-center transition-all cursor-pointer py-3 px-4 ${matchSubType === 'text' ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+                          className={`relative rounded-lg border-2 text-center transition-all cursor-pointer py-3 px-4 ${matchSubType === 'text' ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
 
                                   <div
-                            className={`absolute top-2.5 right-2.5 transition-colors pointer-events-none ${matchSubType === 'text' ? 'text-green-500' : 'text-gray-300'}`}>
+                            className={`absolute top-2.5 right-2.5 transition-colors pointer-events-none ${matchSubType === 'text' ? 'text-emerald-500' : 'text-gray-300'}`}>
 
                                     {matchSubType === 'text' ?
                             <CheckCircle2 className="w-4 h-4" /> :
@@ -2194,10 +2428,10 @@ export function QuestionDetail({
                                   </div>
                                   <div className="flex items-center justify-center gap-2">
                                     <Type
-                              className={`w-4 h-4 ${matchSubType === 'text' ? 'text-teal-600' : 'text-gray-400'}`} />
+                              className={`w-4 h-4 ${matchSubType === 'text' ? 'text-emerald-600' : 'text-gray-400'}`} />
 
                                     <span
-                              className={`text-sm font-bold ${matchSubType === 'text' ? 'text-teal-700' : 'text-gray-600'}`}>
+                              className={`text-sm font-bold ${matchSubType === 'text' ? 'text-emerald-700' : 'text-gray-600'}`}>
 
                                       Text Match
                                     </span>
@@ -2208,10 +2442,10 @@ export function QuestionDetail({
                             setMatchSubType('image');
                             setActiveMatchPairIndex(null);
                           }}
-                          className={`relative rounded-lg border-2 text-center transition-all cursor-pointer py-3 px-4 ${matchSubType === 'image' ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+                          className={`relative rounded-lg border-2 text-center transition-all cursor-pointer py-3 px-4 ${matchSubType === 'image' ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
 
                                   <div
-                            className={`absolute top-2.5 right-2.5 transition-colors pointer-events-none ${matchSubType === 'image' ? 'text-green-500' : 'text-gray-300'}`}>
+                            className={`absolute top-2.5 right-2.5 transition-colors pointer-events-none ${matchSubType === 'image' ? 'text-emerald-500' : 'text-gray-300'}`}>
 
                                     {matchSubType === 'image' ?
                             <CheckCircle2 className="w-4 h-4" /> :
@@ -2221,10 +2455,10 @@ export function QuestionDetail({
                                   </div>
                                   <div className="flex items-center justify-center gap-2">
                                     <Image
-                              className={`w-4 h-4 ${matchSubType === 'image' ? 'text-teal-600' : 'text-gray-400'}`} />
+                              className={`w-4 h-4 ${matchSubType === 'image' ? 'text-emerald-600' : 'text-gray-400'}`} />
 
                                     <span
-                              className={`text-sm font-bold ${matchSubType === 'image' ? 'text-teal-700' : 'text-gray-600'}`}>
+                              className={`text-sm font-bold ${matchSubType === 'image' ? 'text-emerald-700' : 'text-gray-600'}`}>
 
                                       Image Match
                                     </span>
