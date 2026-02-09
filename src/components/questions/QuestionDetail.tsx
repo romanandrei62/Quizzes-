@@ -1293,23 +1293,17 @@ export function QuestionDetail({
             setActiveTab('info');
             setEditView('form');
           }}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
 
           <Info className="w-[18px] h-[18px]" />
-          {activeTab === 'info' &&
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-teal-500 rounded-r-full -ml-[6px]" />
-          }
         </button>
         <button
           onClick={() => {
             requestEdit();
           }}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all relative ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
 
           <PenSquare className="w-[18px] h-[18px]" />
-          {activeTab === 'edit' &&
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-teal-500 rounded-r-full -ml-[6px]" />
-          }
         </button>
       </div>
 
@@ -2475,20 +2469,13 @@ export function QuestionDetail({
                               {activeMatchPairIndex === null ?
                       <motion.div
                         key="pair-list"
-                        initial={{
-                          opacity: 0,
-                          x: -10
-                        }}
-                        animate={{
-                          opacity: 1,
-                          x: 0
-                        }}
-                        exit={{
-                          opacity: 0,
-                          x: -10
-                        }}
+                        initial="enterFromLeft"
+                        animate="center"
+                        exit="exitToLeft"
+                        variants={slideVariants}
                         transition={{
-                          duration: 0.2
+                          duration: 0.3,
+                          ease: [0.4, 0, 0.2, 1]
                         }}
                         className="space-y-2">
 
@@ -2612,20 +2599,13 @@ export function QuestionDetail({
 
                       <motion.div
                         key={`pair-detail-${activeMatchPairIndex}`}
-                        initial={{
-                          opacity: 0,
-                          x: 10
-                        }}
-                        animate={{
-                          opacity: 1,
-                          x: 0
-                        }}
-                        exit={{
-                          opacity: 0,
-                          x: 10
-                        }}
+                        initial="enterFromRight"
+                        animate="center"
+                        exit="exitToRight"
+                        variants={slideVariants}
                         transition={{
-                          duration: 0.2
+                          duration: 0.3,
+                          ease: [0.4, 0, 0.2, 1]
                         }}
                         className="space-y-4">
 
