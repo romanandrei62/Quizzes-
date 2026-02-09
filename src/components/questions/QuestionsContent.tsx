@@ -442,6 +442,13 @@ export function QuestionsContent({
                     </p>
                     <div className="flex items-center gap-3 w-full">
                       <Button
+                      variant="secondary"
+                      onClick={() => setBulkDeleteConfirm(false)}
+                      className="flex-1">
+
+                        Cancel
+                      </Button>
+                      <Button
                       variant="danger"
                       onClick={() => {
                         const idsToDelete = Array.from(selectedIds);
@@ -455,15 +462,10 @@ export function QuestionsContent({
                         setSelectedIds(new Set());
                         setBulkDeleteConfirm(false);
                       }}
-                      leftIcon={<Trash2 className="w-4 h-4" />}>
+                      leftIcon={<Trash2 className="w-4 h-4" />}
+                      className="flex-1">
 
                         Delete
-                      </Button>
-                      <Button
-                      variant="ghost"
-                      onClick={() => setBulkDeleteConfirm(false)}>
-
-                        Cancel
                       </Button>
                     </div>
                   </div>
@@ -566,57 +568,50 @@ export function QuestionsContent({
                     }
                     </p>
                     <div className="flex items-center gap-3 w-full">
+                      <Button
+                      variant="secondary"
+                      onClick={() => setDeleteConfirmId(null)}
+                      className="flex-1">
+
+                        Cancel
+                      </Button>
                       {isDraftOfPublished ?
-                    <>
-                          <Button
-                        variant="secondary"
-                        onClick={() => {
-                          if (onDeleteQuestion) {
-                            onDeleteQuestion(deleteConfirmId);
-                          }
-                          setDeleteConfirmId(null);
-                        }}
-                        leftIcon={<ArrowLeft className="w-4 h-4" />}>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        if (onDeleteQuestion) {
+                          onDeleteQuestion(deleteConfirmId);
+                        }
+                        setDeleteConfirmId(null);
+                      }}
+                      leftIcon={<ArrowLeft className="w-4 h-4" />}
+                      className="flex-1 !bg-amber-500 !text-white !border-amber-500 hover:!bg-amber-600 !shadow-md">
 
-                            Discard Draft
-                          </Button>
-                          <Button
-                        variant="ghost"
-                        onClick={() => setDeleteConfirmId(null)}>
+                          Discard Draft
+                        </Button> :
 
-                            Cancel
-                          </Button>
-                        </> :
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        if (onDeleteQuestion) {
+                          onDeleteQuestion(deleteConfirmId);
+                        } else {
+                          setQuestions(
+                            questions.filter(
+                              (q) => q.id !== deleteConfirmId
+                            )
+                          );
+                        }
+                        if (selectedQuestion?.id === deleteConfirmId) {
+                          onSelectQuestion(null as any);
+                        }
+                        setDeleteConfirmId(null);
+                      }}
+                      leftIcon={<Trash2 className="w-4 h-4" />}
+                      className="flex-1">
 
-                    <>
-                          <Button
-                        variant="danger"
-                        onClick={() => {
-                          if (onDeleteQuestion) {
-                            onDeleteQuestion(deleteConfirmId);
-                          } else {
-                            setQuestions(
-                              questions.filter(
-                                (q) => q.id !== deleteConfirmId
-                              )
-                            );
-                          }
-                          if (selectedQuestion?.id === deleteConfirmId) {
-                            onSelectQuestion(null as any);
-                          }
-                          setDeleteConfirmId(null);
-                        }}
-                        leftIcon={<Trash2 className="w-4 h-4" />}>
-
-                            Delete
-                          </Button>
-                          <Button
-                        variant="ghost"
-                        onClick={() => setDeleteConfirmId(null)}>
-
-                            Cancel
-                          </Button>
-                        </>
+                          Delete
+                        </Button>
                     }
                     </div>
                   </div>
@@ -691,20 +686,22 @@ export function QuestionsContent({
                 <div className="flex items-center gap-3 w-full">
                   <Button
                   variant="secondary"
+                  onClick={() => setPendingEditQuestion(null)}
+                  className="flex-1">
+
+                    Cancel
+                  </Button>
+                  <Button
+                  variant="secondary"
                   onClick={() => {
                     const q = pendingEditQuestion;
                     setPendingEditQuestion(null);
                     onSelectQuestion(q, 'edit');
                   }}
-                  leftIcon={<Save className="w-4 h-4" />}>
+                  leftIcon={<Save className="w-4 h-4" />}
+                  className="flex-1 !bg-amber-500 !text-white !border-amber-500 hover:!bg-amber-600 !shadow-md">
 
                     Create Draft
-                  </Button>
-                  <Button
-                  variant="ghost"
-                  onClick={() => setPendingEditQuestion(null)}>
-
-                    Cancel
                   </Button>
                 </div>
               </div>

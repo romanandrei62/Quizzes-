@@ -304,13 +304,7 @@ export function QuestionItem({
           className="flex-shrink-0 self-center transition-opacity duration-200"
           onClick={(e) => e.stopPropagation()}>
 
-          <button
-            onClick={() => handleRowAction('delete')}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            title="Delete">
-
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <RowActionsDropdown onAction={handleRowAction} />
         </div>
       </div>
     </motion.div>);
