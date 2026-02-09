@@ -6,6 +6,7 @@ import { QuestionListSkeleton } from './QuestionListSkeleton';
 import { BulkEditBar } from './BulkEditBar';
 import { BulkEditForm } from './BulkEditForm';
 import { TableActionBar } from './TableActionBar';
+import { Button } from '../ui/Button';
 interface Question {
   id: string;
   title: string;
@@ -210,6 +211,7 @@ export function QuestionsContent({
   const [showEditForm, setShowEditForm] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [pendingEditQuestion, setPendingEditQuestion] =
   useState<Question | null>(null);
   // Pagination state (simulated)
@@ -377,6 +379,100 @@ export function QuestionsContent({
   };
   return (
     <div className="flex-1 flex flex-col bg-white h-full overflow-hidden">
+      {/* Bulk Delete Confirmation Dialog */}
+      <AnimatePresence>
+        {bulkDeleteConfirm &&
+        (() => {
+          const total = selectedIds.size;
+          return (
+            <motion.div
+              initial={{
+                opacity: 0
+              }}
+              animate={{
+                opacity: 1
+              }}
+              exit={{
+                opacity: 0
+              }}
+              transition={{
+                duration: 0.15
+              }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
+              onClick={() => setBulkDeleteConfirm(false)}>
+
+                <motion.div
+                initial={{
+                  opacity: 0,
+                  scale: 0.9,
+                  y: 8
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  y: 0
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.95,
+                  y: 4
+                }}
+                transition={{
+                  type: 'spring',
+                  damping: 25,
+                  stiffness: 400
+                }}
+                className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
+                onClick={(e) => e.stopPropagation()}>
+
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                      <Trash2 className="w-5 h-5 text-red-500" />
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">
+                      Delete {total} question{total !== 1 ? 's' : ''}?
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                      The selected question{total !== 1 ? 's' : ''} will be{' '}
+                      <span className="font-medium text-gray-700">
+                        permanently removed
+                      </span>
+                      , including any quiz associations. This action cannot be
+                      undone.
+                    </p>
+                    <div className="flex items-center gap-3 w-full">
+                      <Button
+                      variant="danger"
+                      onClick={() => {
+                        const idsToDelete = Array.from(selectedIds);
+                        if (onDeleteQuestion) {
+                          idsToDelete.forEach((id) => onDeleteQuestion(id));
+                        } else {
+                          setQuestions(
+                            questions.filter((q) => !selectedIds.has(q.id))
+                          );
+                        }
+                        setSelectedIds(new Set());
+                        setBulkDeleteConfirm(false);
+                      }}
+                      leftIcon={<Trash2 className="w-4 h-4" />}>
+
+                        Delete
+                      </Button>
+                      <Button
+                      variant="ghost"
+                      onClick={() => setBulkDeleteConfirm(false)}>
+
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>);
+
+        })()}
+      </AnimatePresence>
+
       {/* Delete Confirmation Dialog */}
       <AnimatePresence>
         {deleteConfirmId &&
@@ -434,9 +530,7 @@ export function QuestionsContent({
                       {isDraftOfPublished ?
                     <ArrowLeft className="w-5 h-5 text-amber-500" /> :
 
-                    <Trash2
-                      className={`w-5 h-5 ${isPublishedQuestion ? 'text-red-600' : 'text-red-500'}`} />
-
+                    <Trash2 className="w-5 h-5 text-red-500" />
                     }
                     </div>
                     <h3 className="text-base font-semibold text-gray-900 mb-1">
@@ -472,19 +566,32 @@ export function QuestionsContent({
                     }
                     </p>
                     <div className="flex items-center gap-3 w-full">
-                      <button
-                      onClick={() => setDeleteConfirmId(null)}
-                      className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      {isDraftOfPublished ?
+                    <>
+                          <Button
+                        variant="secondary"
+                        onClick={() => {
+                          if (onDeleteQuestion) {
+                            onDeleteQuestion(deleteConfirmId);
+                          }
+                          setDeleteConfirmId(null);
+                        }}
+                        leftIcon={<ArrowLeft className="w-4 h-4" />}>
 
-                        Cancel
-                      </button>
-                      <button
-                      onClick={() => {
-                        if (isDraftOfPublished && onDeleteQuestion) {
-                          // Discard draft: parent handler restores published version
-                          onDeleteQuestion(deleteConfirmId);
-                        } else {
-                          // Normal delete
+                            Discard Draft
+                          </Button>
+                          <Button
+                        variant="ghost"
+                        onClick={() => setDeleteConfirmId(null)}>
+
+                            Cancel
+                          </Button>
+                        </> :
+
+                    <>
+                          <Button
+                        variant="danger"
+                        onClick={() => {
                           if (onDeleteQuestion) {
                             onDeleteQuestion(deleteConfirmId);
                           } else {
@@ -497,23 +604,20 @@ export function QuestionsContent({
                           if (selectedQuestion?.id === deleteConfirmId) {
                             onSelectQuestion(null as any);
                           }
-                        }
-                        setDeleteConfirmId(null);
-                      }}
-                      className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 ${isDraftOfPublished ? 'bg-amber-500 hover:bg-amber-600' : 'bg-red-500 hover:bg-red-600'}`}>
+                          setDeleteConfirmId(null);
+                        }}
+                        leftIcon={<Trash2 className="w-4 h-4" />}>
 
-                        {isDraftOfPublished ?
-                      <>
-                            <ArrowLeft className="w-4 h-4" />
-                            Discard Draft
-                          </> :
-
-                      <>
-                            <Trash2 className="w-4 h-4" />
                             Delete
-                          </>
-                      }
-                      </button>
+                          </Button>
+                          <Button
+                        variant="ghost"
+                        onClick={() => setDeleteConfirmId(null)}>
+
+                            Cancel
+                          </Button>
+                        </>
+                    }
                     </div>
                   </div>
                 </motion.div>
@@ -585,23 +689,23 @@ export function QuestionsContent({
                   until you publish the new draft.
                 </p>
                 <div className="flex items-center gap-3 w-full">
-                  <button
-                  onClick={() => setPendingEditQuestion(null)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-
-                    Cancel
-                  </button>
-                  <button
+                  <Button
+                  variant="secondary"
                   onClick={() => {
                     const q = pendingEditQuestion;
                     setPendingEditQuestion(null);
                     onSelectQuestion(q, 'edit');
                   }}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
+                  leftIcon={<Save className="w-4 h-4" />}>
 
-                    <Save className="w-4 h-4" />
                     Create Draft
-                  </button>
+                  </Button>
+                  <Button
+                  variant="ghost"
+                  onClick={() => setPendingEditQuestion(null)}>
+
+                    Cancel
+                  </Button>
                 </div>
               </div>
             </motion.div>
@@ -648,8 +752,7 @@ export function QuestionsContent({
           someCurrentPageSelected={someCurrentPageSelected}
           onClose={handleClearSelection}
           onEdit={() => setShowEditForm(true)}
-          onSetActive={handleSetActive}
-          onSetInactive={handleSetInactive}
+          onDelete={() => setBulkDeleteConfirm(true)}
           onSelectAllPages={handleSelectAllPages}
           onSelectCurrentPageOnly={handleSelectAllOnPage}
           onToggleSelectAll={handleToggleSelectAll} />

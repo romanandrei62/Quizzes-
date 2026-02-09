@@ -628,15 +628,27 @@ export function QuestionsPage() {
 
           {/* Resize Handle - Left */}
           <div
-            className="hidden lg:flex items-stretch justify-center flex-shrink-0 cursor-col-resize group relative -mx-2"
+            className="hidden lg:flex items-center justify-center flex-shrink-0 cursor-col-resize group relative"
             style={{
-              width: '4px'
+              width: '12px',
+              marginLeft: '-6px',
+              marginRight: '-6px'
             }}
             onMouseDown={handleLeftMouseDown}>
 
-            <div className="w-px bg-gray-300 group-hover:bg-gray-400 transition-colors" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded p-1 shadow-sm">
-              <GripVertical className="w-3 h-3 text-gray-500 group-hover:text-gray-700 transition-colors" />
+            <div className="flex flex-col items-center gap-[3px] opacity-40 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-[3px]">
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+              </div>
+              <div className="flex gap-[3px]">
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+              </div>
+              <div className="flex gap-[3px]">
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+              </div>
             </div>
           </div>
 
@@ -677,15 +689,27 @@ export function QuestionsPage() {
 
           {/* Resize Handle - Right */}
           <div
-            className="hidden lg:flex items-stretch justify-center flex-shrink-0 cursor-col-resize group relative -mx-2"
+            className="hidden lg:flex items-center justify-center flex-shrink-0 cursor-col-resize group relative"
             style={{
-              width: '4px'
+              width: '12px',
+              marginLeft: '-6px',
+              marginRight: '-6px'
             }}
             onMouseDown={handleRightMouseDown}>
 
-            <div className="w-px bg-gray-300 group-hover:bg-gray-400 transition-colors" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded p-1 shadow-sm">
-              <GripVertical className="w-3 h-3 text-gray-500 group-hover:text-gray-700 transition-colors" />
+            <div className="flex flex-col items-center gap-[3px] opacity-40 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-[3px]">
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+              </div>
+              <div className="flex gap-[3px]">
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+              </div>
+              <div className="flex gap-[3px]">
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+                <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
+              </div>
             </div>
           </div>
 

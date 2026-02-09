@@ -453,7 +453,8 @@ export function QuestionDetail({
     }
     return new Set();
   });
-  const [scoringMode, setScoringMode] = useState<'all' | 'any'>('all');
+  const [numCorrectAllowed, setNumCorrectAllowed] = useState<number>(1);
+  const [minCorrectRequired, setMinCorrectRequired] = useState<number>(1);
   const [binaryLabels, setBinaryLabels] = useState<[string, string]>([
   'True',
   'False']
@@ -824,7 +825,10 @@ export function QuestionDetail({
     if (type === 'multiple') {
       const filled = options.filter((o) => o.trim() !== '').length;
       const correctCount = correctOptions.size;
-      return `${filled} options, ${correctCount} correct · ${scoringMode === 'all' ? 'Require all' : 'At least one'}`;
+      if (correctCount <= 1) {
+        return `${filled} options, ${correctCount} correct`;
+      }
+      return `${filled} options, ${correctCount} correct · Min ${minCorrectRequired} required to pass`;
     }
     if (type === 'true-false')
     return correctOption === 0 ?
@@ -1244,6 +1248,8 @@ export function QuestionDetail({
                     setOptions(['', '']);
                     setCorrectOption(0);
                     setCorrectOptions(new Set());
+                    setNumCorrectAllowed(1);
+                    setMinCorrectRequired(1);
                     setScoringMode('all');
                     setBinaryLabels(['True', 'False']);
                     setCorrectAnswer('');
@@ -1439,16 +1445,14 @@ export function QuestionDetail({
                             </div>);
 
                   })}
-                        {correctOptions.size > 1 &&
-                  <div className="flex items-center gap-1.5 mt-2 px-1">
-                            <Info className="w-3 h-3 text-gray-400" />
-                            <span className="text-[11px] text-gray-400">
-                              {scoringMode === 'all' ?
-                      'All correct answers required' :
-                      'At least one correct answer needed'}
-                            </span>
-                          </div>
-                  }
+                        <div className="flex items-center gap-1.5 mt-2 px-1">
+                          <Info className="w-3 h-3 text-gray-400" />
+                          <span className="text-[11px] text-gray-400">
+                            {correctOptions.size <= 1 ?
+                      'Single correct answer' :
+                      `${correctOptions.size} correct answers · Min ${minCorrectRequired} required to pass`}
+                          </span>
+                        </div>
                       </div>
                 }
 
@@ -1726,7 +1730,8 @@ export function QuestionDetail({
                             setOptions(['', '']);
                             setCorrectOption(0);
                             setCorrectOptions(new Set());
-                            setScoringMode('all');
+                            setNumCorrectAllowed(1);
+                            setMinCorrectRequired(1);
                             setBinaryLabels(['True', 'False']);
                             setCorrectAnswer('');
                             setMatchValue(1);
@@ -2072,39 +2077,43 @@ export function QuestionDetail({
                               <Plus className="w-4 h-4" />
                               Add Option
                             </button>
+
+                            {/* Minimum Required to Pass - only shown when multiple correct answers are checked */}
                             {correctOptions.size > 1 &&
-                    <div className="pt-2 border-t border-gray-100">
-                                <span className="text-xs text-gray-500 uppercase tracking-wide font-medium block mb-2.5">
-                                  Scoring Mode
-                                </span>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <button
-                          onClick={() => setScoringMode('all')}
-                          className={`px-3 py-2.5 rounded-lg border-2 text-left transition-all ${scoringMode === 'all' ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+                    <div className="pt-3 border-t border-gray-100">
+                                <label className="block text-xs text-gray-500 uppercase tracking-wide font-medium mb-1.5">
+                                  Minimum Correct Required to Pass
+                                </label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                          type="number"
+                          min={1}
+                          max={correctOptions.size}
+                          value={Math.min(
+                            minCorrectRequired,
+                            correctOptions.size
+                          )}
+                          onChange={(e) => {
+                            const val = Math.max(
+                              1,
+                              Math.min(
+                                correctOptions.size,
+                                Number(e.target.value) || 1
+                              )
+                            );
+                            setMinCorrectRequired(val);
+                          }}
+                          className="w-20 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 text-center hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
 
-                                    <span
-                            className={`text-xs font-bold block ${scoringMode === 'all' ? 'text-teal-700' : 'text-gray-700'}`}>
-
-                                      Require All
-                                    </span>
-                                    <span className="text-[11px] text-gray-500 leading-tight block mt-0.5">
-                                      All correct answers must be selected
-                                    </span>
-                                  </button>
-                                  <button
-                          onClick={() => setScoringMode('any')}
-                          className={`px-3 py-2.5 rounded-lg border-2 text-left transition-all ${scoringMode === 'any' ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
-
-                                    <span
-                            className={`text-xs font-bold block ${scoringMode === 'any' ? 'text-teal-700' : 'text-gray-700'}`}>
-
-                                      At Least One
-                                    </span>
-                                    <span className="text-[11px] text-gray-500 leading-tight block mt-0.5">
-                                      Any one correct answer is sufficient
-                                    </span>
-                                  </button>
+                                  <span className="text-xs text-gray-400">
+                                    of {correctOptions.size} correct answers
+                                  </span>
                                 </div>
+                                <p className="mt-1.5 text-xs text-gray-400 leading-relaxed">
+                                  {minCorrectRequired >= correctOptions.size ?
+                        'The test-taker must identify all correct answers to get the question right.' :
+                        `The test-taker needs to identify at least ${minCorrectRequired} of the ${correctOptions.size} correct answers to pass.`}
+                                </p>
                               </div>
                     }
                           </div>
