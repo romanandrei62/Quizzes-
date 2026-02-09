@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Children } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Trash2 } from 'lucide-react';
 import { QuestionItem } from './QuestionItem';
 import { QuestionListSkeleton } from './QuestionListSkeleton';
 import { BulkEditBar } from './BulkEditBar';
@@ -16,7 +17,8 @@ interface Question {
   description?: string;
   options?: string[];
 }
-export const MOCK_QUESTIONS: Question[] = [{
+export const MOCK_QUESTIONS: Question[] = [
+{
   id: '1',
   title: 'Platform Access',
   text: 'What should you do first after receiving access to the platform?',
@@ -24,41 +26,50 @@ export const MOCK_QUESTIONS: Question[] = [{
   category: 'onboarding',
   createdAt: new Date('2024-01-15T10:30:00'),
   status: 'active',
-  options: ['Complete your profile', 'Explore the dashboard', 'Contact support', 'Invite team members']
-}, {
+  options: [
+  'Complete your profile',
+  'Explore the dashboard',
+  'Contact support',
+  'Invite team members']
+
+},
+{
   id: '2',
   title: 'User Experience Rating',
-  text: 'How would you rate your overall experience with our platform so far, considering ease of use, features, and support?',
-  type: 'multiple',
-  category: 'feedback',
-  createdAt: new Date('2024-01-14T14:15:00'),
-  status: 'active',
-  options: ['Excellent', 'Good', 'Fair', 'Poor']
-}, {
-  id: '3',
-  title: 'Workflow Description',
-  text: 'Please describe your ideal workflow in detail, including the tools you use, the processes you follow, and any pain points you currently experience in your daily operations.',
+  text: 'Please describe your overall experience with our platform so far, including what you liked and what could be improved.',
   type: 'open',
   category: 'feedback',
-  createdAt: new Date('2024-01-13T09:45:00'),
-  status: 'draft'
-}, {
-  id: '4',
+  createdAt: new Date('2024-01-14T14:15:00'),
+  status: 'active'
+},
+{
+  id: '3',
   title: 'LMS Features',
   text: 'The LMS platform supports video content, interactive quizzes, and multimedia learning materials for comprehensive course delivery.',
   type: 'true-false',
   category: 'lms',
-  createdAt: new Date('2024-01-12T16:20:00'),
+  createdAt: new Date('2024-01-13T09:45:00'),
   status: 'active'
-}, {
-  id: '5',
+},
+{
+  id: '4',
   title: 'Project Management Terms',
-  text: 'Match the following project management terms with their corresponding definitions and understand how they apply to your daily workflow and team collaboration.',
+  text: 'Match the following project management terms with their corresponding definitions.',
   type: 'matching',
   category: 'lms',
-  createdAt: new Date('2024-01-11T11:00:00'),
+  createdAt: new Date('2024-01-12T16:20:00'),
   status: 'active'
-}, {
+},
+{
+  id: '5',
+  title: 'Workflow Description',
+  text: 'Please describe your ideal workflow in detail, including the tools you use, the processes you follow, and any pain points you currently experience in your daily operations.',
+  type: 'open',
+  category: 'feedback',
+  createdAt: new Date('2024-01-11T11:00:00'),
+  status: 'draft'
+},
+{
   id: '6',
   title: 'Feature Priorities',
   text: 'Which features are most important to you when evaluating project management and collaboration tools for your organization?',
@@ -66,8 +77,14 @@ export const MOCK_QUESTIONS: Question[] = [{
   category: 'onboarding',
   createdAt: new Date('2024-01-10T08:30:00'),
   status: 'draft',
-  options: ['Task automation', 'Real-time collaboration', 'Advanced reporting', 'Mobile access']
-}, {
+  options: [
+  'Task automation',
+  'Real-time collaboration',
+  'Advanced reporting',
+  'Mobile access']
+
+},
+{
   id: '7',
   title: 'Feature Requests',
   text: 'What specific improvements or new features would you like to see implemented in the platform to better serve your needs and enhance your experience?',
@@ -75,7 +92,8 @@ export const MOCK_QUESTIONS: Question[] = [{
   category: 'feedback',
   createdAt: new Date('2024-01-09T13:45:00'),
   status: 'active'
-}, {
+},
+{
   id: '8',
   title: 'Integration Capabilities',
   text: 'The system allows custom integrations with third-party applications, APIs, and external services to extend functionality and streamline workflows across your organization.',
@@ -83,7 +101,8 @@ export const MOCK_QUESTIONS: Question[] = [{
   category: 'lms',
   createdAt: new Date('2024-01-08T10:15:00'),
   status: 'active'
-}, {
+},
+{
   id: '9',
   title: 'Discovery Channel',
   text: 'How did you first hear about our platform and what motivated you to sign up and start using our services for your business needs?',
@@ -92,7 +111,8 @@ export const MOCK_QUESTIONS: Question[] = [{
   createdAt: new Date('2024-01-07T15:30:00'),
   status: 'active',
   options: ['Social media', 'Search engine', 'Referral', 'Advertisement']
-}, {
+},
+{
   id: '10',
   title: 'Collaboration Tools',
   text: 'Match the following collaboration tools with their primary use cases and understand when to apply each one for maximum team efficiency and productivity.',
@@ -100,7 +120,8 @@ export const MOCK_QUESTIONS: Question[] = [{
   category: 'lms',
   createdAt: new Date('2024-01-06T09:00:00'),
   status: 'draft'
-}, {
+},
+{
   id: '11',
   title: 'Role Identification',
   text: 'What is your current role within your organization and how does it relate to the use of project management and collaboration software?',
@@ -109,7 +130,8 @@ export const MOCK_QUESTIONS: Question[] = [{
   createdAt: new Date('2024-01-05T14:20:00'),
   status: 'active',
   options: ['Manager', 'Team Lead', 'Individual Contributor', 'Executive']
-}, {
+},
+{
   id: '12',
   title: 'Current Challenges',
   text: 'Please describe your biggest challenge with current tools and explain how you think a better solution could address these pain points effectively for your team.',
@@ -117,7 +139,8 @@ export const MOCK_QUESTIONS: Question[] = [{
   category: 'feedback',
   createdAt: new Date('2024-01-04T11:45:00'),
   status: 'draft'
-}, {
+},
+{
   id: '13',
   title: 'Security Features',
   text: 'The platform supports single sign-on (SSO) authentication, multi-factor authentication, and enterprise-grade security features for user access control and data protection.',
@@ -125,7 +148,8 @@ export const MOCK_QUESTIONS: Question[] = [{
   category: 'lms',
   createdAt: new Date('2024-01-03T16:10:00'),
   status: 'active'
-}, {
+},
+{
   id: '14',
   title: 'Team Size',
   text: 'How many team members in your organization will be using the platform on a regular basis for their daily work and collaboration activities?',
@@ -134,7 +158,8 @@ export const MOCK_QUESTIONS: Question[] = [{
   createdAt: new Date('2024-01-02T10:30:00'),
   status: 'active',
   options: ['1-5', '6-20', '21-50', '50+']
-}, {
+},
+{
   id: '15',
   title: 'Enhancement Suggestions',
   text: 'What additional features, integrations, or capabilities would significantly enhance your experience and make the platform more valuable for your specific use case and business requirements?',
@@ -143,13 +168,14 @@ export const MOCK_QUESTIONS: Question[] = [{
   createdAt: new Date('2024-01-01T13:00:00'),
   status: 'draft'
 }];
+
 interface QuestionsContentProps {
   selectedType: string;
   selectedCategory: string;
   activeTab: 'questions' | 'quizzes';
   onTabChange: (tab: 'questions' | 'quizzes') => void;
   selectedQuestion: Question | null;
-  onSelectQuestion: (question: Question) => void;
+  onSelectQuestion: (question: Question, defaultTab?: 'info' | 'edit') => void;
   questions?: Question[];
   setQuestions?: React.Dispatch<React.SetStateAction<Question[]>>;
 }
@@ -163,8 +189,8 @@ export function QuestionsContent({
   questions: propsQuestions,
   setQuestions: propsSetQuestions
 }: QuestionsContentProps) {
-  const [localQuestions, setLocalQuestions] = useState<Question[]>(MOCK_QUESTIONS);
-
+  const [localQuestions, setLocalQuestions] =
+  useState<Question[]>(MOCK_QUESTIONS);
   // Use props questions if provided, otherwise use local state
   const questions = propsQuestions || localQuestions;
   const setQuestions = propsSetQuestions || setLocalQuestions;
@@ -177,11 +203,16 @@ export function QuestionsContent({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   // Pagination state (simulated)
   const totalItems = questions.length;
   const currentPageItems = questions;
-  const allCurrentPageSelected = currentPageItems.every((item) => selectedIds.has(item.id));
-  const someCurrentPageSelected = currentPageItems.some((item) => selectedIds.has(item.id)) && !allCurrentPageSelected;
+  const allCurrentPageSelected = currentPageItems.every((item) =>
+  selectedIds.has(item.id)
+  );
+  const someCurrentPageSelected =
+  currentPageItems.some((item) => selectedIds.has(item.id)) &&
+  !allCurrentPageSelected;
   const allPagesSelected = selectedIds.size === totalItems;
   // Simulate initial load
   useEffect(() => {
@@ -190,13 +221,21 @@ export function QuestionsContent({
     return () => clearTimeout(timer);
   }, [selectedType, selectedCategory]);
   // Filter questions by search query, type, category, and status
-  const filteredQuestions = questions.filter((q) => {
-    const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase()) || q.text.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredQuestions = questions.
+  filter((q) => {
+    const matchesSearch =
+    q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    q.text.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = selectedType === 'all' || q.type === selectedType;
-    const matchesCategory = selectedCategory === 'all' || q.category === selectedCategory;
-    const matchesFilter = filterBy === 'all' || filterBy === 'published' && q.status === 'active' || filterBy === 'draft' && q.status === 'draft';
+    const matchesCategory =
+    selectedCategory === 'all' || q.category === selectedCategory;
+    const matchesFilter =
+    filterBy === 'all' ||
+    filterBy === 'published' && q.status === 'active' ||
+    filterBy === 'draft' && q.status === 'draft';
     return matchesSearch && matchesType && matchesCategory && matchesFilter;
-  }).sort((a, b) => {
+  }).
+  sort((a, b) => {
     switch (sortBy) {
       case 'created_desc':
         return b.createdAt.getTime() - a.createdAt.getTime();
@@ -224,7 +263,10 @@ export function QuestionsContent({
     });
   };
   const handleToggleSelectAll = () => {
-    if (allCurrentPageSelected && selectedIds.size === currentPageItems.length) {
+    if (
+    allCurrentPageSelected &&
+    selectedIds.size === currentPageItems.length)
+    {
       setSelectedIds(new Set());
     } else {
       setSelectedIds(new Set(currentPageItems.map((item) => item.id)));
@@ -271,9 +313,13 @@ export function QuestionsContent({
     const question = questions.find((q) => q.id === questionId);
     if (!question) return;
     switch (action) {
+      case 'view':
+        // Open the question in view/info mode
+        onSelectQuestion(question, 'info');
+        break;
       case 'edit':
         // Open the question in edit mode
-        onSelectQuestion(question);
+        onSelectQuestion(question, 'edit');
         break;
       case 'duplicate':
         // Create a duplicate with a new ID and all answers/options preserved
@@ -291,13 +337,8 @@ export function QuestionsContent({
         setTimeout(() => onSelectQuestion(duplicate), 100);
         break;
       case 'delete':
-        // Remove the question
-        if (window.confirm(`Delete "${question.title}"?`)) {
-          setQuestions(questions.filter((q) => q.id !== questionId));
-          if (selectedQuestion?.id === questionId) {
-            onSelectQuestion(null as any);
-          }
-        }
+        // Show delete confirmation modal
+        setDeleteConfirmId(questionId);
         break;
     }
   };
@@ -322,25 +363,155 @@ export function QuestionsContent({
       y: 0
     }
   };
-  return <div className="flex-1 flex flex-col bg-white h-full overflow-hidden">
+  return (
+    <div className="flex-1 flex flex-col bg-white h-full overflow-hidden">
+      {/* Delete Confirmation Dialog */}
+      <AnimatePresence>
+        {deleteConfirmId &&
+        (() => {
+          const questionToDelete = questions.find(
+            (q) => q.id === deleteConfirmId
+          );
+          return (
+            <motion.div
+              initial={{
+                opacity: 0
+              }}
+              animate={{
+                opacity: 1
+              }}
+              exit={{
+                opacity: 0
+              }}
+              transition={{
+                duration: 0.15
+              }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
+              onClick={() => setDeleteConfirmId(null)}>
+
+                <motion.div
+                initial={{
+                  opacity: 0,
+                  scale: 0.9,
+                  y: 8
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  y: 0
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.95,
+                  y: 4
+                }}
+                transition={{
+                  type: 'spring',
+                  damping: 25,
+                  stiffness: 400
+                }}
+                className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
+                onClick={(e) => e.stopPropagation()}>
+
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                      <Trash2 className="w-5 h-5 text-red-500" />
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">
+                      Delete this question?
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-6">
+                      This question will be permanently removed. This action
+                      cannot be undone.
+                    </p>
+                    <div className="flex items-center gap-3 w-full">
+                      <button
+                      onClick={() => setDeleteConfirmId(null)}
+                      className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+
+                        Cancel
+                      </button>
+                      <button
+                      onClick={() => {
+                        setQuestions(
+                          questions.filter((q) => q.id !== deleteConfirmId)
+                        );
+                        if (selectedQuestion?.id === deleteConfirmId) {
+                          onSelectQuestion(null as any);
+                        }
+                        setDeleteConfirmId(null);
+                      }}
+                      className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">
+
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>);
+
+        })()}
+      </AnimatePresence>
+
       {/* Bulk Edit Form */}
-      {showEditForm && <BulkEditForm selectedCount={selectedIds.size} onClose={() => setShowEditForm(false)} onSave={handleSaveBulkEdit} />}
+      {showEditForm &&
+      <BulkEditForm
+        selectedCount={selectedIds.size}
+        onClose={() => setShowEditForm(false)}
+        onSave={handleSaveBulkEdit} />
+
+      }
 
       {/* Table Action Bar */}
-      <TableActionBar showSearch={true} searchPlaceholder="Search questions..." onSearch={setSearchQuery} showFilter={true} onFilter={handleFilterChange} showSort={true} onSort={handleSortChange} showCheckboxToggle={true} checkboxesVisible={showCheckboxes} onToggleCheckboxes={handleToggleCheckboxes} showItemsPerPage={true} itemsPerPage={itemsPerPage} itemsPerPageOptions={[10, 25, 50]} onItemsPerPageChange={setItemsPerPage} />
+      <TableActionBar
+        showSearch={true}
+        searchPlaceholder="Search questions..."
+        onSearch={setSearchQuery}
+        showFilter={true}
+        onFilter={handleFilterChange}
+        showSort={true}
+        onSort={handleSortChange}
+        showCheckboxToggle={true}
+        checkboxesVisible={showCheckboxes}
+        onToggleCheckboxes={handleToggleCheckboxes}
+        showItemsPerPage={true}
+        itemsPerPage={itemsPerPage}
+        itemsPerPageOptions={[10, 25, 50]}
+        onItemsPerPageChange={setItemsPerPage} />
 
 
       {/* Bulk Edit Bar */}
       <AnimatePresence mode="wait">
-        {selectedIds.size > 0 && showCheckboxes && <BulkEditBar selectedCount={selectedIds.size} totalCount={totalItems} currentPageCount={currentPageItems.length} allPagesSelected={allPagesSelected} allCurrentPageSelected={allCurrentPageSelected} someCurrentPageSelected={someCurrentPageSelected} onClose={handleClearSelection} onEdit={() => setShowEditForm(true)} onSetActive={handleSetActive} onSetInactive={handleSetInactive} onSelectAllPages={handleSelectAllPages} onSelectCurrentPageOnly={handleSelectAllOnPage} onToggleSelectAll={handleToggleSelectAll} />}
+        {selectedIds.size > 0 && showCheckboxes &&
+        <BulkEditBar
+          selectedCount={selectedIds.size}
+          totalCount={totalItems}
+          currentPageCount={currentPageItems.length}
+          allPagesSelected={allPagesSelected}
+          allCurrentPageSelected={allCurrentPageSelected}
+          someCurrentPageSelected={someCurrentPageSelected}
+          onClose={handleClearSelection}
+          onEdit={() => setShowEditForm(true)}
+          onSetActive={handleSetActive}
+          onSetInactive={handleSetInactive}
+          onSelectAllPages={handleSelectAllPages}
+          onSelectCurrentPageOnly={handleSelectAllOnPage}
+          onToggleSelectAll={handleToggleSelectAll} />
+
+        }
       </AnimatePresence>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto" style={{
-      paddingRight: '8px'
-    }}>
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{
+          paddingRight: '8px'
+        }}>
 
-        {isLoading ? <QuestionListSkeleton count={8} /> : filteredQuestions.length === 0 ? <div className="flex flex-col items-center justify-center h-full p-8">
+        {isLoading ?
+        <QuestionListSkeleton count={8} /> :
+        filteredQuestions.length === 0 ?
+        <div className="flex flex-col items-center justify-center h-full p-8">
             <h3 className="text-xl font-normal text-gray-700 mb-3">
               Ready to get started?
             </h3>
@@ -348,16 +519,41 @@ export function QuestionsContent({
               When an item is added, you will see it displayed here
             </p>
             <div className="w-48 h-48 opacity-40 mt-8">
-              <img src="/image.png" alt="Empty state" className="w-full h-full object-contain" />
+              <img
+              src="/image.png"
+              alt="Empty state"
+              className="w-full h-full object-contain" />
 
             </div>
-          </div> : <motion.div variants={container} initial="hidden" animate="show" className="divide-y divide-gray-100">
+          </div> :
 
-            {filteredQuestions.map((question) => <motion.div key={question.id} variants={item}>
-                <QuestionItem question={question} isHovered={hoveredId === question.id} isSelected={selectedQuestion?.id === question.id} onMouseEnter={() => setHoveredId(question.id)} onMouseLeave={() => setHoveredId(null)} onClick={() => onSelectQuestion(question)} showCheckbox={showCheckboxes} isChecked={selectedIds.has(question.id)} onCheckboxChange={() => handleToggleSelect(question.id)} onAction={(action) => handleQuestionAction(question.id, action)} />
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="divide-y divide-gray-100">
 
-              </motion.div>)}
-          </motion.div>}
+            {filteredQuestions.map((question) =>
+          <motion.div key={question.id} variants={item}>
+                <QuestionItem
+              question={question}
+              isHovered={hoveredId === question.id}
+              isSelected={selectedQuestion?.id === question.id}
+              onMouseEnter={() => setHoveredId(question.id)}
+              onMouseLeave={() => setHoveredId(null)}
+              onClick={() => onSelectQuestion(question)}
+              showCheckbox={showCheckboxes}
+              isChecked={selectedIds.has(question.id)}
+              onCheckboxChange={() => handleToggleSelect(question.id)}
+              onAction={(action) =>
+              handleQuestionAction(question.id, action)
+              } />
+
+              </motion.div>
+          )}
+          </motion.div>
+        }
       </div>
-    </div>;
+    </div>);
+
 }
