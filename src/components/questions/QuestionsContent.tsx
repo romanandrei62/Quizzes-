@@ -183,6 +183,7 @@ interface QuestionsContentProps {
   setQuestions?: React.Dispatch<React.SetStateAction<Question[]>>;
   draftOfPublishedIds?: Set<string>;
   onDeleteQuestion?: (questionId: string) => void;
+  publishedVersionMap?: Map<string, string>;
 }
 export function QuestionsContent({
   selectedType,
@@ -194,7 +195,8 @@ export function QuestionsContent({
   questions: propsQuestions,
   setQuestions: propsSetQuestions,
   draftOfPublishedIds = new Set(),
-  onDeleteQuestion
+  onDeleteQuestion,
+  publishedVersionMap = new Map()
 }: QuestionsContentProps) {
   const [localQuestions, setLocalQuestions] =
   useState<Question[]>(MOCK_QUESTIONS);
@@ -242,11 +244,9 @@ export function QuestionsContent({
     const isDraftOfPublished = draftOfPublishedIds.has(q.id);
     const matchesFilter =
     filterBy === 'all' ||
-    filterBy === 'published' &&
-    q.status === 'active' &&
-    !isDraftOfPublished ||
-    filterBy === 'draft' && q.status === 'draft' && !isDraftOfPublished ||
-    filterBy === 'published-with-draft' && isDraftOfPublished;
+    filterBy === 'published' && (
+    q.status === 'active' || isDraftOfPublished) ||
+    filterBy === 'draft' && q.status === 'draft' && !isDraftOfPublished;
     return matchesSearch && matchesType && matchesCategory && matchesFilter;
   }).
   sort((a, b) => {
@@ -808,7 +808,18 @@ export function QuestionsContent({
               onAction={(action) =>
               handleQuestionAction(question.id, action)
               }
-              isDraftOfPublished={draftOfPublishedIds.has(question.id)} />
+              isDraftOfPublished={draftOfPublishedIds.has(question.id)}
+              onViewPublished={() => {
+                const publishedId = publishedVersionMap.get(question.id);
+                if (publishedId) {
+                  const publishedQuestion = questions.find(
+                    (q) => q.id === publishedId
+                  );
+                  if (publishedQuestion) {
+                    onSelectQuestion(publishedQuestion, 'info');
+                  }
+                }
+              }} />
 
               </motion.div>
           )}

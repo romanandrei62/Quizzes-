@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Plus, MoreVertical, Tags, ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ManageCategoriesModal } from './ManageCategoriesModal';
-import { FaIcon } from '../ui/FaIcon';
 interface QuestionsSidebarProps {
   selectedType: string;
   onSelectType: (type: string) => void;
@@ -70,27 +69,27 @@ const TYPES = [
 {
   id: 'all',
   label: 'All Types',
-  faIcon: 'all-types'
+  icon: 'all-types'
 },
 {
   id: 'multiple',
   label: 'Multiple Choice',
-  faIcon: 'multiple-choice'
+  icon: 'multiple-choice'
 },
 {
   id: 'open',
   label: 'Open Answer',
-  faIcon: 'open-answer'
+  icon: 'open-answer'
 },
 {
   id: 'true-false',
   label: 'True/False',
-  faIcon: 'true-false'
+  icon: 'true-false'
 },
 {
   id: 'matching',
   label: 'Matching',
-  faIcon: 'matching'
+  icon: 'matching'
 }];
 
 const INITIAL_CATEGORIES = [
@@ -363,7 +362,7 @@ export function QuestionsSidebar({
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [visibleCount, setVisibleCount] = useState(10);
   const displayCategories = [ALL_CATEGORIES_ENTRY, ...categories];
-  const visibleCategories = displayCategories.slice(0, visibleCount + 1);
+  const visibleCategories = displayCategories.slice(0, visibleCount + 1); // +1 for "All Categories"
   const hasMore = visibleCount < categories.length;
   const remaining = categories.length - visibleCount;
   const handleCategoriesSaved = (
@@ -422,7 +421,7 @@ export function QuestionsSidebar({
             onClick={() => onSelectType(type.id)}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${selectedType === type.id ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}>
 
-              <FaIcon name={type.faIcon} className="w-4 h-4" />
+              {renderIcon(type.icon)}
               <span>{type.label}</span>
             </button>
           )}

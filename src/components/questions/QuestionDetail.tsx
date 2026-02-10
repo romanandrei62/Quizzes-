@@ -32,10 +32,15 @@ import {
   Sparkles,
   ArrowLeft,
   Image,
-  Upload } from
+  Upload,
+  Eye,
+  ExternalLink,
+  MonitorPlay,
+  Settings2 } from
 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
+import { QuestionPreview } from './QuestionPreview';
 interface Question {
   id: string;
   title: string;
@@ -55,6 +60,8 @@ interface QuestionDetailProps {
   onSave?: (question: Question) => void;
   onDelete?: (questionId: string) => void;
   isDraftOfPublished?: boolean;
+  onViewPublished?: () => void;
+  publishedDate?: Date;
 }
 const QUESTION_TYPES = [
 {
@@ -407,7 +414,9 @@ export function QuestionDetail({
   defaultTab,
   onSave,
   onDelete,
-  isDraftOfPublished = false
+  isDraftOfPublished = false,
+  onViewPublished,
+  publishedDate
 }: QuestionDetailProps) {
   const isNewQuestion = question?.id?.startsWith('new-') ?? false;
   const isPublished = question?.status === 'active';
@@ -423,6 +432,8 @@ export function QuestionDetail({
     }
     return defaultTab || 'info';
   });
+  const [infoMode, setInfoMode] = useState<'config' | 'preview'>('config');
+  const [isViewingPublished, setIsViewingPublished] = useState(false);
   const [editView, setEditView] = useState<'form' | 'answers'>('form');
   const [slideDirection, setSlideDirection] = useState<'right' | 'left'>(
     'right'
@@ -582,6 +593,76 @@ export function QuestionDetail({
   const [isInfoLoading, setIsInfoLoading] = useState(true);
   const [isFormLoading, setIsFormLoading] = useState(true);
   const [isAnswersLoading, setIsAnswersLoading] = useState(false);
+  // Snapshot of original published question data for "View published version" preview
+  const publishedSnapshotRef = useRef({
+    title: question?.title || '',
+    text: question?.text || '',
+    type: question?.type || 'multiple',
+    options: question?.options ? [...question.options] : [],
+    matchSubType: question?.matchSubType || 'text',
+    matchPairs: (() => {
+      if (question?.type === 'matching' && !question.id?.startsWith('new-')) {
+        if (question.matchSubType === 'image') {
+          return [
+          {
+            prompt: '',
+            answer: 'Dashboard',
+            imageUrl:
+            'https://cdn-icons-png.flaticon.com/128/1828/1828765.png'
+          },
+          {
+            prompt: '',
+            answer: 'Settings',
+            imageUrl:
+            'https://cdn-icons-png.flaticon.com/128/3524/3524659.png'
+          },
+          {
+            prompt: '',
+            answer: 'User Profile',
+            imageUrl:
+            'https://cdn-icons-png.flaticon.com/128/1077/1077114.png'
+          },
+          {
+            prompt: '',
+            answer: 'Notifications',
+            imageUrl:
+            'https://cdn-icons-png.flaticon.com/128/3602/3602145.png'
+          }];
+
+        }
+        return [
+        {
+          prompt: 'Sprint',
+          answer: 'A short, time-boxed period for completing work'
+        },
+        {
+          prompt: 'Backlog',
+          answer: 'A prioritized list of work items'
+        },
+        {
+          prompt: 'Standup',
+          answer: 'A brief daily team meeting'
+        },
+        {
+          prompt: 'Retrospective',
+          answer: 'A review meeting after a sprint'
+        }];
+
+      }
+      return [
+      {
+        prompt: '',
+        answer: ''
+      },
+      {
+        prompt: '',
+        answer: ''
+      }];
+
+    })(),
+    binaryLabels: ['True', 'False'] as [string, string],
+    hint: ''
+  });
   // Gate edit access for published questions
   const requestEdit = () => {
     if (question?.status === 'active' && !isNewQuestion) {
@@ -1301,8 +1382,8 @@ export function QuestionDetail({
         }
       </AnimatePresence>
 
-      {/* Icon Sidebar */}
-      <div className="w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex flex-col items-center pt-4 gap-3">
+      {/* Icon Sidebar - Hidden on mobile */}
+      <div className="hidden md:flex w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex-col items-center pt-4 gap-3">
         <button
           onClick={() => {
             setActiveTab('info');
@@ -1327,44 +1408,153 @@ export function QuestionDetail({
         {/* INFO TAB */}
         {activeTab === 'info' &&
         <div className="flex flex-col h-full">
-            <div className="h-[57px] px-6 border-b border-gray-200 flex items-center justify-end flex-shrink-0 bg-white">
-              <button
-              onClick={onClose}
-              className="p-1 hover:bg-gray-100 rounded transition-colors">
+            <div className="h-[57px] px-4 md:px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
+              <h2 className="text-base md:text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
+                {isInfoLoading ?
+              <div className="h-5 w-40 bg-gray-200 rounded animate-pulse" /> :
 
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              {isInfoLoading ?
-            <InfoSkeleton /> :
+              question.title
+              }
+              </h2>
+              {!isInfoLoading &&
+            <>
+                  {/* Compact icon-only Config/Preview switcher */}
+                  <div className="relative flex items-center gap-0.5 p-[3px] bg-gray-950/[0.04] rounded-full ml-2 md:ml-3 flex-shrink-0">
+                    <motion.div
+                  layout
+                  className="absolute top-[3px] bottom-[3px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]"
+                  animate={{
+                    left: infoMode === 'config' ? '3px' : 'calc(50% + 1px)',
+                    width: 'calc(50% - 4px)'
+                  }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 500,
+                    damping: 35
+                  }} />
 
-            <div className="p-6 space-y-6">
-                  {/* Status + Metadata Row */}
-                  <div className="flex items-center justify-between">
-                    <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${question.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                    <button
+                  onClick={() => setInfoMode('config')}
+                  className={`relative z-10 flex items-center justify-center w-7 md:w-8 h-7 md:h-8 rounded-full transition-colors duration-200 ${infoMode === 'config' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                  title="Config">
 
-                      <span
-                    className={`w-1.5 h-1.5 rounded-full mr-1.5 ${question.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                      <Settings2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
+                    </button>
+                    <button
+                  onClick={() => {
+                    setIsViewingPublished(false);
+                    setInfoMode('preview');
+                  }}
+                  className={`relative z-10 flex items-center justify-center w-7 md:w-8 h-7 md:h-8 rounded-full transition-colors duration-200 ${infoMode === 'preview' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                  title="Preview">
 
-                      {question.status === 'active' ? 'Published' : 'Draft'}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {formatDate(question.createdAt)}
-                    </span>
+                      <Eye className="w-3 md:w-3.5 h-3 md:h-3.5" />
+                    </button>
                   </div>
+                </>
+            }
+            </div>
+            <div className="flex-1 overflow-y-auto bg-gray-50/50">
+              {isInfoLoading ?
+            <div className="bg-white h-full">
+                  <InfoSkeleton />
+                </div> :
+            infoMode === 'preview' ?
+            <div className="p-4 md:p-8 flex items-center justify-center min-h-full">
+                  {isViewingPublished ?
+              <QuestionPreview
+                title={publishedSnapshotRef.current.title}
+                text={publishedSnapshotRef.current.text}
+                type={publishedSnapshotRef.current.type}
+                options={publishedSnapshotRef.current.options}
+                matchSubType={
+                publishedSnapshotRef.current.matchSubType as
+                'text' |
+                'image'
+                }
+                matchPairs={publishedSnapshotRef.current.matchPairs}
+                binaryLabels={publishedSnapshotRef.current.binaryLabels}
+                hint={publishedSnapshotRef.current.hint} /> :
+
+
+              <QuestionPreview
+                title={title}
+                text={text}
+                type={type}
+                options={options}
+                matchSubType={matchSubType}
+                matchPairs={matchPairs}
+                binaryLabels={binaryLabels}
+                hint={hint} />
+
+              }
+                </div> :
+
+            <div className="p-4 md:p-6 space-y-4 md:space-y-6 bg-white min-h-full">
+                  {/* Published version banner for drafts of published questions */}
+                  {isDraftOfPublished &&
+              <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-emerald-50 to-teal-50/40 ring-1 ring-emerald-500/10">
+                      <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-emerald-400 to-teal-500" />
+                      <div className="pl-5 pr-4 py-3.5 flex items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="relative flex h-2 w-2 flex-shrink-0">
+                              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50 animate-ping" />
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                            </span>
+                            <span className="text-[13px] font-semibold text-emerald-800 tracking-tight">
+                              Published version is live
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-emerald-600/60 leading-relaxed pl-4">
+                            Last published{' '}
+                            <span className="font-medium text-emerald-700/70">
+                              {(
+                        publishedDate || question.createdAt).
+                        toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                            </span>
+                            {' · '}Changes won't go live until you publish this
+                            draft.
+                          </p>
+                        </div>
+                        <button
+                    onClick={() => setInfoMode('preview')}
+                    className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-700 bg-white/80 ring-1 ring-emerald-500/15 hover:bg-white hover:ring-emerald-500/25 hover:shadow-sm transition-all">
+
+                          View
+                          <Eye className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+              }
 
                   {/* Question Title & Content */}
                   <div>
-                    <h3 className="text-base font-semibold text-gray-900 leading-snug">
-                      {question.title}
-                    </h3>
+                    <div className="flex items-start gap-2.5">
+                      <h3 className="text-base font-semibold text-gray-900 leading-snug flex-1 min-w-0">
+                        {question.title}
+                      </h3>
+                      <span
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 mt-0.5 ${question.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+
+                        <span
+                      className={`w-1.5 h-1.5 rounded-full ${question.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+
+                        {question.status === 'active' ? 'Published' : 'Draft'}
+                      </span>
+                    </div>
                     {text &&
-                <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+                <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">
                         {text}
                       </p>
                 }
+                    <span className="text-[11px] text-gray-400 mt-1.5 block">
+                      {formatDate(question.createdAt)}
+                    </span>
                   </div>
 
                   {/* Type & Category - Compact Row */}
@@ -1622,23 +1812,24 @@ export function QuestionDetail({
                 </div>
             }
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center gap-2 bg-gray-50">
-              <Button
+            {infoMode === 'config' &&
+          <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-gray-50">
+                <Button
               variant="primary"
-              className="flex-1"
+              className="flex-1 justify-center"
               onClick={() => requestEdit()}
               leftIcon={<Edit className="w-4 h-4" />}>
 
-                Edit Question
-              </Button>
-              {isDraftOfPublished ?
+                  Edit Question
+                </Button>
+                {isDraftOfPublished ?
             <button
               onClick={() => setDeleteDialogMode('discard-draft')}
-              className="inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
 
-                  <ArrowLeft className="w-4 h-4" />
-                  Discard
-                </button> :
+                    <ArrowLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">Discard</span>
+                  </button> :
 
             <Button
               variant="danger"
@@ -1647,10 +1838,11 @@ export function QuestionDetail({
               setDeleteDialogMode(isPublished ? 'published' : 'draft')
               }>
 
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
             }
-            </div>
+              </div>
+          }
           </div>
         }
 
@@ -1676,8 +1868,8 @@ export function QuestionDetail({
               }}
               className="flex flex-col h-full">
 
-                  <div className="h-[57px] px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
-                    <h2 className="text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
+                  <div className="h-[57px] px-4 md:px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
+                    <h2 className="text-base md:text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
                       {isFormLoading ?
                   <div className="h-5 w-40 bg-gray-200 rounded animate-pulse" /> :
                   isNewQuestion ?
@@ -1688,12 +1880,14 @@ export function QuestionDetail({
                     </h2>
                     {!isFormLoading &&
                 <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ml-3 flex-shrink-0 ${status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                  className={`inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold border ml-2 md:ml-3 flex-shrink-0 ${status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
 
                         <span
-                    className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                    className={`w-1.5 h-1.5 rounded-full mr-1 md:mr-1.5 ${status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
 
-                        {status === 'active' ? 'Published' : 'Draft'}
+                        <span className="hidden sm:inline">
+                          {status === 'active' ? 'Published' : 'Draft'}
+                        </span>
                       </span>
                 }
                   </div>
@@ -1701,7 +1895,32 @@ export function QuestionDetail({
                     {isFormLoading ?
                 <FormSkeleton /> :
 
-                <div className="px-6 pt-6 pb-8 space-y-6">
+                <div className="px-4 md:px-6 pt-4 md:pt-6 pb-6 md:pb-8 space-y-4 md:space-y-6">
+                        {/* Published version notice in edit mode */}
+                        {isDraftOfPublished &&
+                  <div className="relative rounded-lg overflow-hidden bg-gradient-to-r from-emerald-50/80 to-teal-50/30 ring-1 ring-emerald-500/10">
+                            <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-emerald-400 to-teal-500" />
+                            <div
+                      className="pl-4 pr-3 py-2 flex items-center gap-2.5 cursor-pointer group"
+                      onClick={() => {
+                        setActiveTab('info');
+                        setInfoMode('preview');
+                      }}>
+
+                              <span className="relative flex h-1.5 w-1.5 flex-shrink-0">
+                                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50 animate-ping" />
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                              </span>
+                              <span className="text-[11px] font-medium text-emerald-700/70 flex-1 tracking-tight">
+                                Published version live · Editing draft
+                              </span>
+                              <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600/50 group-hover:text-emerald-700 transition-colors">
+                                View
+                                <Eye className="w-2.5 h-2.5" />
+                              </span>
+                            </div>
+                          </div>
+                  }
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1.5">
                             Reference Title
@@ -1915,12 +2134,13 @@ export function QuestionDetail({
                       </div>
                 }
                   </div>
-                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between gap-2 bg-gray-50">
+                  <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-gray-50">
                     {isNewQuestion ?
                 <Button
                   variant="danger"
                   onClick={() => setDeleteDialogMode('draft')}
-                  leftIcon={<Trash2 className="w-4 h-4" />}>
+                  leftIcon={<Trash2 className="w-4 h-4" />}
+                  className="sm:w-auto">
 
                         Delete
                       </Button> :
@@ -1928,32 +2148,37 @@ export function QuestionDetail({
                 isPublished && status === 'draft' ?
                 <button
                   onClick={() => setDeleteDialogMode('discard-draft')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
+                  className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
 
                         <ArrowLeft className="w-4 h-4" />
-                        Discard Draft
+                        <span className="hidden sm:inline">Discard Draft</span>
+                        <span className="sm:hidden">Discard</span>
                       </button> :
 
                 <Button
                   variant="danger"
                   onClick={() => setDeleteDialogMode('draft')}
-                  leftIcon={<Trash2 className="w-4 h-4" />}>
+                  leftIcon={<Trash2 className="w-4 h-4" />}
+                  className="sm:w-auto">
 
                         Delete
                       </Button>
                 }
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 sm:w-auto w-full">
                       <Button
                     variant="outline"
                     onClick={() => handleSave('draft')}
-                    leftIcon={<Save className="w-4 h-4" />}>
+                    leftIcon={<Save className="w-4 h-4" />}
+                    className="flex-1 sm:flex-initial">
 
-                        Save as Draft
+                        <span className="hidden sm:inline">Save as Draft</span>
+                        <span className="sm:hidden">Draft</span>
                       </Button>
                       <Button
                     variant="primary"
                     onClick={() => handleSave('active')}
-                    leftIcon={<Send className="w-4 h-4" />}>
+                    leftIcon={<Send className="w-4 h-4" />}
+                    className="flex-1 sm:flex-initial">
 
                         Publish
                       </Button>
@@ -1976,7 +2201,7 @@ export function QuestionDetail({
               }}
               className="flex flex-col h-full">
 
-                  <div className="h-[57px] px-6 border-b border-gray-200 flex items-center gap-3 flex-shrink-0 bg-white">
+                  <div className="h-[57px] px-4 md:px-6 border-b border-gray-200 flex items-center gap-2 md:gap-3 flex-shrink-0 bg-white">
                     <button
                   onClick={navigateToForm}
                   className="p-1.5 -ml-1.5 hover:bg-gray-100 rounded-lg transition-colors">
@@ -1985,8 +2210,11 @@ export function QuestionDetail({
                     </button>
                     <div className="flex items-center gap-2">
                       <SlidersHorizontal className="w-4 h-4 text-teal-600" />
-                      <h2 className="text-lg font-bold text-gray-900">
-                        Configure Answers
+                      <h2 className="text-base md:text-lg font-bold text-gray-900">
+                        <span className="hidden sm:inline">
+                          Configure Answers
+                        </span>
+                        <span className="sm:hidden">Answers</span>
                       </h2>
                     </div>
                   </div>
@@ -1994,7 +2222,7 @@ export function QuestionDetail({
                     {isAnswersLoading ?
                 <AnswersSkeleton /> :
 
-                <div className="px-6 pt-6 pb-8 space-y-4">
+                <div className="px-4 md:px-6 pt-4 md:pt-6 pb-6 md:pb-8 space-y-4">
                         <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
                           {(() => {
                       const TypeIcon = QUESTION_TYPES.find(
@@ -2594,25 +2822,6 @@ export function QuestionDetail({
                                       </button>
                                     </div>
                         )}
-                                  <button
-                          onClick={() => {
-                            const newPairs = [
-                            ...matchPairs,
-                            {
-                              prompt: '',
-                              answer: ''
-                            }];
-
-                            setMatchPairs(newPairs);
-                            setActiveMatchPairIndex(
-                              newPairs.length - 1
-                            );
-                          }}
-                          className="w-full flex items-center justify-center gap-1.5 py-2.5 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
-
-                                    <Plus className="w-4 h-4" />
-                                    Add New Option
-                                  </button>
                                 </motion.div> :
 
                       <motion.div
@@ -2816,7 +3025,7 @@ export function QuestionDetail({
                       </div>
                 }
                   </div>
-                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+                  <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
                     <Button
                   variant="secondary"
                   onClick={() => {

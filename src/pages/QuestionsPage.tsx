@@ -66,10 +66,19 @@ export function QuestionsPage() {
     'info'
   );
   const [detailKey, setDetailKey] = useState(0);
-  const [questions, setQuestions] = useState<Question[]>(MOCK_QUESTIONS);
+  const [questions, setQuestions] = useState<Question[]>(() =>
+  MOCK_QUESTIONS.map((q) =>
+  q.id === '1' ?
+  {
+    ...q,
+    status: 'draft' as const
+  } :
+  q
+  )
+  );
   // Track question IDs that were originally published but are now being edited as drafts
   const [draftOfPublishedIds, setDraftOfPublishedIds] = useState<Set<string>>(
-    new Set()
+    new Set(['1'])
   );
   // Quiz-specific state
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -728,6 +737,32 @@ export function QuestionsPage() {
               selectedQuestion ?
               draftOfPublishedIds.has(selectedQuestion.id) :
               false
+              }
+              onViewPublished={() => {
+                if (
+                selectedQuestion &&
+                draftOfPublishedIds.has(selectedQuestion.id))
+                {
+                  const original = MOCK_QUESTIONS.find(
+                    (q) => q.id === selectedQuestion.id
+                  );
+                  if (original) {
+                    const publishedView = {
+                      ...original,
+                      status: 'active' as const
+                    };
+                    setDetailDefaultTab('info');
+                    setDetailKey((prev) => prev + 1);
+                    setSelectedQuestion(publishedView);
+                  }
+                }
+              }}
+              publishedDate={
+              selectedQuestion &&
+              draftOfPublishedIds.has(selectedQuestion.id) ?
+              MOCK_QUESTIONS.find((q) => q.id === selectedQuestion.id)?.
+              createdAt :
+              undefined
               } /> :
 
 
@@ -765,6 +800,31 @@ export function QuestionsPage() {
           selectedQuestion ?
           draftOfPublishedIds.has(selectedQuestion.id) :
           false
+          }
+          onViewPublished={() => {
+            if (
+            selectedQuestion &&
+            draftOfPublishedIds.has(selectedQuestion.id))
+            {
+              const original = MOCK_QUESTIONS.find(
+                (q) => q.id === selectedQuestion.id
+              );
+              if (original) {
+                const publishedView = {
+                  ...original,
+                  status: 'active' as const
+                };
+                setDetailDefaultTab('info');
+                setDetailKey((prev) => prev + 1);
+                setSelectedQuestion(publishedView);
+              }
+            }
+          }}
+          publishedDate={
+          selectedQuestion && draftOfPublishedIds.has(selectedQuestion.id) ?
+          MOCK_QUESTIONS.find((q) => q.id === selectedQuestion.id)?.
+          createdAt :
+          undefined
           } />
 
         </div>

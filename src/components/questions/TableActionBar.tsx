@@ -76,11 +76,6 @@ const filterOptions = [
   id: 'draft',
   label: 'Draft',
   icon: EyeOff
-},
-{
-  id: 'published-with-draft',
-  label: 'Published with Draft',
-  icon: PenSquare
 }];
 
 export function TableActionBar({
