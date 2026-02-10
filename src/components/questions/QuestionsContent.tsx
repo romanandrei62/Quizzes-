@@ -40,7 +40,7 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'User Experience Rating',
   text: 'Please describe your overall experience with our platform so far, including what you liked and what could be improved.',
   type: 'open',
-  category: 'feedback',
+  category: 'assessment',
   createdAt: new Date('2024-01-14T14:15:00'),
   status: 'active'
 },
@@ -49,7 +49,7 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'LMS Features',
   text: 'The LMS platform supports video content, interactive quizzes, and multimedia learning materials for comprehensive course delivery.',
   type: 'true-false',
-  category: 'lms',
+  category: 'knowledge',
   createdAt: new Date('2024-01-13T09:45:00'),
   status: 'active'
 },
@@ -58,7 +58,7 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'Project Management Terms',
   text: 'Match the following project management terms with their corresponding definitions.',
   type: 'matching',
-  category: 'lms',
+  category: 'knowledge',
   createdAt: new Date('2024-01-12T16:20:00'),
   status: 'active'
 },
@@ -68,7 +68,7 @@ export const MOCK_QUESTIONS: Question[] = [
   text: 'Match each icon image with its correct label.',
   type: 'matching',
   matchSubType: 'image',
-  category: 'lms',
+  category: 'knowledge',
   createdAt: new Date('2024-01-11T11:00:00'),
   status: 'active'
 },
@@ -77,7 +77,7 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'Feature Priorities',
   text: 'Which features are most important to you when evaluating project management and collaboration tools for your organization?',
   type: 'multiple',
-  category: 'onboarding',
+  category: 'assessment',
   createdAt: new Date('2024-01-10T08:30:00'),
   status: 'draft',
   options: [
@@ -92,7 +92,7 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'Feature Requests',
   text: 'What specific improvements or new features would you like to see implemented in the platform to better serve your needs and enhance your experience?',
   type: 'open',
-  category: 'feedback',
+  category: 'assessment',
   createdAt: new Date('2024-01-09T13:45:00'),
   status: 'active'
 },
@@ -101,7 +101,7 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'Integration Capabilities',
   text: 'The system allows custom integrations with third-party applications, APIs, and external services to extend functionality and streamline workflows across your organization.',
   type: 'true-false',
-  category: 'lms',
+  category: 'compliance',
   createdAt: new Date('2024-01-08T10:15:00'),
   status: 'active'
 },
@@ -120,7 +120,7 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'Collaboration Tools',
   text: 'Match the following collaboration tools with their primary use cases and understand when to apply each one for maximum team efficiency and productivity.',
   type: 'matching',
-  category: 'lms',
+  category: 'knowledge',
   createdAt: new Date('2024-01-06T09:00:00'),
   status: 'draft'
 },
@@ -139,16 +139,16 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'Current Challenges',
   text: 'Please describe your biggest challenge with current tools and explain how you think a better solution could address these pain points effectively for your team.',
   type: 'open',
-  category: 'feedback',
+  category: 'assessment',
   createdAt: new Date('2024-01-04T11:45:00'),
   status: 'draft'
 },
 {
   id: '13',
-  title: 'Security Features',
+  title: 'Data Privacy Policy',
   text: 'The platform supports single sign-on (SSO) authentication, multi-factor authentication, and enterprise-grade security features for user access control and data protection.',
   type: 'true-false',
-  category: 'lms',
+  category: 'compliance',
   createdAt: new Date('2024-01-03T16:10:00'),
   status: 'active'
 },
@@ -167,7 +167,7 @@ export const MOCK_QUESTIONS: Question[] = [
   title: 'Enhancement Suggestions',
   text: 'What additional features, integrations, or capabilities would significantly enhance your experience and make the platform more valuable for your specific use case and business requirements?',
   type: 'open',
-  category: 'feedback',
+  category: 'assessment',
   createdAt: new Date('2024-01-01T13:00:00'),
   status: 'draft'
 }];
@@ -239,10 +239,14 @@ export function QuestionsContent({
     const matchesType = selectedType === 'all' || q.type === selectedType;
     const matchesCategory =
     selectedCategory === 'all' || q.category === selectedCategory;
+    const isDraftOfPublished = draftOfPublishedIds.has(q.id);
     const matchesFilter =
     filterBy === 'all' ||
-    filterBy === 'published' && q.status === 'active' ||
-    filterBy === 'draft' && q.status === 'draft';
+    filterBy === 'published' &&
+    q.status === 'active' &&
+    !isDraftOfPublished ||
+    filterBy === 'draft' && q.status === 'draft' && !isDraftOfPublished ||
+    filterBy === 'published-with-draft' && isDraftOfPublished;
     return matchesSearch && matchesType && matchesCategory && matchesFilter;
   }).
   sort((a, b) => {
@@ -803,7 +807,8 @@ export function QuestionsContent({
               onCheckboxChange={() => handleToggleSelect(question.id)}
               onAction={(action) =>
               handleQuestionAction(question.id, action)
-              } />
+              }
+              isDraftOfPublished={draftOfPublishedIds.has(question.id)} />
 
               </motion.div>
           )}

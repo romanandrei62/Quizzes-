@@ -8,7 +8,8 @@ import {
   Calendar,
   ArrowUpDown,
   Eye,
-  EyeOff } from
+  EyeOff,
+  PenSquare } from
 'lucide-react';
 import { BarsSortIcon } from '../messaging/BarsSortIcon';
 export interface TableActionBarProps {
@@ -75,6 +76,11 @@ const filterOptions = [
   id: 'draft',
   label: 'Draft',
   icon: EyeOff
+},
+{
+  id: 'published-with-draft',
+  label: 'Published with Draft',
+  icon: PenSquare
 }];
 
 export function TableActionBar({

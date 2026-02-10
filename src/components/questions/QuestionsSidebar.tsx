@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Plus, MoreVertical, Tags } from 'lucide-react';
+import { Plus, MoreVertical, Tags, ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ManageCategoriesModal } from './ManageCategoriesModal';
+import { FaIcon } from '../ui/FaIcon';
 interface QuestionsSidebarProps {
   selectedType: string;
   onSelectType: (type: string) => void;
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
   onCreateQuestion?: () => void;
+  usedCategoryIds?: Set<string>;
 }
 const AllTypesIcon = () =>
 <svg
@@ -68,44 +70,279 @@ const TYPES = [
 {
   id: 'all',
   label: 'All Types',
-  icon: 'all-types'
+  faIcon: 'all-types'
 },
 {
   id: 'multiple',
   label: 'Multiple Choice',
-  icon: 'multiple-choice'
+  faIcon: 'multiple-choice'
 },
 {
   id: 'open',
   label: 'Open Answer',
-  icon: 'open-answer'
+  faIcon: 'open-answer'
 },
 {
   id: 'true-false',
   label: 'True/False',
-  icon: 'true-false'
+  faIcon: 'true-false'
 },
 {
   id: 'matching',
   label: 'Matching',
-  icon: 'matching'
+  faIcon: 'matching'
 }];
 
 const INITIAL_CATEGORIES = [
+{
+  id: 'knowledge-check',
+  label: 'Knowledge Check',
+  color: '#3B82F6'
+},
+{
+  id: 'compliance',
+  label: 'Compliance',
+  color: '#10B981'
+},
 {
   id: 'onboarding',
   label: 'Onboarding',
   color: '#1F2937'
 },
 {
-  id: 'feedback',
-  label: 'Feedback',
+  id: 'assessment',
+  label: 'Assessment',
+  color: '#6B21A8'
+},
+{
+  id: 'safety-training',
+  label: 'Safety Training',
+  color: '#EF4444'
+},
+{
+  id: 'product-knowledge',
+  label: 'Product Knowledge',
+  color: '#F59E0B'
+},
+{
+  id: 'leadership',
+  label: 'Leadership',
+  color: '#EC4899'
+},
+{
+  id: 'communication',
+  label: 'Communication',
+  color: '#14B8A6'
+},
+{
+  id: 'technical-skills',
+  label: 'Technical Skills',
+  color: '#0EA5E9'
+},
+{
+  id: 'customer-service',
+  label: 'Customer Service',
+  color: '#D946EF'
+},
+{
+  id: 'sales-training',
+  label: 'Sales Training',
+  color: '#F97316'
+},
+{
+  id: 'hr-policies',
+  label: 'HR Policies',
+  color: '#84CC16'
+},
+{
+  id: 'data-privacy',
+  label: 'Data Privacy',
+  color: '#06B6D4'
+},
+{
+  id: 'cybersecurity',
+  label: 'Cybersecurity',
+  color: '#A855F7'
+},
+{
+  id: 'workplace-ethics',
+  label: 'Workplace Ethics',
+  color: '#E11D48'
+},
+{
+  id: 'time-management',
+  label: 'Time Management',
+  color: '#6B7280'
+},
+{
+  id: 'project-management',
+  label: 'Project Management',
+  color: '#3B82F6'
+},
+{
+  id: 'team-building',
+  label: 'Team Building',
   color: '#10B981'
 },
 {
-  id: 'lms',
-  label: 'LMS',
+  id: 'conflict-resolution',
+  label: 'Conflict Resolution',
+  color: '#1F2937'
+},
+{
+  id: 'diversity-&-inclusion',
+  label: 'Diversity & Inclusion',
   color: '#6B21A8'
+},
+{
+  id: 'health-&-wellness',
+  label: 'Health & Wellness',
+  color: '#EF4444'
+},
+{
+  id: 'financial-literacy',
+  label: 'Financial Literacy',
+  color: '#F59E0B'
+},
+{
+  id: 'marketing-basics',
+  label: 'Marketing Basics',
+  color: '#EC4899'
+},
+{
+  id: 'brand-guidelines',
+  label: 'Brand Guidelines',
+  color: '#14B8A6'
+},
+{
+  id: 'software-tools',
+  label: 'Software Tools',
+  color: '#0EA5E9'
+},
+{
+  id: 'quality-assurance',
+  label: 'Quality Assurance',
+  color: '#D946EF'
+},
+{
+  id: 'supply-chain',
+  label: 'Supply Chain',
+  color: '#F97316'
+},
+{
+  id: 'inventory-management',
+  label: 'Inventory Management',
+  color: '#84CC16'
+},
+{
+  id: 'logistics',
+  label: 'Logistics',
+  color: '#06B6D4'
+},
+{
+  id: 'environmental',
+  label: 'Environmental',
+  color: '#A855F7'
+},
+{
+  id: 'legal-compliance',
+  label: 'Legal Compliance',
+  color: '#E11D48'
+},
+{
+  id: 'risk-management',
+  label: 'Risk Management',
+  color: '#6B7280'
+},
+{
+  id: 'change-management',
+  label: 'Change Management',
+  color: '#3B82F6'
+},
+{
+  id: 'agile-methodology',
+  label: 'Agile Methodology',
+  color: '#10B981'
+},
+{
+  id: 'scrum-framework',
+  label: 'Scrum Framework',
+  color: '#1F2937'
+},
+{
+  id: 'devops-practices',
+  label: 'DevOps Practices',
+  color: '#6B21A8'
+},
+{
+  id: 'cloud-computing',
+  label: 'Cloud Computing',
+  color: '#EF4444'
+},
+{
+  id: 'ai-&-machine-learning',
+  label: 'AI & Machine Learning',
+  color: '#F59E0B'
+},
+{
+  id: 'ux-design',
+  label: 'UX Design',
+  color: '#EC4899'
+},
+{
+  id: 'accessibility',
+  label: 'Accessibility',
+  color: '#14B8A6'
+},
+{
+  id: 'performance-reviews',
+  label: 'Performance Reviews',
+  color: '#0EA5E9'
+},
+{
+  id: 'mentoring',
+  label: 'Mentoring',
+  color: '#D946EF'
+},
+{
+  id: 'public-speaking',
+  label: 'Public Speaking',
+  color: '#F97316'
+},
+{
+  id: 'negotiation-skills',
+  label: 'Negotiation Skills',
+  color: '#84CC16'
+},
+{
+  id: 'critical-thinking',
+  label: 'Critical Thinking',
+  color: '#06B6D4'
+},
+{
+  id: 'problem-solving',
+  label: 'Problem Solving',
+  color: '#A855F7'
+},
+{
+  id: 'decision-making',
+  label: 'Decision Making',
+  color: '#E11D48'
+},
+{
+  id: 'emotional-intelligence',
+  label: 'Emotional Intelligence',
+  color: '#6B7280'
+},
+{
+  id: 'remote-work',
+  label: 'Remote Work',
+  color: '#3B82F6'
+},
+{
+  id: 'cross-functional',
+  label: 'Cross-functional',
+  color: '#10B981'
 }];
 
 const ALL_CATEGORIES_ENTRY = {
@@ -118,12 +355,17 @@ export function QuestionsSidebar({
   onSelectType,
   selectedCategory,
   onSelectCategory,
-  onCreateQuestion
+  onCreateQuestion,
+  usedCategoryIds = new Set()
 }: QuestionsSidebarProps) {
   const [showManageCategories, setShowManageCategories] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
+  const [visibleCount, setVisibleCount] = useState(10);
   const displayCategories = [ALL_CATEGORIES_ENTRY, ...categories];
+  const visibleCategories = displayCategories.slice(0, visibleCount + 1);
+  const hasMore = visibleCount < categories.length;
+  const remaining = categories.length - visibleCount;
   const handleCategoriesSaved = (
   savedCategories: {
     id: string;
@@ -180,7 +422,7 @@ export function QuestionsSidebar({
             onClick={() => onSelectType(type.id)}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${selectedType === type.id ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}>
 
-              {renderIcon(type.icon)}
+              <FaIcon name={type.faIcon} className="w-4 h-4" />
               <span>{type.label}</span>
             </button>
           )}
@@ -190,7 +432,12 @@ export function QuestionsSidebar({
       {/* Categories Section */}
       <div className="px-6 py-4 flex-1 overflow-y-auto">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-gray-700">Categories</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-gray-700">Categories</h3>
+            <span className="text-[10px] text-gray-400 font-medium bg-gray-100 px-1.5 py-0.5 rounded">
+              {categories.length}
+            </span>
+          </div>
           <button
             onClick={() => setShowManageCategories(true)}
             className="p-1 hover:bg-gray-100 rounded transition-colors">
@@ -199,7 +446,7 @@ export function QuestionsSidebar({
           </button>
         </div>
         <div className="space-y-1">
-          {displayCategories.map((category) =>
+          {visibleCategories.map((category) =>
           <button
             key={category.id}
             onClick={() => onSelectCategory(category.id)}
@@ -211,9 +458,22 @@ export function QuestionsSidebar({
                 backgroundColor: category.color
               }} />
 
-              <span>{category.label}</span>
+              <span className="truncate">{category.label}</span>
             </button>
           )}
+          {hasMore &&
+          <button
+            onClick={() =>
+            setVisibleCount((prev) =>
+            Math.min(prev + 10, categories.length)
+            )
+            }
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors">
+
+              <ChevronDown className="w-3.5 h-3.5" />
+              <span>Show more ({remaining})</span>
+            </button>
+          }
         </div>
       </div>
 
@@ -221,7 +481,8 @@ export function QuestionsSidebar({
       <ManageCategoriesModal
         isOpen={showManageCategories}
         onClose={() => setShowManageCategories(false)}
-        onSave={handleCategoriesSaved} />
+        onSave={handleCategoriesSaved}
+        usedCategoryLabels={usedCategoryIds} />
 
     </div>);
 

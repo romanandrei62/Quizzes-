@@ -168,7 +168,7 @@ export function QuestionsPage() {
       id: `new-${Date.now()}`,
       title: 'New Question',
       type: selectedType !== 'all' ? selectedType : 'multiple',
-      category: selectedCategory !== 'all' ? selectedCategory : 'feedback',
+      category: selectedCategory !== 'all' ? selectedCategory : 'knowledge',
       createdAt: new Date(),
       status: 'draft',
       options: ['', '']
@@ -614,7 +614,8 @@ export function QuestionsPage() {
               onSelectType={setSelectedType}
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
-              onCreateQuestion={handleCreateQuestion} /> :
+              onCreateQuestion={handleCreateQuestion}
+              usedCategoryIds={new Set(questions.map((q) => q.category))} /> :
 
 
             <QuizzesSidebar
@@ -714,12 +715,7 @@ export function QuestionsPage() {
           </div>
 
           {/* Right Column: Detail - 50% width (desktop) */}
-          <div
-            className="hidden lg:flex flex-shrink-0 bg-white shadow-lg rounded-lg overflow-hidden h-full"
-            style={{
-              width: `${rightWidth}px`
-            }}>
-
+          <div className="hidden lg:flex flex-1 min-w-[360px] bg-white shadow-lg rounded-lg overflow-hidden h-full">
             {activeTab === 'questions' ?
             <QuestionDetail
               key={detailKey}

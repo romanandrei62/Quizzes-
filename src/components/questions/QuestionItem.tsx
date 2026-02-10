@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RowActionsDropdown } from './RowActionsDropdown';
 import { Checkbox } from './Checkbox';
-import { Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Trash2, PenSquare } from 'lucide-react';
+import { FaIcon } from '../ui/FaIcon';
 interface Question {
   id: string;
   title: string;
@@ -23,6 +24,7 @@ interface QuestionItemProps {
   isChecked?: boolean;
   onCheckboxChange?: (checked: boolean) => void;
   onAction?: (action: string) => void;
+  isDraftOfPublished?: boolean;
 }
 const MultipleChoiceIcon = () =>
 <svg
@@ -71,24 +73,24 @@ const MatchingIcon = () =>
 const TYPE_CONFIG: Record<
   string,
   {
-    icon: any;
+    faIcon: string;
     label: string;
   }> =
 {
   multiple: {
-    icon: MultipleChoiceIcon,
+    faIcon: 'multiple-choice',
     label: 'Multiple Choice'
   },
   open: {
-    icon: OpenAnswerIcon,
+    faIcon: 'open-answer',
     label: 'Open Answer'
   },
   'true-false': {
-    icon: TrueFalseIcon,
+    faIcon: 'true-false',
     label: 'True/False'
   },
   matching: {
-    icon: MatchingIcon,
+    faIcon: 'matching',
     label: 'Matching'
   }
 };
@@ -99,17 +101,21 @@ const CATEGORY_CONFIG: Record<
     color: string;
   }> =
 {
-  onboarding: {
-    label: 'Onboarding',
+  knowledge: {
+    label: 'Knowledge Check',
     color: '#3B82F6'
   },
-  feedback: {
-    label: 'Feedback',
+  compliance: {
+    label: 'Compliance',
     color: '#10B981'
   },
-  lms: {
-    label: 'LMS',
-    color: '#8B5CF6'
+  onboarding: {
+    label: 'Onboarding',
+    color: '#1F2937'
+  },
+  assessment: {
+    label: 'Assessment',
+    color: '#6B21A8'
   },
   all: {
     label: 'All',
@@ -126,7 +132,8 @@ export function QuestionItem({
   showCheckbox = false,
   isChecked = false,
   onCheckboxChange,
-  onAction
+  onAction,
+  isDraftOfPublished = false
 }: QuestionItemProps) {
   const [showCategoryTooltip, setShowCategoryTooltip] = useState(false);
   const [showTypeTooltip, setShowTypeTooltip] = useState(false);
@@ -134,7 +141,6 @@ export function QuestionItem({
   const categoryConfig =
   CATEGORY_CONFIG[question.category] || CATEGORY_CONFIG.all;
   const typeConfig = TYPE_CONFIG[question.type] || TYPE_CONFIG.multiple;
-  const TypeIcon = typeConfig.icon;
   const isPublished = question.status === 'active';
   const handleRowAction = (action: string) => {
     if (onAction) {
@@ -213,7 +219,7 @@ export function QuestionItem({
             onMouseEnter={() => setShowTypeTooltip(true)}
             onMouseLeave={() => setShowTypeTooltip(false)}>
 
-            <TypeIcon />
+            <FaIcon name={typeConfig.faIcon} className="w-4 h-4" />
           </div>
           <AnimatePresence>
             {showTypeTooltip &&
@@ -262,11 +268,13 @@ export function QuestionItem({
             {/* Status Icon with tooltip */}
             <div className="relative flex-shrink-0">
               <div
-                className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-all duration-200 cursor-pointer ${isPublished ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}
+                className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-all duration-200 cursor-pointer ${isDraftOfPublished ? 'bg-amber-100 text-amber-600 ring-2 ring-amber-300 ring-offset-1' : isPublished ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}
                 onMouseEnter={() => setShowStatusTooltip(true)}
                 onMouseLeave={() => setShowStatusTooltip(false)}>
 
-                {isPublished ?
+                {isDraftOfPublished ?
+                <PenSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> :
+                isPublished ?
                 <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> :
 
                 <EyeOff className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -292,7 +300,11 @@ export function QuestionItem({
                   }}
                   className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 px-2.5 py-1 bg-gray-900 text-white text-xs rounded border border-gray-700 whitespace-nowrap pointer-events-none">
 
-                    {isPublished ? 'Published' : 'Draft'}
+                    {isDraftOfPublished ?
+                  'Published · Draft pending' :
+                  isPublished ?
+                  'Published' :
+                  'Draft'}
                   </motion.div>
                 }
               </AnimatePresence>

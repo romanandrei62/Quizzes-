@@ -84,19 +84,24 @@ const QUESTION_TYPES = [
 
 const CATEGORIES = [
 {
-  id: 'onboarding',
-  label: 'Onboarding',
+  id: 'knowledge',
+  label: 'Knowledge Check',
   color: '#3B82F6'
 },
 {
-  id: 'feedback',
-  label: 'Feedback',
+  id: 'compliance',
+  label: 'Compliance',
   color: '#10B981'
 },
 {
-  id: 'lms',
-  label: 'LMS',
-  color: '#F59E0B'
+  id: 'onboarding',
+  label: 'Onboarding',
+  color: '#1F2937'
+},
+{
+  id: 'assessment',
+  label: 'Assessment',
+  color: '#6B21A8'
 }];
 
 const TYPE_LABELS: Record<string, string> = {
@@ -425,7 +430,7 @@ export function QuestionDetail({
   const [title, setTitle] = useState(question?.title || 'New Question');
   const [text, setText] = useState(question?.text || '');
   const [type, setType] = useState(question?.type || 'multiple');
-  const [category, setCategory] = useState(question?.category || 'feedback');
+  const [category, setCategory] = useState(question?.category || 'knowledge');
   const [status, setStatus] = useState<'active' | 'draft'>(() => {
     // When entering edit mode for a published question (confirmed from QuestionsContent dialog),
     // start as draft since we're creating a new draft version
@@ -1059,7 +1064,7 @@ export function QuestionDetail({
                       setTitle(question?.title || 'New Question');
                       setText(question?.text || '');
                       setType(question?.type || 'multiple');
-                      setCategory(question?.category || 'feedback');
+                      setCategory(question?.category || 'knowledge');
                       setStatus(question?.status || 'draft');
                       setOptions(question?.options || ['', '']);
                       setActiveTab('info');
@@ -1430,7 +1435,7 @@ export function QuestionDetail({
                           className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isCorrect ? 'bg-emerald-500 text-white' : 'border-2 border-gray-300 bg-white'}`}>
 
                                 {isCorrect ?
-                          <CheckCircle2 className="w-3.5 h-3.5" /> :
+                          <CheckSquare className="w-3.5 h-3.5" /> :
 
                           <span className="text-[10px] font-semibold text-gray-500">
                                     {String.fromCharCode(65 + index)}
@@ -2050,9 +2055,9 @@ export function QuestionDetail({
                           className={`flex-shrink-0 transition-colors ${correctOptions.has(index) ? 'text-emerald-500' : 'text-gray-300 hover:text-gray-400'}`}>
 
                                     {correctOptions.has(index) ?
-                          <CheckCircle2 className="w-5 h-5" /> :
+                          <CheckSquare className="w-5 h-5" /> :
 
-                          <Circle className="w-5 h-5" />
+                          <Square className="w-5 h-5" />
                           }
                                   </button>
                                   <input
