@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Mail,
   Send,
@@ -16,7 +16,8 @@ import {
   Search,
   Bell,
   MessageSquare,
-  GripVertical } from
+  GripVertical,
+  Filter } from
 'lucide-react';
 import { QuestionsSidebar } from '../components/questions/QuestionsSidebar';
 import {
@@ -62,9 +63,9 @@ export function QuestionsPage() {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
     null
   );
-  const [detailDefaultTab, setDetailDefaultTab] = useState<'info' | 'edit'>(
-    'info'
-  );
+  const [detailDefaultTab, setDetailDefaultTab] = useState<
+    'info' | 'edit' | 'preview'>(
+    'info');
   const [detailKey, setDetailKey] = useState(0);
   const [questions, setQuestions] = useState<Question[]>(() =>
   MOCK_QUESTIONS.map((q) =>
@@ -190,7 +191,7 @@ export function QuestionsPage() {
   };
   const handleSelectQuestion = (
   question: Question,
-  defaultTab?: 'info' | 'edit') =>
+  defaultTab?: 'info' | 'edit' | 'preview') =>
   {
     // When opening a published question in edit mode (confirmed "Create Draft"),
     // update its status to draft in the list and track it
@@ -270,9 +271,17 @@ export function QuestionsPage() {
     setQuestions((prev) => prev.filter((q) => q.id !== questionId));
     setSelectedQuestion(null);
   };
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  // Auto-select the first question on initial load
+  useEffect(() => {
+    if (questions.length > 0 && !selectedQuestion) {
+      setSelectedQuestion(questions[0]);
+      setDetailDefaultTab('info');
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="h-screen flex bg-gray-50 overflow-hidden">
-      {/* Main Navigation Sidebar (Left) - 229px width */}
+      {/* Main Navigation Sidebar (Left) - 229px width - Desktop only */}
       <div className="w-[229px] bg-[#1a1a1a] flex flex-col shadow-xl hidden lg:flex">
         {/* SuiteDash Logo - 230×90 */}
         <div className="h-[90px] flex items-center justify-center border-b border-gray-800 px-4">
@@ -432,7 +441,7 @@ export function QuestionsPage() {
         <div className="p-3 border-t border-gray-800">
           <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 text-white text-sm font-medium rounded hover:bg-gray-700 transition-colors">
             <span>?</span>
-            <span>Ask!</span>
+            <span>Ask</span>
           </button>
         </div>
       </div>
@@ -457,12 +466,6 @@ export function QuestionsPage() {
 
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleCreateQuestion}
-            className="p-1.5 bg-white/10 text-white hover:bg-white/20 rounded-lg transition-colors">
-
-            <Plus className="w-5 h-5" />
-          </button>
           <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-gray-700 cursor-pointer hover:border-gray-500 transition-colors">
             <img
               src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
@@ -518,18 +521,12 @@ export function QuestionsPage() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden pt-14 lg:pt-0 bg-gray-50">
-        {/* Top Navigation Bar - 90px height */}
-        <div className="bg-white border-b border-gray-200 h-[90px]">
-          <div className="hidden lg:flex items-center justify-between px-6 h-full">
+        {/* Top Navigation Bar - 90px height - Desktop only */}
+        <div className="hidden lg:block bg-white border-b border-gray-200 h-[90px]">
+          <div className="flex items-center justify-between px-6 h-full">
             <div className="flex items-center gap-3">
               <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                 <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleCreateQuestion}
-                className="p-2 bg-black text-white hover:bg-gray-800 rounded-lg transition-colors">
-
-                <Plus className="w-5 h-5" />
               </button>
             </div>
 
@@ -553,62 +550,121 @@ export function QuestionsPage() {
               </div>
             </div>
           </div>
-          {/* Always-visible create button row for non-lg screens */}
-          <div className="lg:hidden flex items-center justify-between px-4 h-full">
-            <button
-              onClick={handleCreateQuestion}
-              className="p-2 bg-black text-white hover:bg-gray-800 rounded-lg transition-colors">
+        </div>
 
-              <Plus className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-2">
-              <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <Search className="w-5 h-5" />
-              </button>
+        {/* Tabs Row - Mobile optimized, with integrated filter toggle */}
+        <div className="px-4 py-3 lg:pt-4 lg:pb-4">
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex items-center justify-center px-4 lg:px-6 py-3 lg:py-4">
+              <div className="flex items-center justify-center gap-8 lg:gap-12">
+                <button
+                  onClick={() => setActiveTab('questions')}
+                  className={`text-xs lg:text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'questions' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+
+                  QUESTIONS
+                  {activeTab === 'questions' &&
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"
+                    transition={{
+                      type: 'spring',
+                      stiffness: 500,
+                      damping: 30
+                    }} />
+
+                  }
+                </button>
+                <button
+                  onClick={() => setActiveTab('quizzes')}
+                  className={`text-xs lg:text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'quizzes' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+
+                  QUIZZES
+                  {activeTab === 'quizzes' &&
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"
+                    transition={{
+                      type: 'spring',
+                      stiffness: 500,
+                      damping: 30
+                    }} />
+
+                  }
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Spacing above tabs */}
-        <div className="pt-4" />
+        {/* Mobile Sidebar Overlay (Questions filters) */}
+        <AnimatePresence>
+          {isMobileSidebarOpen && activeTab === 'questions' &&
+          <>
+              <motion.div
+              initial={{
+                opacity: 0
+              }}
+              animate={{
+                opacity: 1
+              }}
+              exit={{
+                opacity: 0
+              }}
+              className="lg:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setIsMobileSidebarOpen(false)} />
 
-        {/* Tabs Row - with horizontal padding and rounded edges */}
-        <div className="px-4 pb-4">
-          <div
-            className="bg-white border border-gray-200 rounded-lg"
-            style={{
-              boxSizing: 'border-box',
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'rgb(238, 238, 238) transparent'
-            }}>
+              <motion.div
+              initial={{
+                x: '-100%'
+              }}
+              animate={{
+                x: 0
+              }}
+              exit={{
+                x: '-100%'
+              }}
+              transition={{
+                type: 'spring',
+                damping: 30,
+                stiffness: 300
+              }}
+              className="lg:hidden fixed left-0 top-14 bottom-0 w-80 max-w-[85vw] bg-white z-50 shadow-2xl overflow-y-auto">
 
-            <div className="flex items-center justify-center gap-12 px-6 py-4">
-              <button
-                onClick={() => setActiveTab('questions')}
-                className={`text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'questions' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                  <h3 className="text-base font-bold text-gray-900">Filters</h3>
+                  <button
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
 
-                QUESTIONS
-                {activeTab === 'questions' &&
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
-                }
-              </button>
-              <button
-                onClick={() => setActiveTab('quizzes')}
-                className={`text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'quizzes' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <QuestionsSidebar
+                selectedType={selectedType}
+                onSelectType={(type) => {
+                  setSelectedType(type);
+                  setIsMobileSidebarOpen(false);
+                }}
+                selectedCategory={selectedCategory}
+                onSelectCategory={(category) => {
+                  setSelectedCategory(category);
+                  setIsMobileSidebarOpen(false);
+                }}
+                onCreateQuestion={() => {
+                  handleCreateQuestion();
+                  setIsMobileSidebarOpen(false);
+                }}
+                usedCategoryIds={new Set(questions.map((q) => q.category))} />
 
-                QUIZZES
-                {activeTab === 'quizzes' &&
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
-                }
-              </button>
-            </div>
-          </div>
-        </div>
+              </motion.div>
+            </>
+          }
+        </AnimatePresence>
 
-        {/* Three-Column Layout with Resize Handles */}
+        {/* Three-Column Layout with Resize Handles - Desktop only */}
         <div
           ref={containerRef}
-          className="flex-1 flex gap-4 px-4 pb-4 overflow-hidden">
+          className="hidden lg:flex flex-1 gap-4 px-4 pb-4 overflow-hidden">
 
           {/* Left Column: Sidebar - 25% width */}
           <div
@@ -772,6 +828,38 @@ export function QuestionsPage() {
 
             }
           </div>
+        </div>
+
+        {/* Mobile: Single column content */}
+        <div className="lg:hidden flex-1 overflow-hidden">
+          <AnimatePresence mode="wait">
+            {activeTab === 'questions' &&
+            <QuestionsContent
+              key="questions"
+              selectedType={selectedType}
+              selectedCategory={selectedCategory}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              selectedQuestion={selectedQuestion}
+              onSelectQuestion={handleSelectQuestion}
+              questions={questions}
+              setQuestions={setQuestions}
+              draftOfPublishedIds={draftOfPublishedIds}
+              onDeleteQuestion={handleDeleteQuestion}
+              onOpenMobileFilters={() => setIsMobileSidebarOpen(true)}
+              onCreateQuestion={handleCreateQuestion} />
+
+            }
+            {activeTab === 'quizzes' &&
+            <QuizzesContent
+              key="quizzes"
+              selectedStatus={selectedStatus}
+              selectedCategory={selectedQuizCategory}
+              selectedQuiz={selectedQuiz}
+              onSelectQuiz={setSelectedQuiz} />
+
+            }
+          </AnimatePresence>
         </div>
       </div>
 

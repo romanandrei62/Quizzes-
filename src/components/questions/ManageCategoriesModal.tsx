@@ -497,8 +497,8 @@ export function ManageCategoriesModal({
             }}
             className="fixed right-0 top-0 bottom-0 z-[9999] w-full max-w-md bg-white shadow-2xl flex flex-row">
 
-              {/* Icon Rail - extensible vertical bar for contextual icons */}
-              <div className="w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex flex-col items-center pt-4 gap-3">
+              {/* Icon Rail - extensible vertical bar for contextual icons - hidden on mobile */}
+              <div className="hidden sm:flex w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex-col items-center pt-4 gap-3">
                 <button
                 className="w-9 h-9 rounded-lg flex items-center justify-center bg-white text-gray-700 shadow-sm ring-1 ring-black/5 transition-all"
                 title="Manage Categories">

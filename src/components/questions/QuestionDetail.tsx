@@ -56,7 +56,7 @@ interface Question {
 interface QuestionDetailProps {
   question: Question | null;
   onClose: () => void;
-  defaultTab?: 'info' | 'edit';
+  defaultTab?: 'info' | 'edit' | 'preview';
   onSave?: (question: Question) => void;
   onDelete?: (questionId: string) => void;
   isDraftOfPublished?: boolean;
@@ -420,19 +420,18 @@ export function QuestionDetail({
 }: QuestionDetailProps) {
   const isNewQuestion = question?.id?.startsWith('new-') ?? false;
   const isPublished = question?.status === 'active';
-  const [activeTab, setActiveTab] = useState<'info' | 'edit'>(() => {
-    // If published and not new, and coming from confirmed QuestionsContent flow with defaultTab='edit',
-    // go directly to edit mode
-    if (
-    question?.status === 'active' &&
-    !question?.id?.startsWith('new-') &&
-    defaultTab === 'edit')
-    {
-      return 'edit';
+  const [activeTab, setActiveTab] = useState<'info' | 'edit' | 'preview'>(
+    () => {
+      if (
+      question?.status === 'active' &&
+      !question?.id?.startsWith('new-') &&
+      defaultTab === 'edit')
+      {
+        return 'edit';
+      }
+      return defaultTab || 'info';
     }
-    return defaultTab || 'info';
-  });
-  const [infoMode, setInfoMode] = useState<'config' | 'preview'>('config');
+  );
   const [isViewingPublished, setIsViewingPublished] = useState(false);
   const [editView, setEditView] = useState<'form' | 'answers'>('form');
   const [slideDirection, setSlideDirection] = useState<'right' | 'left'>(
@@ -549,6 +548,11 @@ export function QuestionDetail({
   const [activeMatchPairIndex, setActiveMatchPairIndex] = useState<
     number | null>(
     null);
+  const [newPairDraft, setNewPairDraft] = useState<{
+    prompt: string;
+    answer: string;
+    imageUrl?: string;
+  } | null>(null);
   const [matchDragIndex, setMatchDragIndex] = useState<number | null>(null);
   const [matchDragOverIndex, setMatchDragOverIndex] = useState<number | null>(
     null
@@ -977,6 +981,36 @@ export function QuestionDetail({
     return Object.keys(newErrors).length === 0;
   };
   const handleSaveAnswers = () => {
+    if (type === 'matching' && newPairDraft) {
+      const newErrors: Record<string, string> = {};
+      if (matchSubType === 'text' && !newPairDraft.prompt.trim()) {
+        newErrors.matchPrompt = 'Prompt is required';
+      }
+      if (matchSubType === 'image' && !newPairDraft.imageUrl) {
+        newErrors.matchPrompt = 'Image is required';
+      }
+      if (!newPairDraft.answer.trim()) {
+        newErrors.matchAnswer = 'Answer is required';
+      }
+      if (Object.keys(newErrors).length > 0) {
+        setErrors((prev) => ({
+          ...prev,
+          ...newErrors
+        }));
+        return;
+      }
+      setErrors((prev) => {
+        const next = {
+          ...prev
+        };
+        delete next.matchPrompt;
+        delete next.matchAnswer;
+        return next;
+      });
+      setMatchPairs([...matchPairs, newPairDraft]);
+      setNewPairDraft(null);
+      return;
+    }
     if (type === 'matching' && activeMatchPairIndex !== null) {
       const pair = matchPairs[activeMatchPairIndex];
       const newErrors: Record<string, string> = {};
@@ -1033,7 +1067,7 @@ export function QuestionDetail({
 
   }
   return (
-    <div className="w-full h-full bg-white flex overflow-hidden relative">
+    <div className="w-full h-full bg-white flex flex-col md:flex-row overflow-hidden relative">
       {/* Delete / Discard Confirmation Dialog */}
       <AnimatePresence>
         {deleteDialogMode &&
@@ -1389,7 +1423,8 @@ export function QuestionDetail({
             setActiveTab('info');
             setEditView('form');
           }}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+          title="Info">
 
           <Info className="w-[18px] h-[18px]" />
         </button>
@@ -1397,10 +1432,168 @@ export function QuestionDetail({
           onClick={() => {
             requestEdit();
           }}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}>
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+          title="Edit">
 
           <PenSquare className="w-[18px] h-[18px]" />
         </button>
+        <button
+          onClick={() => {
+            setIsViewingPublished(false);
+            setActiveTab('preview');
+          }}
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'preview' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+          title="Preview">
+
+          <MonitorPlay className="w-[18px] h-[18px]" />
+        </button>
+      </div>
+
+      {/* Mobile Header Bar - back button + title + tab switcher */}
+      <div className="md:hidden flex-shrink-0 border-b border-gray-200 bg-white">
+        {/* Top row: back + title + status badge */}
+        <div className="h-[52px] px-3 flex items-center gap-2">
+          <button
+            onClick={onClose}
+            className="p-2 -ml-1 hover:bg-gray-100 rounded-lg transition-colors active:scale-95 flex-shrink-0"
+            aria-label="Back">
+
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <h2 className="text-[15px] font-bold text-gray-900 flex-1 min-w-0 truncate">
+            {question.title}
+          </h2>
+          {activeTab === 'edit' && !isFormLoading &&
+          <span
+            className={`hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border flex-shrink-0 ${status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+
+              <span
+              className={`w-1.5 h-1.5 rounded-full mr-1 ${status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+
+              {status === 'active' ? 'Live' : 'Draft'}
+            </span>
+          }
+        </div>
+        {/* Tab row - always persistent on mobile */}
+        {!isDraftOfPublished &&
+        <div className="flex items-center px-3 pb-1.5 pt-0.5">
+            <div className="relative flex items-center w-full p-[3px] bg-gray-950/[0.04] rounded-full">
+              <motion.div
+              layout
+              className="absolute top-[3px] bottom-[3px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]"
+              animate={{
+                left:
+                activeTab === 'info' ?
+                '3px' :
+                activeTab === 'edit' ?
+                'calc(33.33% + 1px)' :
+                'calc(66.66% + 1px)',
+                width: 'calc(33.33% - 4px)'
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 500,
+                damping: 35
+              }} />
+
+              <button
+              onClick={() => {
+                setActiveTab('info');
+                setEditView('form');
+              }}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
+
+                <Info className="w-3.5 h-3.5" />
+                Info
+              </button>
+              <button
+              onClick={() => requestEdit()}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
+
+                <PenSquare className="w-3.5 h-3.5" />
+                Edit
+              </button>
+              <button
+              onClick={() => {
+                setIsViewingPublished(false);
+                setActiveTab('preview');
+              }}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' ? 'text-gray-900' : 'text-gray-400'}`}>
+
+                <MonitorPlay className="w-3.5 h-3.5" />
+                Preview
+              </button>
+            </div>
+          </div>
+        }
+        {/* 4-tab switcher when draft of published - always visible */}
+        {isDraftOfPublished &&
+        <div className="flex items-center px-3 pb-1.5 pt-0.5">
+            <div className="relative flex items-center w-full p-[3px] bg-gray-950/[0.04] rounded-full">
+              <motion.div
+              layout
+              className={`absolute top-[3px] bottom-[3px] rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] ${activeTab === 'info' || activeTab === 'edit' ? 'bg-white' : !isViewingPublished ? 'bg-amber-50' : 'bg-emerald-50'}`}
+              animate={{
+                left:
+                activeTab === 'info' ?
+                '3px' :
+                activeTab === 'edit' ?
+                'calc(25% + 1px)' :
+                activeTab === 'preview' && !isViewingPublished ?
+                'calc(50% + 1px)' :
+                'calc(75% + 1px)',
+                width: 'calc(25% - 4px)'
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 500,
+                damping: 35
+              }} />
+
+              <button
+              onClick={() => {
+                setActiveTab('info');
+                setEditView('form');
+              }}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
+
+                <Info className="w-3 h-3" />
+                Info
+              </button>
+              <button
+              onClick={() => requestEdit()}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
+
+                <PenSquare className="w-3 h-3" />
+                Edit
+              </button>
+              <button
+              onClick={() => {
+                setIsViewingPublished(false);
+                setActiveTab('preview');
+              }}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-700' : 'text-gray-400'}`}>
+
+                <span
+                className={`w-2 h-2 rounded-full ${activeTab === 'preview' && !isViewingPublished ? 'bg-amber-500' : 'bg-gray-300'}`} />
+
+                Draft
+              </button>
+              <button
+              onClick={() => {
+                setIsViewingPublished(true);
+                setActiveTab('preview');
+              }}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-700' : 'text-gray-400'}`}>
+
+                <span
+                className={`w-2 h-2 rounded-full ${activeTab === 'preview' && isViewingPublished ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+
+                Live
+              </button>
+            </div>
+          </div>
+        }
       </div>
 
       {/* Main Content Area */}
@@ -1408,8 +1601,9 @@ export function QuestionDetail({
         {/* INFO TAB */}
         {activeTab === 'info' &&
         <div className="flex flex-col h-full">
-            <div className="h-[57px] px-4 md:px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
-              <h2 className="text-base md:text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
+            {/* Desktop-only header — no toggle, just title */}
+            <div className="hidden md:flex h-[57px] px-6 border-b border-gray-200 items-center flex-shrink-0 bg-white">
+              <h2 className="text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
                 {isInfoLoading ?
               <div className="h-5 w-40 bg-gray-200 rounded animate-pulse" /> :
 
@@ -1417,77 +1611,22 @@ export function QuestionDetail({
               }
               </h2>
               {!isInfoLoading &&
-            <>
-                  {/* Compact icon-only Config/Preview switcher */}
-                  <div className="relative flex items-center gap-0.5 p-[3px] bg-gray-950/[0.04] rounded-full ml-2 md:ml-3 flex-shrink-0">
-                    <motion.div
-                  layout
-                  className="absolute top-[3px] bottom-[3px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]"
-                  animate={{
-                    left: infoMode === 'config' ? '3px' : 'calc(50% + 1px)',
-                    width: 'calc(50% - 4px)'
-                  }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 500,
-                    damping: 35
-                  }} />
+            <span
+              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ml-3 flex-shrink-0 ${status === 'active' || question.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
 
-                    <button
-                  onClick={() => setInfoMode('config')}
-                  className={`relative z-10 flex items-center justify-center w-7 md:w-8 h-7 md:h-8 rounded-full transition-colors duration-200 ${infoMode === 'config' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
-                  title="Config">
+                  <span
+                className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status === 'active' || question.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
 
-                      <Settings2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                    </button>
-                    <button
-                  onClick={() => {
-                    setIsViewingPublished(false);
-                    setInfoMode('preview');
-                  }}
-                  className={`relative z-10 flex items-center justify-center w-7 md:w-8 h-7 md:h-8 rounded-full transition-colors duration-200 ${infoMode === 'preview' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
-                  title="Preview">
-
-                      <Eye className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                    </button>
-                  </div>
-                </>
+                  {status === 'active' || question.status === 'active' ?
+              'Published' :
+              'Draft'}
+                </span>
             }
             </div>
             <div className="flex-1 overflow-y-auto bg-gray-50/50">
               {isInfoLoading ?
             <div className="bg-white h-full">
                   <InfoSkeleton />
-                </div> :
-            infoMode === 'preview' ?
-            <div className="p-4 md:p-8 flex items-center justify-center min-h-full">
-                  {isViewingPublished ?
-              <QuestionPreview
-                title={publishedSnapshotRef.current.title}
-                text={publishedSnapshotRef.current.text}
-                type={publishedSnapshotRef.current.type}
-                options={publishedSnapshotRef.current.options}
-                matchSubType={
-                publishedSnapshotRef.current.matchSubType as
-                'text' |
-                'image'
-                }
-                matchPairs={publishedSnapshotRef.current.matchPairs}
-                binaryLabels={publishedSnapshotRef.current.binaryLabels}
-                hint={publishedSnapshotRef.current.hint} /> :
-
-
-              <QuestionPreview
-                title={title}
-                text={text}
-                type={type}
-                options={options}
-                matchSubType={matchSubType}
-                matchPairs={matchPairs}
-                binaryLabels={binaryLabels}
-                hint={hint} />
-
-              }
                 </div> :
 
             <div className="p-4 md:p-6 space-y-4 md:space-y-6 bg-white min-h-full">
@@ -1498,15 +1637,11 @@ export function QuestionDetail({
                       <div className="pl-5 pr-4 py-3.5 flex items-center gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="relative flex h-2 w-2 flex-shrink-0">
-                              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50 animate-ping" />
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                            </span>
                             <span className="text-[13px] font-semibold text-emerald-800 tracking-tight">
                               Published version is live
                             </span>
                           </div>
-                          <p className="text-[11px] text-emerald-600/60 leading-relaxed pl-4">
+                          <p className="text-[11px] text-emerald-600/60 leading-relaxed">
                             Last published{' '}
                             <span className="font-medium text-emerald-700/70">
                               {(
@@ -1522,11 +1657,14 @@ export function QuestionDetail({
                           </p>
                         </div>
                         <button
-                    onClick={() => setInfoMode('preview')}
-                    className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-700 bg-white/80 ring-1 ring-emerald-500/15 hover:bg-white hover:ring-emerald-500/25 hover:shadow-sm transition-all">
+                    onClick={() => {
+                      setIsViewingPublished(true);
+                      setActiveTab('preview');
+                    }}
+                    className="flex-shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-lg text-emerald-700 bg-white/80 ring-1 ring-emerald-500/15 hover:bg-white hover:ring-emerald-500/25 hover:shadow-sm transition-all"
+                    title="Preview published version">
 
-                          View
-                          <Eye className="w-3 h-3" />
+                          <MonitorPlay className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -1538,14 +1676,6 @@ export function QuestionDetail({
                       <h3 className="text-base font-semibold text-gray-900 leading-snug flex-1 min-w-0">
                         {question.title}
                       </h3>
-                      <span
-                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 mt-0.5 ${question.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-
-                        <span
-                      className={`w-1.5 h-1.5 rounded-full ${question.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-
-                        {question.status === 'active' ? 'Published' : 'Draft'}
-                      </span>
                     </div>
                     {text &&
                 <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">
@@ -1812,37 +1942,147 @@ export function QuestionDetail({
                 </div>
             }
             </div>
-            {infoMode === 'config' &&
+            {!isInfoLoading &&
           <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-gray-50">
-                <Button
-              variant="primary"
-              className="flex-1 justify-center"
-              onClick={() => requestEdit()}
-              leftIcon={<Edit className="w-4 h-4" />}>
+                {/* Mobile layout: Edit on top, Discard below */}
+                <div className="sm:hidden flex flex-col gap-2 w-full">
+                  <Button
+                variant="primary"
+                className="w-full justify-center"
+                onClick={() => requestEdit()}
+                leftIcon={<Edit className="w-4 h-4" />}>
 
-                  Edit Question
-                </Button>
-                {isDraftOfPublished ?
-            <button
-              onClick={() => setDeleteDialogMode('discard-draft')}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
-
-                    <ArrowLeft className="w-4 h-4" />
-                    <span className="hidden sm:inline">Discard</span>
-                  </button> :
-
-            <Button
-              variant="danger"
-              size="icon"
-              onClick={() =>
-              setDeleteDialogMode(isPublished ? 'published' : 'draft')
-              }>
-
-                    <Trash2 className="w-4 h-4" />
+                    Edit Question
                   </Button>
-            }
+                  {isDraftOfPublished ?
+              <button
+                onClick={() => setDeleteDialogMode('discard-draft')}
+                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
+
+                      <ArrowLeft className="w-4 h-4" />
+                      Discard
+                    </button> :
+
+              <Button
+                variant="danger"
+                className="w-full"
+                onClick={() =>
+                setDeleteDialogMode(isPublished ? 'published' : 'draft')
+                }
+                leftIcon={<Trash2 className="w-4 h-4" />}>
+
+                      Delete
+                    </Button>
+              }
+                </div>
+
+                {/* Desktop layout: Discard/Delete left, Edit right — both fill space */}
+                <div className="hidden sm:flex items-center gap-2 w-full">
+                  {isDraftOfPublished ?
+              <button
+                onClick={() => setDeleteDialogMode('discard-draft')}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
+
+                      <ArrowLeft className="w-4 h-4" />
+                      Discard
+                    </button> :
+
+              <Button
+                variant="danger"
+                onClick={() =>
+                setDeleteDialogMode(isPublished ? 'published' : 'draft')
+                }
+                leftIcon={<Trash2 className="w-4 h-4" />}>
+
+                      Delete
+                    </Button>
+              }
+                  <Button
+                variant="primary"
+                className="flex-1 justify-center"
+                onClick={() => requestEdit()}
+                leftIcon={<Edit className="w-4 h-4" />}>
+
+                    Edit Question
+                  </Button>
+                </div>
               </div>
           }
+          </div>
+        }
+
+        {/* PREVIEW TAB */}
+        {activeTab === 'preview' &&
+        <div className="flex flex-col h-full">
+            <div className="hidden md:flex h-[57px] px-6 border-b border-gray-200 items-center flex-shrink-0 bg-white">
+              <h2 className="text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
+                Preview
+              </h2>
+              {isDraftOfPublished &&
+            <div className="relative flex items-center gap-1 p-[3px] bg-gray-950/[0.04] rounded-full ml-3 flex-shrink-0">
+                  <motion.div
+                layout
+                className={`absolute top-[3px] bottom-[3px] rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] ${!isViewingPublished ? 'bg-amber-50' : 'bg-emerald-50'}`}
+                animate={{
+                  left: !isViewingPublished ? '3px' : 'calc(50% + 0.5px)',
+                  width: 'calc(50% - 3.5px)'
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 500,
+                  damping: 35
+                }} />
+
+                  <button
+                onClick={() => setIsViewingPublished(false)}
+                className="relative z-10 w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200">
+
+                    <span
+                  className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${!isViewingPublished ? 'bg-amber-500' : 'bg-gray-300'}`} />
+
+                  </button>
+                  <button
+                onClick={() => setIsViewingPublished(true)}
+                className="relative z-10 w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200">
+
+                    <span
+                  className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${isViewingPublished ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+
+                  </button>
+                </div>
+            }
+            </div>
+            <div className="flex-1 overflow-y-auto bg-gray-50/50">
+              <div className="p-4 md:p-8 flex items-center justify-center min-h-full">
+                {isViewingPublished ?
+              <QuestionPreview
+                title={publishedSnapshotRef.current.title}
+                text={publishedSnapshotRef.current.text}
+                type={publishedSnapshotRef.current.type}
+                options={publishedSnapshotRef.current.options}
+                matchSubType={
+                publishedSnapshotRef.current.matchSubType as
+                'text' |
+                'image'
+                }
+                matchPairs={publishedSnapshotRef.current.matchPairs}
+                binaryLabels={publishedSnapshotRef.current.binaryLabels}
+                hint={publishedSnapshotRef.current.hint} /> :
+
+
+              <QuestionPreview
+                title={title}
+                text={text}
+                type={type}
+                options={options}
+                matchSubType={matchSubType}
+                matchPairs={matchPairs}
+                binaryLabels={binaryLabels}
+                hint={hint} />
+
+              }
+              </div>
+            </div>
           </div>
         }
 
@@ -1868,8 +2108,8 @@ export function QuestionDetail({
               }}
               className="flex flex-col h-full">
 
-                  <div className="h-[57px] px-4 md:px-6 border-b border-gray-200 flex items-center flex-shrink-0 bg-white">
-                    <h2 className="text-base md:text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
+                  <div className="hidden md:flex h-[57px] px-4 md:px-6 border-b border-gray-200 items-center flex-shrink-0 bg-white">
+                    <h2 className="text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
                       {isFormLoading ?
                   <div className="h-5 w-40 bg-gray-200 rounded animate-pulse" /> :
                   isNewQuestion ?
@@ -1880,14 +2120,12 @@ export function QuestionDetail({
                     </h2>
                     {!isFormLoading &&
                 <span
-                  className={`inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold border ml-2 md:ml-3 flex-shrink-0 ${status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ml-3 flex-shrink-0 ${status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
 
                         <span
-                    className={`w-1.5 h-1.5 rounded-full mr-1 md:mr-1.5 ${status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                    className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
 
-                        <span className="hidden sm:inline">
-                          {status === 'active' ? 'Published' : 'Draft'}
-                        </span>
+                        {status === 'active' ? 'Published' : 'Draft'}
                       </span>
                 }
                   </div>
@@ -1903,20 +2141,15 @@ export function QuestionDetail({
                             <div
                       className="pl-4 pr-3 py-2 flex items-center gap-2.5 cursor-pointer group"
                       onClick={() => {
-                        setActiveTab('info');
-                        setInfoMode('preview');
+                        setIsViewingPublished(true);
+                        setActiveTab('preview');
                       }}>
 
-                              <span className="relative flex h-1.5 w-1.5 flex-shrink-0">
-                                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50 animate-ping" />
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-                              </span>
                               <span className="text-[11px] font-medium text-emerald-700/70 flex-1 tracking-tight">
                                 Published version live · Editing draft
                               </span>
-                              <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600/50 group-hover:text-emerald-700 transition-colors">
-                                View
-                                <Eye className="w-2.5 h-2.5" />
+                              <span className="flex items-center text-emerald-600/50 group-hover:text-emerald-700 transition-colors">
+                                <MonitorPlay className="w-3.5 h-3.5" />
                               </span>
                             </div>
                           </div>
@@ -1943,7 +2176,7 @@ export function QuestionDetail({
                             </p>
                     }
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1.5">
                               Type
@@ -2135,50 +2368,99 @@ export function QuestionDetail({
                 }
                   </div>
                   <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-gray-50">
-                    {isNewQuestion ?
-                <Button
-                  variant="danger"
-                  onClick={() => setDeleteDialogMode('draft')}
-                  leftIcon={<Trash2 className="w-4 h-4" />}
-                  className="sm:w-auto">
-
-                        Delete
-                      </Button> :
-                isDraftOfPublished ||
-                isPublished && status === 'draft' ?
-                <button
-                  onClick={() => setDeleteDialogMode('discard-draft')}
-                  className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
-
-                        <ArrowLeft className="w-4 h-4" />
-                        <span className="hidden sm:inline">Discard Draft</span>
-                        <span className="sm:hidden">Discard</span>
-                      </button> :
-
-                <Button
-                  variant="danger"
-                  onClick={() => setDeleteDialogMode('draft')}
-                  leftIcon={<Trash2 className="w-4 h-4" />}
-                  className="sm:w-auto">
-
-                        Delete
-                      </Button>
-                }
-                    <div className="flex items-center gap-2 sm:w-auto w-full">
+                    {/* Mobile: Draft/Publish first, Delete below */}
+                    <div className="flex items-center gap-2 w-full sm:hidden">
                       <Button
                     variant="outline"
                     onClick={() => handleSave('draft')}
                     leftIcon={<Save className="w-4 h-4" />}
-                    className="flex-1 sm:flex-initial">
+                    className="flex-1">
 
-                        <span className="hidden sm:inline">Save as Draft</span>
-                        <span className="sm:hidden">Draft</span>
+                        Draft
                       </Button>
                       <Button
                     variant="primary"
                     onClick={() => handleSave('active')}
                     leftIcon={<Send className="w-4 h-4" />}
-                    className="flex-1 sm:flex-initial">
+                    className="flex-1">
+
+                        Publish
+                      </Button>
+                    </div>
+                    <div className="sm:hidden w-full">
+                      {isNewQuestion ?
+                  <Button
+                    variant="danger"
+                    onClick={() => setDeleteDialogMode('draft')}
+                    leftIcon={<Trash2 className="w-4 h-4" />}
+                    className="w-full">
+
+                          Delete
+                        </Button> :
+                  isDraftOfPublished ||
+                  isPublished && status === 'draft' ?
+                  <button
+                    onClick={() => setDeleteDialogMode('discard-draft')}
+                    className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
+
+                          <ArrowLeft className="w-4 h-4" />
+                          Discard
+                        </button> :
+
+                  <Button
+                    variant="danger"
+                    onClick={() => setDeleteDialogMode('draft')}
+                    leftIcon={<Trash2 className="w-4 h-4" />}
+                    className="w-full">
+
+                          Delete
+                        </Button>
+                  }
+                    </div>
+
+                    {/* Desktop: Delete left, Draft/Publish right (unchanged) */}
+                    <div className="hidden sm:block">
+                      {isNewQuestion ?
+                  <Button
+                    variant="danger"
+                    onClick={() => setDeleteDialogMode('draft')}
+                    leftIcon={<Trash2 className="w-4 h-4" />}>
+
+                          Delete
+                        </Button> :
+                  isDraftOfPublished ||
+                  isPublished && status === 'draft' ?
+                  <button
+                    onClick={() => setDeleteDialogMode('discard-draft')}
+                    className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
+
+                          <ArrowLeft className="w-4 h-4" />
+                          <span className="hidden md:inline">
+                            Discard Draft
+                          </span>
+                        </button> :
+
+                  <Button
+                    variant="danger"
+                    onClick={() => setDeleteDialogMode('draft')}
+                    leftIcon={<Trash2 className="w-4 h-4" />}>
+
+                          Delete
+                        </Button>
+                  }
+                    </div>
+                    <div className="hidden sm:flex items-center gap-2">
+                      <Button
+                    variant="outline"
+                    onClick={() => handleSave('draft')}
+                    leftIcon={<Save className="w-4 h-4" />}>
+
+                        Save as Draft
+                      </Button>
+                      <Button
+                    variant="primary"
+                    onClick={() => handleSave('active')}
+                    leftIcon={<Send className="w-4 h-4" />}>
 
                         Publish
                       </Button>
@@ -2262,6 +2544,15 @@ export function QuestionDetail({
                                 {errors.correctOptions}
                               </p>
                     }
+                            <div className="sticky top-0 z-10 bg-white pt-1 pb-2 -mx-4 md:-mx-6 px-4 md:px-6">
+                              <button
+                        onClick={addOption}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
+
+                                <Plus className="w-4 h-4" />
+                                Add Option
+                              </button>
+                            </div>
                             <div
                       className={`space-y-2.5 ${errors.options || errors.correctOptions ? 'rounded-md ring-2 ring-red-100 p-2 -m-2' : ''}`}>
 
@@ -2307,13 +2598,6 @@ export function QuestionDetail({
                                 </div>
                       )}
                             </div>
-                            <button
-                      onClick={addOption}
-                      className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
-
-                              <Plus className="w-4 h-4" />
-                              Add Option
-                            </button>
 
                             {/* Minimum Required to Pass - only shown when multiple correct answers are checked */}
                             {correctOptions.size > 1 &&
@@ -2340,7 +2624,7 @@ export function QuestionDetail({
                             );
                             setMinCorrectRequired(val);
                           }}
-                          className="w-20 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 text-center hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+                          className="w-20 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 text-center hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-gray-200 transition-colors" />
 
                                   <span className="text-xs text-gray-400">
                                     of {correctOptions.size} correct answers
@@ -2372,7 +2656,7 @@ export function QuestionDetail({
                             setCorrectOption(idx);
                           }
                         }}
-                        className={`relative rounded-lg border-2 text-center transition-all ${editingBinaryIndex !== idx ? 'cursor-pointer' : ''} ${correctOption === idx ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+                        className={`relative rounded-lg border-2 text-center transition-all ${editingBinaryIndex !== idx ? 'cursor-pointer' : ''} ${correctOption === idx ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50'}`}>
 
                                   {editingBinaryIndex !== idx &&
                         <div
@@ -2530,7 +2814,7 @@ export function QuestionDetail({
                             val < 1 ? 1 : val > 100 ? 100 : val
                           );
                         }}
-                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-gray-200 transition-colors" />
 
                               <p className="mt-2 text-xs text-gray-500 leading-relaxed">
                                 What threshold in % do you want to use for the
@@ -2586,7 +2870,7 @@ export function QuestionDetail({
                                   setTestResult(null);
                                 }}
                                 placeholder="Type a test answer to compare..."
-                                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
+                                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-gray-200 transition-colors" />
 
                                       <button
                                 type="button"
@@ -2646,7 +2930,7 @@ export function QuestionDetail({
                               </p>
                     }
                             <div>
-                              <span className="text-xs text-gray-500 uppercase tracking-wide font-medium block mb-2.5">
+                              <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold block mb-3">
                                 Match Type
                               </span>
                               <div className="grid grid-cols-2 gap-3">
@@ -2654,11 +2938,13 @@ export function QuestionDetail({
                           onClick={() => {
                             setMatchSubType('text');
                             setActiveMatchPairIndex(null);
+                            setNewPairDraft(null);
                           }}
-                          className={`relative rounded-lg border-2 text-center transition-all cursor-pointer py-3 px-4 ${matchSubType === 'text' ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+                          className={`relative rounded-xl transition-all cursor-pointer py-4 px-4 group ${matchSubType === 'text' ? 'border-2 border-teal-500 bg-gradient-to-b from-teal-50/80 to-white shadow-sm shadow-teal-100/50' : 'border-2 border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm'}`}
+                          title="Text Match">
 
                                   <div
-                            className={`absolute top-2.5 right-2.5 transition-colors pointer-events-none ${matchSubType === 'text' ? 'text-emerald-500' : 'text-gray-300'}`}>
+                            className={`absolute top-2.5 right-2.5 transition-all ${matchSubType === 'text' ? 'text-teal-500 scale-100' : 'text-gray-200 scale-90'}`}>
 
                                     {matchSubType === 'text' ?
                             <CheckCircle2 className="w-4 h-4" /> :
@@ -2666,26 +2952,25 @@ export function QuestionDetail({
                             <Circle className="w-4 h-4" />
                             }
                                   </div>
-                                  <div className="flex items-center justify-center gap-2">
+                                  <div
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center mx-auto transition-colors ${matchSubType === 'text' ? 'bg-teal-100/80' : 'bg-gray-100'}`}>
+
                                     <Type
-                              className={`w-4 h-4 ${matchSubType === 'text' ? 'text-emerald-600' : 'text-gray-400'}`} />
+                              className={`w-5 h-5 ${matchSubType === 'text' ? 'text-teal-600' : 'text-gray-400'}`} />
 
-                                    <span
-                              className={`text-sm font-bold ${matchSubType === 'text' ? 'text-emerald-700' : 'text-gray-600'}`}>
-
-                                      Text Match
-                                    </span>
                                   </div>
                                 </button>
                                 <button
                           onClick={() => {
                             setMatchSubType('image');
                             setActiveMatchPairIndex(null);
+                            setNewPairDraft(null);
                           }}
-                          className={`relative rounded-lg border-2 text-center transition-all cursor-pointer py-3 px-4 ${matchSubType === 'image' ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50 hover:border-gray-200'}`}>
+                          className={`relative rounded-xl transition-all cursor-pointer py-4 px-4 group ${matchSubType === 'image' ? 'border-2 border-teal-500 bg-gradient-to-b from-teal-50/80 to-white shadow-sm shadow-teal-100/50' : 'border-2 border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm'}`}
+                          title="Image Match">
 
                                   <div
-                            className={`absolute top-2.5 right-2.5 transition-colors pointer-events-none ${matchSubType === 'image' ? 'text-emerald-500' : 'text-gray-300'}`}>
+                            className={`absolute top-2.5 right-2.5 transition-all ${matchSubType === 'image' ? 'text-teal-500 scale-100' : 'text-gray-200 scale-90'}`}>
 
                                     {matchSubType === 'image' ?
                             <CheckCircle2 className="w-4 h-4" /> :
@@ -2693,26 +2978,24 @@ export function QuestionDetail({
                             <Circle className="w-4 h-4" />
                             }
                                   </div>
-                                  <div className="flex items-center justify-center gap-2">
+                                  <div
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center mx-auto transition-colors ${matchSubType === 'image' ? 'bg-teal-100/80' : 'bg-gray-100'}`}>
+
                                     <Image
-                              className={`w-4 h-4 ${matchSubType === 'image' ? 'text-emerald-600' : 'text-gray-400'}`} />
+                              className={`w-5 h-5 ${matchSubType === 'image' ? 'text-teal-600' : 'text-gray-400'}`} />
 
-                                    <span
-                              className={`text-sm font-bold ${matchSubType === 'image' ? 'text-emerald-700' : 'text-gray-600'}`}>
-
-                                      Image Match
-                                    </span>
                                   </div>
                                 </button>
                               </div>
-                              <p className="mt-2 text-xs text-gray-400 leading-relaxed">
+                              <p className="mt-2.5 text-[11px] text-gray-400 leading-relaxed">
                                 {matchSubType === 'text' ?
                         'Users will match text prompts with their correct text answers. Both columns will be shuffled.' :
                         'Users will match images with their correct text labels. Images and labels will be shuffled.'}
                               </p>
                             </div>
                             <AnimatePresence mode="wait">
-                              {activeMatchPairIndex === null ?
+                              {activeMatchPairIndex === null &&
+                      !newPairDraft ?
                       <motion.div
                         key="pair-list"
                         initial="enterFromLeft"
@@ -2725,6 +3008,20 @@ export function QuestionDetail({
                         }}
                         className="space-y-2">
 
+                                  <div className="sticky top-0 z-10 bg-white pt-1 pb-2 -mx-4 md:-mx-6 px-4 md:px-6">
+                                    <button
+                            onClick={() => {
+                              setNewPairDraft({
+                                prompt: '',
+                                answer: ''
+                              });
+                            }}
+                            className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
+
+                                      <Plus className="w-4 h-4" />
+                                      Add Pair
+                                    </button>
+                                  </div>
                                   {matchPairs.map((pair, index) =>
                         <div
                           key={index}
@@ -2825,7 +3122,11 @@ export function QuestionDetail({
                                 </motion.div> :
 
                       <motion.div
-                        key={`pair-detail-${activeMatchPairIndex}`}
+                        key={
+                        newPairDraft ?
+                        'new-pair' :
+                        `pair-detail-${activeMatchPairIndex}`
+                        }
                         initial="enterFromRight"
                         animate="center"
                         exit="exitToRight"
@@ -2847,16 +3148,27 @@ export function QuestionDetail({
                                       <input
                             type="text"
                             value={
-                            matchPairs[activeMatchPairIndex]?.
+                            newPairDraft ?
+                            newPairDraft.prompt :
+                            matchPairs[activeMatchPairIndex!]?.
                             prompt || ''
                             }
                             onChange={(e) => {
-                              const newPairs = [...matchPairs];
-                              newPairs[activeMatchPairIndex] = {
-                                ...newPairs[activeMatchPairIndex],
-                                prompt: e.target.value
-                              };
-                              setMatchPairs(newPairs);
+                              if (newPairDraft) {
+                                setNewPairDraft({
+                                  ...newPairDraft,
+                                  prompt: e.target.value
+                                });
+                              } else {
+                                const newPairs = [...matchPairs];
+                                newPairs[activeMatchPairIndex!] = {
+                                  ...newPairs[
+                                  activeMatchPairIndex!],
+
+                                  prompt: e.target.value
+                                };
+                                setMatchPairs(newPairs);
+                              }
                               clearError('matchPrompt');
                             }}
                             placeholder='e.g., "Ananas"'
@@ -2881,12 +3193,19 @@ export function QuestionDetail({
                                           *
                                         </span>
                                       </label>
-                                      {matchPairs[activeMatchPairIndex]?.
-                          imageUrl ?
+                                      {(
+                          newPairDraft ?
+                          newPairDraft.imageUrl :
+                          matchPairs[activeMatchPairIndex!]?.
+                          imageUrl) ?
+
                           <div className="relative group">
                                           <img
                               src={
-                              matchPairs[activeMatchPairIndex].
+                              newPairDraft ?
+                              newPairDraft.imageUrl :
+                              matchPairs[
+                              activeMatchPairIndex!].
                               imageUrl
                               }
                               alt="Match prompt"
@@ -2894,14 +3213,23 @@ export function QuestionDetail({
 
                                           <button
                               onClick={() => {
-                                const newPairs = [...matchPairs];
-                                newPairs[activeMatchPairIndex] = {
-                                  ...newPairs[
-                                  activeMatchPairIndex],
+                                if (newPairDraft) {
+                                  setNewPairDraft({
+                                    ...newPairDraft,
+                                    imageUrl: undefined
+                                  });
+                                } else {
+                                  const newPairs = [...matchPairs];
+                                  newPairs[
+                                  activeMatchPairIndex!] =
+                                  {
+                                    ...newPairs[
+                                    activeMatchPairIndex!],
 
-                                  imageUrl: undefined
-                                };
-                                setMatchPairs(newPairs);
+                                    imageUrl: undefined
+                                  };
+                                  setMatchPairs(newPairs);
+                                }
                               }}
                               className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-md text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm opacity-0 group-hover:opacity-100">
 
@@ -2921,14 +3249,23 @@ export function QuestionDetail({
                               {
                                 const url =
                                 URL.createObjectURL(file);
-                                const newPairs = [...matchPairs];
-                                newPairs[activeMatchPairIndex] = {
-                                  ...newPairs[
-                                  activeMatchPairIndex],
+                                if (newPairDraft) {
+                                  setNewPairDraft({
+                                    ...newPairDraft,
+                                    imageUrl: url
+                                  });
+                                } else {
+                                  const newPairs = [...matchPairs];
+                                  newPairs[
+                                  activeMatchPairIndex!] =
+                                  {
+                                    ...newPairs[
+                                    activeMatchPairIndex!],
 
-                                  imageUrl: url
-                                };
-                                setMatchPairs(newPairs);
+                                    imageUrl: url
+                                  };
+                                  setMatchPairs(newPairs);
+                                }
                               }
                             }}
                             onClick={() => {
@@ -2943,15 +3280,25 @@ export function QuestionDetail({
                                 if (file) {
                                   const url =
                                   URL.createObjectURL(file);
-                                  const newPairs = [...matchPairs];
-                                  newPairs[activeMatchPairIndex] =
-                                  {
-                                    ...newPairs[
-                                    activeMatchPairIndex],
+                                  if (newPairDraft) {
+                                    setNewPairDraft({
+                                      ...newPairDraft,
+                                      imageUrl: url
+                                    });
+                                  } else {
+                                    const newPairs = [
+                                    ...matchPairs];
 
-                                    imageUrl: url
-                                  };
-                                  setMatchPairs(newPairs);
+                                    newPairs[
+                                    activeMatchPairIndex!] =
+                                    {
+                                      ...newPairs[
+                                      activeMatchPairIndex!],
+
+                                      imageUrl: url
+                                    };
+                                    setMatchPairs(newPairs);
+                                  }
                                 }
                               };
                               input.click();
@@ -2986,16 +3333,25 @@ export function QuestionDetail({
                                     <input
                             type="text"
                             value={
-                            matchPairs[activeMatchPairIndex]?.
+                            newPairDraft ?
+                            newPairDraft.answer :
+                            matchPairs[activeMatchPairIndex!]?.
                             answer || ''
                             }
                             onChange={(e) => {
-                              const newPairs = [...matchPairs];
-                              newPairs[activeMatchPairIndex] = {
-                                ...newPairs[activeMatchPairIndex],
-                                answer: e.target.value
-                              };
-                              setMatchPairs(newPairs);
+                              if (newPairDraft) {
+                                setNewPairDraft({
+                                  ...newPairDraft,
+                                  answer: e.target.value
+                                });
+                              } else {
+                                const newPairs = [...matchPairs];
+                                newPairs[activeMatchPairIndex!] = {
+                                  ...newPairs[activeMatchPairIndex!],
+                                  answer: e.target.value
+                                };
+                                setMatchPairs(newPairs);
+                              }
                               clearError('matchAnswer');
                             }}
                             placeholder={
@@ -3029,7 +3385,17 @@ export function QuestionDetail({
                     <Button
                   variant="secondary"
                   onClick={() => {
-                    if (
+                    if (type === 'matching' && newPairDraft) {
+                      setErrors((prev) => {
+                        const next = {
+                          ...prev
+                        };
+                        delete next.matchPrompt;
+                        delete next.matchAnswer;
+                        return next;
+                      });
+                      setNewPairDraft(null);
+                    } else if (
                     type === 'matching' &&
                     activeMatchPairIndex !== null)
                     {
@@ -3051,7 +3417,9 @@ export function QuestionDetail({
                       Back
                     </Button>
                     {!(
-                type === 'matching' && activeMatchPairIndex === null) &&
+                type === 'matching' &&
+                activeMatchPairIndex === null &&
+                !newPairDraft) &&
 
                 <Button
                   variant="primary"

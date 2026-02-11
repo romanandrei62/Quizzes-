@@ -374,7 +374,7 @@ export function QuestionPreview({
               <p className="text-[11px] text-gray-400 text-center font-medium uppercase tracking-wider">
                 Select a prompt, then select its match
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 {/* Left Column */}
                 <div className="flex-1 space-y-2">
                   <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2 px-1">
