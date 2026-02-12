@@ -1528,7 +1528,7 @@ export function QuestionDetail({
         }
         {/* 4-tab switcher when draft of published - always visible */}
         {isDraftOfPublished &&
-        <div className="flex items-center px-3 pb-1.5 pt-0.5">
+        <div className="flex items-center px-3 pb-2 pt-0.5">
             <div className="relative flex items-center w-full p-[3px] bg-gray-950/[0.04] rounded-full">
               <motion.div
               layout
@@ -1555,16 +1555,16 @@ export function QuestionDetail({
                 setActiveTab('info');
                 setEditView('form');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
 
-                <Info className="w-3 h-3" />
+                <Info className="w-3.5 h-3.5" />
                 Info
               </button>
               <button
               onClick={() => requestEdit()}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
 
-                <PenSquare className="w-3 h-3" />
+                <PenSquare className="w-3.5 h-3.5" />
                 Edit
               </button>
               <button
@@ -1572,10 +1572,10 @@ export function QuestionDetail({
                 setIsViewingPublished(false);
                 setActiveTab('preview');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-700' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-700' : 'text-gray-400'}`}>
 
-                <span
-                className={`w-2 h-2 rounded-full ${activeTab === 'preview' && !isViewingPublished ? 'bg-amber-500' : 'bg-gray-300'}`} />
+                <MonitorPlay
+                className={`w-3.5 h-3.5 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-500' : ''}`} />
 
                 Draft
               </button>
@@ -1584,10 +1584,10 @@ export function QuestionDetail({
                 setIsViewingPublished(true);
                 setActiveTab('preview');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-700' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-700' : 'text-gray-400'}`}>
 
-                <span
-                className={`w-2 h-2 rounded-full ${activeTab === 'preview' && isViewingPublished ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                <MonitorPlay
+                className={`w-3.5 h-3.5 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-500' : ''}`} />
 
                 Live
               </button>
@@ -2037,16 +2037,16 @@ export function QuestionDetail({
                 onClick={() => setIsViewingPublished(false)}
                 className="relative z-10 w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200">
 
-                    <span
-                  className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${!isViewingPublished ? 'bg-amber-500' : 'bg-gray-300'}`} />
+                    <MonitorPlay
+                  className={`w-3.5 h-3.5 transition-colors duration-200 ${!isViewingPublished ? 'text-amber-500' : 'text-gray-300'}`} />
 
                   </button>
                   <button
                 onClick={() => setIsViewingPublished(true)}
                 className="relative z-10 w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200">
 
-                    <span
-                  className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${isViewingPublished ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                    <MonitorPlay
+                  className={`w-3.5 h-3.5 transition-colors duration-200 ${isViewingPublished ? 'text-emerald-500' : 'text-gray-300'}`} />
 
                   </button>
                 </div>
@@ -2404,7 +2404,7 @@ export function QuestionDetail({
                     className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
 
                           <ArrowLeft className="w-4 h-4" />
-                          Discard
+                          Discard Draft
                         </button> :
 
                   <Button
@@ -2435,9 +2435,7 @@ export function QuestionDetail({
                     className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
 
                           <ArrowLeft className="w-4 h-4" />
-                          <span className="hidden md:inline">
-                            Discard Draft
-                          </span>
+                          Discard Draft
                         </button> :
 
                   <Button

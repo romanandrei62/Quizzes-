@@ -333,7 +333,7 @@ function MobileQuestionCard({
         opacity: 1,
         y: 0,
       }}
-      className={`relative bg-white rounded-xl border transition-all active:scale-[0.98] ${isSelected ? 'border-gray-900 shadow-lg ring-2 ring-gray-900/5' : 'border-gray-200 active:border-gray-300 shadow-sm'}`}
+      className={`relative bg-white rounded-xl border transition-all cursor-pointer active:scale-[0.98] ${isSelected ? 'border-gray-900 shadow-lg ring-2 ring-gray-900/5' : 'border-gray-200 active:border-gray-300 shadow-sm'}`}
       onClick={onClick}
     >
       <div className="px-4 pr-4 py-3.5">

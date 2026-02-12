@@ -272,9 +272,10 @@ export function QuestionsPage() {
     setSelectedQuestion(null);
   };
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  // Auto-select the first question on initial load
+  // Auto-select the first question on initial load (desktop only)
   useEffect(() => {
-    if (questions.length > 0 && !selectedQuestion) {
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop && questions.length > 0 && !selectedQuestion) {
       setSelectedQuestion(questions[0]);
       setDetailDefaultTab('info');
     }
