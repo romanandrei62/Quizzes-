@@ -1377,17 +1377,22 @@ export function QuestionsContent({
               ) : hasMoreQuestions ? (
                 <button
                   onClick={loadMoreQuestions}
-                  className="w-full flex items-center gap-1.5 px-6 py-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                  className="w-full flex items-center justify-between px-6 py-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
                 >
-                  <ChevronDown className="w-3 h-3" />
-                  <span>
-                    Show more ({filteredQuestions.length - visibleQuestionCount}
-                    )
+                  <span className="flex items-center gap-1.5">
+                    <ChevronDown className="w-3 h-3" />
+                    Show more
+                  </span>
+                  <span className="text-gray-400">
+                    {visibleQuestionCount} of {filteredQuestions.length}
                   </span>
                 </button>
               ) : (
-                <div className="flex items-center px-6 py-2 text-xs text-gray-400">
+                <div className="flex items-center justify-between px-6 py-2 text-xs text-gray-400">
                   <span>{filteredQuestions.length} questions loaded</span>
+                  <span>
+                    {filteredQuestions.length} of {filteredQuestions.length}
+                  </span>
                 </div>
               )}
             </div>
@@ -1458,11 +1463,14 @@ export function QuestionsContent({
             ) : hasMoreQuestions ? (
               <button
                 onClick={loadMoreQuestions}
-                className="w-full flex items-center gap-1.5 px-4 py-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
               >
-                <ChevronDown className="w-3 h-3" />
-                <span>
-                  Show more ({filteredQuestions.length - visibleQuestionCount})
+                <span className="flex items-center gap-1.5">
+                  <ChevronDown className="w-3 h-3" />
+                  Show more
+                </span>
+                <span className="text-gray-400">
+                  {visibleQuestionCount} of {filteredQuestions.length}
                 </span>
               </button>
             ) : null}
