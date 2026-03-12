@@ -41,7 +41,7 @@ export function BulkEditForm({
           variant="secondary"
           onClick={onClose}
           leftIcon={<X className="w-4 h-4" />}>
-
+          
             Cancel
           </Button>
           <Button
@@ -52,12 +52,12 @@ export function BulkEditForm({
           }}
           disabled={!hasChanges}
           leftIcon={<Save className="w-4 h-4" />}>
-
+          
             Save
           </Button>
         </div>
       }>
-
+      
       <div className={`p-6 ${isExpanded ? 'space-y-6' : 'space-y-5'}`}>
         <p className="text-sm text-gray-600">
           Update fields for {selectedCount} selected item
@@ -73,7 +73,7 @@ export function BulkEditForm({
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
-
+            
             <option value="">No changes</option>
             <option value="Onboarding">Onboarding</option>
             <option value="Feedback">Feedback</option>

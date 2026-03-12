@@ -50,7 +50,7 @@ interface Quiz {
   showPercentComplete: boolean;
   showNumQuestions: boolean;
   showProgressBar: boolean;
-  status: 'draft' | 'ready' | 'archived';
+  status: 'draft' | 'published' | 'archived';
   description?: string;
 }
 export function QuestionsPage() {
@@ -290,7 +290,7 @@ export function QuestionsPage() {
             src="/2025-logo-mrclean_7caceb4b2be73a7d7c60895567e55bd2.png"
             alt="SuiteDash"
             className="h-10 w-auto object-contain" />
-
+          
         </div>
 
         {/* Profile Section */}
@@ -301,7 +301,7 @@ export function QuestionsPage() {
                 src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
                 alt="George"
                 className="h-full w-full object-cover" />
-
+              
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-white text-sm font-bold tracking-wide">
@@ -452,7 +452,7 @@ export function QuestionsPage() {
         <button
           onClick={() => setIsMainMenuOpen(!isMainMenuOpen)}
           className="p-2 text-white hover:bg-gray-800 rounded-lg transition-colors">
-
+          
           {isMainMenuOpen ?
           <X className="w-6 h-6" /> :
 
@@ -464,7 +464,7 @@ export function QuestionsPage() {
           src="/2025-logo-mrclean_7caceb4b2be73a7d7c60895567e55bd2.png"
           alt="SuiteDash"
           className="h-6 w-auto object-contain" />
-
+        
 
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-gray-700 cursor-pointer hover:border-gray-500 transition-colors">
@@ -472,7 +472,7 @@ export function QuestionsPage() {
               src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
               alt="George"
               className="h-full w-full object-cover" />
-
+            
           </div>
         </div>
       </div>
@@ -483,7 +483,7 @@ export function QuestionsPage() {
           <div
           className="lg:hidden fixed inset-0 bg-black/50 z-40 mt-14"
           onClick={() => setIsMainMenuOpen(false)} />
-
+        
 
           <div className="lg:hidden fixed left-0 top-14 bottom-0 w-64 bg-[#1a1a1a] z-50 shadow-xl overflow-y-auto">
             <div className="px-4 py-4 border-b border-gray-800">
@@ -493,7 +493,7 @@ export function QuestionsPage() {
                   src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
                   alt="George"
                   className="h-full w-full object-cover" />
-
+                
                 </div>
                 <div>
                   <div className="text-white text-sm font-bold">GEORGE</div>
@@ -547,7 +547,7 @@ export function QuestionsPage() {
                   src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
                   alt="George"
                   className="h-full w-full object-cover" />
-
+                
               </div>
             </div>
           </div>
@@ -561,7 +561,7 @@ export function QuestionsPage() {
                 <button
                   onClick={() => setActiveTab('questions')}
                   className={`text-xs lg:text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'questions' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
-
+                  
                   QUESTIONS
                   {activeTab === 'questions' &&
                   <motion.div
@@ -578,7 +578,7 @@ export function QuestionsPage() {
                 <button
                   onClick={() => setActiveTab('quizzes')}
                   className={`text-xs lg:text-sm font-bold tracking-wider pb-2 transition-colors relative ${activeTab === 'quizzes' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
-
+                  
                   QUIZZES
                   {activeTab === 'quizzes' &&
                   <motion.div
@@ -613,7 +613,7 @@ export function QuestionsPage() {
               }}
               className="lg:hidden fixed inset-0 bg-black/50 z-40"
               onClick={() => setIsMobileSidebarOpen(false)} />
-
+            
               <motion.div
               initial={{
                 x: '-100%'
@@ -630,13 +630,13 @@ export function QuestionsPage() {
                 stiffness: 300
               }}
               className="lg:hidden fixed left-0 top-14 bottom-0 w-80 max-w-[85vw] bg-white z-50 shadow-2xl overflow-y-auto">
-
+              
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                   <h3 className="text-base font-bold text-gray-900">Filters</h3>
                   <button
                   onClick={() => setIsMobileSidebarOpen(false)}
                   className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-
+                  
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -656,7 +656,7 @@ export function QuestionsPage() {
                   setIsMobileSidebarOpen(false);
                 }}
                 usedCategoryIds={new Set(questions.map((q) => q.category))} />
-
+              
               </motion.div>
             </>
           }
@@ -666,14 +666,14 @@ export function QuestionsPage() {
         <div
           ref={containerRef}
           className="hidden lg:flex flex-1 gap-4 px-4 pb-4 overflow-hidden">
-
+          
           {/* Left Column: Sidebar - 25% width */}
           <div
             className="flex-shrink-0 shadow-lg rounded-lg overflow-hidden h-full hidden lg:flex"
             style={{
               width: `${leftWidth}px`
             }}>
-
+            
             {activeTab === 'questions' ?
             <QuestionsSidebar
               selectedType={selectedType}
@@ -702,7 +702,7 @@ export function QuestionsPage() {
               marginRight: '-6px'
             }}
             onMouseDown={handleLeftMouseDown}>
-
+            
             <div className="flex flex-col items-center gap-[3px] opacity-40 group-hover:opacity-100 transition-opacity">
               <div className="flex gap-[3px]">
                 <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
@@ -725,7 +725,7 @@ export function QuestionsPage() {
             style={{
               width: `${middleWidth}px`
             }}>
-
+            
             <AnimatePresence mode="wait">
               {activeTab === 'questions' &&
               <QuestionsContent
@@ -763,7 +763,7 @@ export function QuestionsPage() {
               marginRight: '-6px'
             }}
             onMouseDown={handleRightMouseDown}>
-
+            
             <div className="flex flex-col items-center gap-[3px] opacity-40 group-hover:opacity-100 transition-opacity">
               <div className="flex gap-[3px]">
                 <div className="w-[3px] h-[3px] rounded-full bg-gray-400" />
@@ -877,7 +877,7 @@ export function QuestionsPage() {
           zIndex: 9999,
           backgroundColor: '#ffffff'
         }}>
-
+        
           <QuestionDetail
           key={`overlay-${detailKey}`}
           question={selectedQuestion}
@@ -915,7 +915,7 @@ export function QuestionsPage() {
           createdAt :
           undefined
           } />
-
+        
         </div>
       }
     </div>);

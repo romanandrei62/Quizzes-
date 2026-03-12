@@ -161,7 +161,7 @@ export function QuestionPreview({
           delay: 0.1
         }}
         className="flex items-center justify-center gap-1.5 mb-4">
-
+        
         <Sparkles className="w-3 h-3 text-teal-500" />
         <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-teal-600/70">
           Learner Preview
@@ -183,7 +183,7 @@ export function QuestionPreview({
           ease: [0.4, 0, 0.2, 1]
         }}
         className="rounded-2xl overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] ring-1 ring-gray-900/[0.04]">
-
+        
         {/* Top accent bar */}
         <div className="h-1 bg-gradient-to-r from-teal-400 via-teal-500 to-emerald-400" />
 
@@ -200,7 +200,7 @@ export function QuestionPreview({
               delay: 0.15
             }}
             className="text-[17px] font-semibold text-gray-900 leading-relaxed tracking-tight">
-
+            
             {title}
           </motion.h3>
           {text &&
@@ -215,7 +215,7 @@ export function QuestionPreview({
               delay: 0.2
             }}
             className="mt-2.5 text-[13px] text-gray-500 leading-relaxed">
-
+            
               {text}
             </motion.p>
           }
@@ -251,15 +251,15 @@ export function QuestionPreview({
                   onClick={() => handleSelect(index)}
                   disabled={isSubmitted}
                   className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-left transition-all duration-200 ${isSelected ? 'bg-teal-50 ring-2 ring-teal-500 ring-offset-1' : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300 hover:bg-gray-50'}`}>
-
+                  
                     <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-bold transition-all duration-200 ${isSelected ? 'bg-teal-500 text-white shadow-sm' : 'bg-white text-gray-400 ring-1 ring-gray-200'}`}>
-
+                    
                       {isSelected ? <Check className="w-3.5 h-3.5" /> : letter}
                     </div>
                     <span
                     className={`text-[13px] leading-snug transition-colors ${isSelected ? 'text-teal-900 font-medium' : 'text-gray-700'}`}>
-
+                    
                       {option ||
                     <span className="italic text-gray-400">
                           Empty option
@@ -297,7 +297,7 @@ export function QuestionPreview({
                   onClick={() => handleSelect(index)}
                   disabled={isSubmitted}
                   className={`flex flex-col items-center justify-center py-8 rounded-xl transition-all duration-200 ${isSelected ? 'bg-teal-50 ring-2 ring-teal-500 ring-offset-1' : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300 hover:bg-gray-50'}`}>
-
+                  
                     <motion.div
                     animate={
                     isSelected ?
@@ -310,7 +310,7 @@ export function QuestionPreview({
                       duration: 0.3
                     }}
                     className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 transition-all duration-200 ${isSelected ? 'bg-teal-500 text-white shadow-md' : 'bg-white text-gray-400 ring-1 ring-gray-200'}`}>
-
+                    
                       {index === 0 ?
                     <Check className="w-5 h-5" /> :
 
@@ -319,7 +319,7 @@ export function QuestionPreview({
                     </motion.div>
                     <span
                     className={`text-sm font-semibold transition-colors ${isSelected ? 'text-teal-900' : 'text-gray-600'}`}>
-
+                    
                       {label || (index === 0 ? 'True' : 'False')}
                     </span>
                   </motion.button>);
@@ -341,14 +341,14 @@ export function QuestionPreview({
               delay: 0.2
             }}
             className="space-y-2">
-
+            
               <textarea
               value={textAnswer}
               onChange={(e) => setTextAnswer(e.target.value)}
               disabled={isSubmitted}
               placeholder="Type your answer here..."
               className="w-full min-h-[140px] p-4 rounded-xl bg-gray-50/60 ring-1 ring-gray-200/80 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1 focus:bg-white resize-y transition-all" />
-
+            
               <div className="flex justify-end px-1">
                 <span className="text-[11px] text-gray-400 tabular-nums">
                   {textAnswer.length} characters
@@ -370,7 +370,7 @@ export function QuestionPreview({
               delay: 0.15
             }}
             className="space-y-4">
-
+            
               <p className="text-[11px] text-gray-400 text-center font-medium uppercase tracking-wider">
                 Select a prompt, then select its match
               </p>
@@ -402,11 +402,11 @@ export function QuestionPreview({
                       onClick={() => handleMatchClick('left', index)}
                       disabled={isSubmitted}
                       className={`w-full p-3 rounded-xl text-left transition-all duration-200 relative ${isMatched && color ? `${color.bg} ring-2 ${color.border}` : isActive ? 'bg-teal-50 ring-2 ring-teal-500 ring-offset-1' : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300'}`}>
-
+                      
                         {isMatched && color &&
                       <div
                         className={`absolute -right-1.5 -top-1.5 w-5 h-5 rounded-full ${color.badge} text-white flex items-center justify-center shadow-sm`}>
-
+                        
                             <Link2 className="w-2.5 h-2.5" />
                           </div>
                       }
@@ -416,7 +416,7 @@ export function QuestionPreview({
                           src={pair.imageUrl}
                           alt=""
                           className="w-9 h-9 rounded-lg object-cover ring-1 ring-black/5" />
-
+                        
                             <span className="text-[11px] text-gray-500 font-medium">
                               Image {index + 1}
                             </span>
@@ -424,7 +424,7 @@ export function QuestionPreview({
 
                       <span
                         className={`text-[13px] font-medium ${isMatched && color ? color.text : 'text-gray-700'}`}>
-
+                        
                             {pair.prompt || `Item ${index + 1}`}
                           </span>
                       }
@@ -465,17 +465,17 @@ export function QuestionPreview({
                       onClick={() => handleMatchClick('right', originalIndex)}
                       disabled={isSubmitted}
                       className={`w-full p-3 rounded-xl text-left transition-all duration-200 relative ${isMatched && color ? `${color.bg} ring-2 ${color.border}` : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300'}`}>
-
+                      
                         {isMatched && color &&
                       <div
                         className={`absolute -left-1.5 -top-1.5 w-5 h-5 rounded-full ${color.badge} text-white flex items-center justify-center shadow-sm`}>
-
+                        
                             <Link2 className="w-2.5 h-2.5" />
                           </div>
                       }
                         <span
                         className={`text-[13px] ${isMatched && color ? `font-medium ${color.text}` : 'text-gray-700'}`}>
-
+                        
                           {pair?.answer || `Answer ${originalIndex + 1}`}
                         </span>
                       </motion.button>);
@@ -505,11 +505,11 @@ export function QuestionPreview({
               delay: 0.4
             }}
             className="mt-5 pt-4 border-t border-gray-100">
-
+            
               <button
               onClick={() => setShowHint(!showHint)}
               className="inline-flex items-center gap-2 text-[13px] font-medium text-amber-600 hover:text-amber-700 transition-colors">
-
+              
                 <Lightbulb className="w-4 h-4" />
                 {showHint ? 'Hide hint' : 'Need a hint?'}
               </button>
@@ -533,7 +533,7 @@ export function QuestionPreview({
                   ease: [0.4, 0, 0.2, 1]
                 }}
                 className="overflow-hidden">
-
+                
                     <div className="mt-2.5 px-3.5 py-3 bg-amber-50/60 rounded-xl ring-1 ring-amber-200/50 text-[13px] text-amber-800 leading-relaxed">
                       {hint}
                     </div>
@@ -563,7 +563,7 @@ export function QuestionPreview({
                 scale: 0.95
               }}
               className="flex items-center gap-2">
-
+              
                 <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
                   <Check className="w-3.5 h-3.5 text-emerald-600" />
                 </div>
@@ -580,7 +580,7 @@ export function QuestionPreview({
               animate={{
                 opacity: 1
               }}>
-
+              
                 <span className="text-[11px] text-gray-400">
                   {hasAnswer ? 'Ready to submit' : 'Select an answer'}
                 </span>
@@ -593,7 +593,7 @@ export function QuestionPreview({
             <button
               onClick={handleReset}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-medium text-gray-600 bg-white ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-gray-300 transition-all">
-
+              
                 <RotateCcw className="w-3.5 h-3.5" />
                 Try Again
               </button> :
@@ -602,7 +602,7 @@ export function QuestionPreview({
               onClick={handleSubmit}
               disabled={!hasAnswer}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-semibold text-white bg-teal-600 hover:bg-teal-700 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-
+              
                 <Send className="w-3.5 h-3.5" />
                 Submit
               </button>

@@ -49,7 +49,7 @@ export function BulkEditBar({
         ease: [0.32, 0.72, 0, 1]
       }}
       className="bg-gradient-to-r from-gray-900 to-gray-800 text-white border-b border-gray-700 shadow-lg overflow-hidden">
-
+      
       <motion.div
         initial={{
           y: -20
@@ -65,7 +65,7 @@ export function BulkEditBar({
           ease: [0.32, 0.72, 0, 1]
         }}
         className="px-4 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-4">
-
+        
         {/* Left Side - Selection Info */}
         <div className="flex items-center gap-2 sm:gap-4 md:gap-6 min-w-0 flex-1">
           {/* Desktop Layout - Checkbox + Count Badge + Text */}
@@ -84,13 +84,13 @@ export function BulkEditBar({
                 delay: 0.1
               }}
               className="flex-shrink-0">
-
+              
               <Checkbox
                 checked={allCurrentPageSelected}
                 indeterminate={someCurrentPageSelected}
                 onChange={onToggleSelectAll}
                 id="bulk-select-all" />
-
+              
             </motion.div>
             <motion.div
               initial={{
@@ -106,7 +106,7 @@ export function BulkEditBar({
                 delay: 0.15
               }}
               className="relative w-7 h-7 sm:w-8 sm:h-8 bg-white text-gray-900 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
-
+              
               <span className="text-xs sm:text-sm font-bold leading-none">
                 {selectedCount}
               </span>
@@ -125,7 +125,7 @@ export function BulkEditBar({
                 delay: 0.2
               }}
               className="flex flex-col gap-0.5 min-w-0">
-
+              
               <AnimatePresence mode="wait">
                 {allPagesSelected ?
                 <motion.div
@@ -146,14 +146,14 @@ export function BulkEditBar({
                     duration: 0.2
                   }}
                   className="flex flex-col">
-
+                  
                     <span className="text-xs sm:text-sm font-semibold text-white leading-tight truncate">
                       All {totalCount} items selected
                     </span>
                     <button
                     onClick={onSelectCurrentPageOnly}
                     className="text-[10px] sm:text-xs text-gray-300 hover:text-white transition-colors text-left leading-tight mt-0.5 truncate">
-
+                    
                       Select current page only →
                     </button>
                   </motion.div> :
@@ -176,7 +176,7 @@ export function BulkEditBar({
                     duration: 0.2
                   }}
                   className="flex flex-col">
-
+                  
                     <span className="text-xs sm:text-sm font-semibold text-white leading-tight truncate">
                       {selectedCount} item{selectedCount !== 1 ? 's' : ''}{' '}
                       selected
@@ -185,7 +185,7 @@ export function BulkEditBar({
                   <button
                     onClick={onSelectAllPages}
                     className="text-[10px] sm:text-xs text-teal-300 hover:text-teal-200 font-medium transition-colors text-left leading-tight mt-0.5 truncate">
-
+                    
                         Select all {totalCount} items →
                       </button>
                   }
@@ -216,7 +216,7 @@ export function BulkEditBar({
                 delay: 0.1
               }}
               className="relative w-8 h-8 bg-white text-gray-900 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
-
+              
               <span className="text-sm font-bold leading-none">
                 {selectedCount}
               </span>
@@ -238,19 +238,19 @@ export function BulkEditBar({
               delay: 0.25
             }}
             className="hidden md:flex items-center gap-2">
-
+            
             <button
               onClick={onEdit}
               className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/10"
               aria-label="Edit">
-
+              
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={onDelete}
               className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-200 rounded-lg transition-all duration-200 backdrop-blur-sm border border-red-400/20"
               aria-label="Delete">
-
+              
               <Trash2 className="w-4 h-4" />
             </button>
           </motion.div>
@@ -271,21 +271,21 @@ export function BulkEditBar({
             delay: 0.3
           }}
           className="flex items-center gap-2 flex-shrink-0">
-
+          
           {/* Mobile Action Buttons - Icon only, no labels */}
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={onEdit}
               className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200"
               aria-label="Edit">
-
+              
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={onDelete}
               className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-200 rounded-lg transition-all duration-200"
               aria-label="Delete">
-
+              
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
@@ -294,7 +294,7 @@ export function BulkEditBar({
             onClick={onClose}
             className="p-2 hover:bg-white/10 rounded-lg transition-all duration-200 flex-shrink-0"
             aria-label="Clear selection">
-
+            
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </motion.div>

@@ -61,7 +61,7 @@ export function SortDropdown({ onSortChange }: SortDropdownProps) {
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 hover:bg-gray-50 rounded transition-colors flex-shrink-0">
-
+        
         <BarsSortIcon className="w-5 h-5 text-gray-600" />
       </button>
 
@@ -90,7 +90,7 @@ export function SortDropdown({ onSortChange }: SortDropdownProps) {
             buttonRef.current.getBoundingClientRect().bottom + 8 :
             'auto'
           }}>
-
+          
             {sortOptions.map((sort) => {
             const Icon = sort.icon;
             const isSelected = selectedSort === sort.label;
@@ -99,13 +99,13 @@ export function SortDropdown({ onSortChange }: SortDropdownProps) {
                 key={sort.id}
                 onClick={() => handleSortSelect(sort)}
                 className={`w-full px-4 py-2.5 text-left flex items-start gap-3 hover:bg-gray-50 transition-colors ${isSelected ? 'bg-teal-50' : ''}`}>
-
+                
                   <Icon
                   className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isSelected ? 'text-teal-600' : 'text-gray-400'}`} />
-
+                
                   <span
                   className={`text-sm ${isSelected ? 'text-teal-600 font-medium' : 'text-gray-600'}`}>
-
+                  
                     {sort.label}
                   </span>
                 </button>);

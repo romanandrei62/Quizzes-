@@ -66,7 +66,7 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 hover:bg-gray-200 rounded transition-colors flex-shrink-0">
-
+        
         <MoreVertical className="w-5 h-5 text-gray-600" />
       </button>
       <AnimatePresence>
@@ -88,7 +88,7 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
             }}
             className="sm:hidden fixed inset-0 bg-black/20 z-40"
             onClick={() => setIsOpen(false)} />
-
+          
 
             {/* Dropdown */}
             <motion.div
@@ -108,7 +108,7 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
               duration: 0.15
             }}
             className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 max-h-[70vh] overflow-y-auto">
-
+            
               {actions.map((action) => {
               const Icon = action.icon;
               return (
@@ -116,7 +116,7 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
                   key={action.id}
                   onClick={() => handleActionClick(action.id)}
                   className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors">
-
+                  
                     <Icon className="w-4 h-4 flex-shrink-0 text-gray-500" />
 
                     <span className="text-sm text-gray-700">

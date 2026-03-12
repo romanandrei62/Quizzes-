@@ -160,7 +160,7 @@ function FormSkeleton() {
           style={{
             animationDelay: '50ms'
           }} />
-
+        
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -169,13 +169,13 @@ function FormSkeleton() {
             style={{
               animationDelay: '100ms'
             }} />
-
+          
           <div
             className="h-10 w-full bg-gray-100 rounded-md animate-pulse"
             style={{
               animationDelay: '150ms'
             }} />
-
+          
         </div>
         <div>
           <div
@@ -183,13 +183,13 @@ function FormSkeleton() {
             style={{
               animationDelay: '100ms'
             }} />
-
+          
           <div
             className="h-10 w-full bg-gray-100 rounded-md animate-pulse"
             style={{
               animationDelay: '150ms'
             }} />
-
+          
         </div>
       </div>
       <div>
@@ -198,13 +198,13 @@ function FormSkeleton() {
           style={{
             animationDelay: '200ms'
           }} />
-
+        
         <div
           className="h-[120px] w-full bg-gray-100 rounded-md animate-pulse"
           style={{
             animationDelay: '250ms'
           }} />
-
+        
       </div>
       <div>
         <div
@@ -212,13 +212,13 @@ function FormSkeleton() {
           style={{
             animationDelay: '300ms'
           }} />
-
+        
         <div
           className="h-[120px] w-full bg-gray-50 rounded-md border-2 border-dashed border-gray-200 animate-pulse"
           style={{
             animationDelay: '350ms'
           }} />
-
+        
       </div>
       <div>
         <div
@@ -226,20 +226,20 @@ function FormSkeleton() {
           style={{
             animationDelay: '400ms'
           }} />
-
+        
         <div
           className="h-10 w-full bg-gray-100 rounded-md animate-pulse"
           style={{
             animationDelay: '450ms'
           }} />
-
+        
       </div>
       <div
         className="rounded-lg border-2 border-gray-200 p-4 animate-pulse"
         style={{
           animationDelay: '500ms'
         }}>
-
+        
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-gray-200" />
           <div className="flex-1">
@@ -265,13 +265,13 @@ function AnswersSkeleton() {
           style={{
             animationDelay: '75ms'
           }} />
-
+        
         <div
           className="h-3 w-36 bg-gray-100 rounded animate-pulse"
           style={{
             animationDelay: '75ms'
           }} />
-
+        
       </div>
       {[0, 1, 2, 3].map((i) =>
       <div
@@ -280,7 +280,7 @@ function AnswersSkeleton() {
         style={{
           animationDelay: `${150 + i * 75}ms`
         }}>
-
+        
           <div className="w-4 h-4 bg-gray-100 rounded" />
           <div className="w-5 h-5 bg-gray-200 rounded-full" />
           <div className="flex-1 h-9 bg-gray-100 rounded-md" />
@@ -292,7 +292,7 @@ function AnswersSkeleton() {
         style={{
           animationDelay: '500ms'
         }} />
-
+      
     </div>);
 
 }
@@ -306,19 +306,19 @@ function InfoSkeleton() {
           style={{
             animationDelay: '50ms'
           }} />
-
+        
         <div
           className="h-4 w-3/4 bg-gray-200 rounded animate-pulse mb-2"
           style={{
             animationDelay: '100ms'
           }} />
-
+        
         <div
           className="h-3.5 w-full bg-gray-100 rounded animate-pulse"
           style={{
             animationDelay: '150ms'
           }} />
-
+        
       </div>
       <div>
         <div
@@ -326,20 +326,20 @@ function InfoSkeleton() {
           style={{
             animationDelay: '200ms'
           }} />
-
+        
         <div className="flex items-center gap-2">
           <div
             className="w-7 h-7 bg-gray-100 rounded-md animate-pulse"
             style={{
               animationDelay: '250ms'
             }} />
-
+          
           <div
             className="h-3.5 w-28 bg-gray-200 rounded animate-pulse"
             style={{
               animationDelay: '250ms'
             }} />
-
+          
         </div>
       </div>
       <div>
@@ -348,20 +348,20 @@ function InfoSkeleton() {
           style={{
             animationDelay: '300ms'
           }} />
-
+        
         <div className="flex items-center gap-2">
           <div
             className="w-3 h-3 bg-gray-200 rounded-full animate-pulse"
             style={{
               animationDelay: '350ms'
             }} />
-
+          
           <div
             className="h-3.5 w-20 bg-gray-200 rounded animate-pulse"
             style={{
               animationDelay: '350ms'
             }} />
-
+          
         </div>
       </div>
       <div>
@@ -370,7 +370,7 @@ function InfoSkeleton() {
           style={{
             animationDelay: '400ms'
           }} />
-
+        
         <div className="space-y-2">
           {[0, 1, 2, 3].map((i) =>
           <div
@@ -379,14 +379,14 @@ function InfoSkeleton() {
             style={{
               animationDelay: `${450 + i * 75}ms`
             }}>
-
+            
               <div className="w-6 h-6 rounded-full bg-gray-200" />
               <div
               className="h-3.5 bg-gray-200 rounded"
               style={{
                 width: `${40 + i * 15}%`
               }} />
-
+            
             </div>
           )}
         </div>
@@ -397,13 +397,13 @@ function InfoSkeleton() {
           style={{
             animationDelay: '750ms'
           }} />
-
+        
         <div
           className="h-3.5 w-36 bg-gray-200 rounded animate-pulse"
           style={{
             animationDelay: '800ms'
           }} />
-
+        
       </div>
     </div>);
 
@@ -1060,7 +1060,7 @@ export function QuestionDetail({
               src="/image.png"
               alt="Empty state"
               className="w-full h-full object-contain" />
-
+            
           </div>
         </div>
       </div>);
@@ -1086,7 +1086,7 @@ export function QuestionDetail({
           }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
           onClick={() => setDeleteDialogMode(null)}>
-
+          
             <motion.div
             initial={{
               opacity: 0,
@@ -1110,12 +1110,12 @@ export function QuestionDetail({
             }}
             className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}>
-
+            
               <div className="flex flex-col items-center text-center">
                 {/* Icon */}
                 <div
                 className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${deleteDialogMode === 'discard-draft' ? 'bg-amber-50' : 'bg-red-50'}`}>
-
+                
                   {deleteDialogMode === 'discard-draft' ?
                 <ArrowLeft className="w-5 h-5 text-amber-500" /> :
 
@@ -1167,7 +1167,7 @@ export function QuestionDetail({
                   <button
                   onClick={() => setDeleteDialogMode(null)}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-
+                  
                     Cancel
                   </button>
                   <button
@@ -1193,7 +1193,7 @@ export function QuestionDetail({
                     }
                   }}
                   className={`flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 ${deleteDialogMode === 'discard-draft' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-red-500 hover:bg-red-600'}`}>
-
+                  
                     {deleteDialogMode === 'discard-draft' ?
                   <>
                         <ArrowLeft className="w-4 h-4" />
@@ -1231,7 +1231,7 @@ export function QuestionDetail({
           }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
           onClick={() => setShowEditPublishedWarning(false)}>
-
+          
             <motion.div
             initial={{
               opacity: 0,
@@ -1255,7 +1255,7 @@ export function QuestionDetail({
             }}
             className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}>
-
+            
               <div className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mb-4">
                   <PenSquare className="w-5 h-5 text-amber-500" />
@@ -1279,13 +1279,13 @@ export function QuestionDetail({
                   <button
                   onClick={() => setShowEditPublishedWarning(false)}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-
+                  
                     Cancel
                   </button>
                   <button
                   onClick={confirmEditPublished}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
-
+                  
                     <Save className="w-4 h-4" />
                     Create Draft
                   </button>
@@ -1317,7 +1317,7 @@ export function QuestionDetail({
             setShowTypeChangeConfirm(false);
             setPendingType(null);
           }}>
-
+          
             <motion.div
             initial={{
               opacity: 0,
@@ -1341,7 +1341,7 @@ export function QuestionDetail({
             }}
             className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}>
-
+            
               <div className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mb-4">
                   <AlertCircle className="w-5 h-5 text-amber-500" />
@@ -1363,7 +1363,7 @@ export function QuestionDetail({
                     setPendingType(null);
                   }}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-
+                  
                     Keep Current
                   </button>
                   <button
@@ -1406,7 +1406,7 @@ export function QuestionDetail({
                     setPendingType(null);
                   }}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
-
+                  
                     Change Type
                   </button>
                 </div>
@@ -1425,7 +1425,7 @@ export function QuestionDetail({
           }}
           className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
           title="Info">
-
+          
           <Info className="w-[18px] h-[18px]" />
         </button>
         <button
@@ -1434,7 +1434,7 @@ export function QuestionDetail({
           }}
           className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
           title="Edit">
-
+          
           <PenSquare className="w-[18px] h-[18px]" />
         </button>
         <button
@@ -1444,7 +1444,7 @@ export function QuestionDetail({
           }}
           className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'preview' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
           title="Preview">
-
+          
           <MonitorPlay className="w-[18px] h-[18px]" />
         </button>
       </div>
@@ -1457,7 +1457,7 @@ export function QuestionDetail({
             onClick={onClose}
             className="p-2 -ml-1 hover:bg-gray-100 rounded-lg transition-colors active:scale-95 flex-shrink-0"
             aria-label="Back">
-
+            
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
           <h2 className="text-[15px] font-bold text-gray-900 flex-1 min-w-0 truncate">
@@ -1466,10 +1466,10 @@ export function QuestionDetail({
           {activeTab === 'edit' && !isFormLoading &&
           <span
             className={`hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border flex-shrink-0 ${status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-
+            
               <span
               className={`w-1.5 h-1.5 rounded-full mr-1 ${status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-
+            
               {status === 'active' ? 'Live' : 'Draft'}
             </span>
           }
@@ -1495,21 +1495,21 @@ export function QuestionDetail({
                 stiffness: 500,
                 damping: 35
               }} />
-
+            
               <button
               onClick={() => {
                 setActiveTab('info');
                 setEditView('form');
               }}
               className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
-
+              
                 <Info className="w-3.5 h-3.5" />
                 Info
               </button>
               <button
               onClick={() => requestEdit()}
               className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
-
+              
                 <PenSquare className="w-3.5 h-3.5" />
                 Edit
               </button>
@@ -1519,7 +1519,7 @@ export function QuestionDetail({
                 setActiveTab('preview');
               }}
               className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' ? 'text-gray-900' : 'text-gray-400'}`}>
-
+              
                 <MonitorPlay className="w-3.5 h-3.5" />
                 Preview
               </button>
@@ -1549,21 +1549,21 @@ export function QuestionDetail({
                 stiffness: 500,
                 damping: 35
               }} />
-
+            
               <button
               onClick={() => {
                 setActiveTab('info');
                 setEditView('form');
               }}
               className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
-
+              
                 <Info className="w-3.5 h-3.5" />
                 Info
               </button>
               <button
               onClick={() => requestEdit()}
               className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
-
+              
                 <PenSquare className="w-3.5 h-3.5" />
                 Edit
               </button>
@@ -1573,10 +1573,10 @@ export function QuestionDetail({
                 setActiveTab('preview');
               }}
               className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-700' : 'text-gray-400'}`}>
-
+              
                 <MonitorPlay
                 className={`w-3.5 h-3.5 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-500' : ''}`} />
-
+              
                 Draft
               </button>
               <button
@@ -1585,10 +1585,10 @@ export function QuestionDetail({
                 setActiveTab('preview');
               }}
               className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-700' : 'text-gray-400'}`}>
-
+              
                 <MonitorPlay
                 className={`w-3.5 h-3.5 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-500' : ''}`} />
-
+              
                 Live
               </button>
             </div>
@@ -1613,10 +1613,10 @@ export function QuestionDetail({
               {!isInfoLoading &&
             <span
               className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ml-3 flex-shrink-0 ${status === 'active' || question.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-
+              
                   <span
                 className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status === 'active' || question.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-
+              
                   {status === 'active' || question.status === 'active' ?
               'Published' :
               'Draft'}
@@ -1663,7 +1663,7 @@ export function QuestionDetail({
                     }}
                     className="flex-shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-lg text-emerald-700 bg-white/80 ring-1 ring-emerald-500/15 hover:bg-white hover:ring-emerald-500/25 hover:shadow-sm transition-all"
                     title="Preview published version">
-
+                    
                           <MonitorPlay className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -1714,7 +1714,7 @@ export function QuestionDetail({
                       CATEGORIES.find((c) => c.id === category)?.color ||
                       '#6B7280'
                     }} />
-
+                  
                       <span className="text-xs font-medium text-gray-600">
                         {CATEGORIES.find((c) => c.id === category)?.label ||
                     category}
@@ -1750,10 +1750,10 @@ export function QuestionDetail({
                       <div
                         key={index}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${isCorrect ? 'bg-emerald-50/60 border-emerald-200' : 'bg-gray-50 border-gray-100'}`}>
-
+                        
                               <div
                           className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isCorrect ? 'bg-emerald-500 text-white' : 'border-2 border-gray-300 bg-white'}`}>
-
+                          
                                 {isCorrect ?
                           <CheckSquare className="w-3.5 h-3.5" /> :
 
@@ -1764,7 +1764,7 @@ export function QuestionDetail({
                               </div>
                               <span
                           className={`text-sm ${isCorrect ? 'text-emerald-800 font-medium' : 'text-gray-700'}`}>
-
+                          
                                 {option ||
                           <span className="text-gray-400 italic">
                                     Empty option
@@ -1794,7 +1794,7 @@ export function QuestionDetail({
                       <div
                         key={idx}
                         className={`relative rounded-lg border-2 text-center py-3 px-4 ${isCorrect ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50'}`}>
-
+                        
                               {isCorrect &&
                         <div className="absolute top-2 right-2 text-emerald-500">
                                   <CheckCircle2 className="w-4 h-4" />
@@ -1802,7 +1802,7 @@ export function QuestionDetail({
                         }
                               <span
                           className={`text-sm font-bold ${isCorrect ? 'text-emerald-700' : 'text-gray-500'}`}>
-
+                          
                                 {label || (idx === 0 ? 'True' : 'False')}
                               </span>
                             </div>);
@@ -1849,7 +1849,7 @@ export function QuestionDetail({
                         <div className="flex items-center gap-2 mb-1">
                           <span
                       className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold ${matchSubType === 'text' ? 'bg-gray-100 text-gray-600' : 'bg-purple-50 text-purple-600 border border-purple-100'}`}>
-
+                      
                             {matchSubType === 'text' ?
                       <>
                                 <Type className="w-3 h-3" /> Text Match
@@ -1880,7 +1880,7 @@ export function QuestionDetail({
                       <div
                         key={index}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border ${isConfigured ? 'bg-white border-gray-200' : 'bg-gray-50 border-dashed border-gray-200'}`}>
-
+                        
                               {matchSubType === 'image' ?
                         pair.imageUrl ?
                         <img
@@ -1903,7 +1903,7 @@ export function QuestionDetail({
                               <div className="flex-1 min-w-0">
                                 <span
                             className={`text-sm block truncate ${isConfigured ? 'text-gray-800' : 'text-gray-400 italic'}`}>
-
+                            
                                   {matchSubType === 'text' ?
                             pair.prompt.trim() || 'No prompt' :
                             pair.imageUrl ?
@@ -1951,14 +1951,14 @@ export function QuestionDetail({
                 className="w-full justify-center"
                 onClick={() => requestEdit()}
                 leftIcon={<Edit className="w-4 h-4" />}>
-
+                
                     Edit Question
                   </Button>
                   {isDraftOfPublished ?
               <button
                 onClick={() => setDeleteDialogMode('discard-draft')}
                 className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
-
+                
                       <ArrowLeft className="w-4 h-4" />
                       Discard
                     </button> :
@@ -1970,7 +1970,7 @@ export function QuestionDetail({
                 setDeleteDialogMode(isPublished ? 'published' : 'draft')
                 }
                 leftIcon={<Trash2 className="w-4 h-4" />}>
-
+                
                       Delete
                     </Button>
               }
@@ -1982,7 +1982,7 @@ export function QuestionDetail({
               <button
                 onClick={() => setDeleteDialogMode('discard-draft')}
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
-
+                
                       <ArrowLeft className="w-4 h-4" />
                       Discard
                     </button> :
@@ -1993,7 +1993,7 @@ export function QuestionDetail({
                 setDeleteDialogMode(isPublished ? 'published' : 'draft')
                 }
                 leftIcon={<Trash2 className="w-4 h-4" />}>
-
+                
                       Delete
                     </Button>
               }
@@ -2002,7 +2002,7 @@ export function QuestionDetail({
                 className="flex-1 justify-center"
                 onClick={() => requestEdit()}
                 leftIcon={<Edit className="w-4 h-4" />}>
-
+                
                     Edit Question
                   </Button>
                 </div>
@@ -2032,22 +2032,22 @@ export function QuestionDetail({
                   stiffness: 500,
                   damping: 35
                 }} />
-
+              
                   <button
                 onClick={() => setIsViewingPublished(false)}
                 className="relative z-10 w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200">
-
+                
                     <MonitorPlay
                   className={`w-3.5 h-3.5 transition-colors duration-200 ${!isViewingPublished ? 'text-amber-500' : 'text-gray-300'}`} />
-
+                
                   </button>
                   <button
                 onClick={() => setIsViewingPublished(true)}
                 className="relative z-10 w-7 h-7 flex items-center justify-center rounded-full transition-colors duration-200">
-
+                
                     <MonitorPlay
                   className={`w-3.5 h-3.5 transition-colors duration-200 ${isViewingPublished ? 'text-emerald-500' : 'text-gray-300'}`} />
-
+                
                   </button>
                 </div>
             }
@@ -2093,7 +2093,7 @@ export function QuestionDetail({
             mode="wait"
             initial={false}
             custom={slideDirection}>
-
+            
               {editView === 'form' &&
             <motion.div
               key="form-view"
@@ -2107,7 +2107,7 @@ export function QuestionDetail({
                 ease: [0.4, 0, 0.2, 1]
               }}
               className="flex flex-col h-full">
-
+              
                   <div className="hidden md:flex h-[57px] px-4 md:px-6 border-b border-gray-200 items-center flex-shrink-0 bg-white">
                     <h2 className="text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
                       {isFormLoading ?
@@ -2121,10 +2121,10 @@ export function QuestionDetail({
                     {!isFormLoading &&
                 <span
                   className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ml-3 flex-shrink-0 ${status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-
+                  
                         <span
                     className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-
+                  
                         {status === 'active' ? 'Published' : 'Draft'}
                       </span>
                 }
@@ -2144,7 +2144,7 @@ export function QuestionDetail({
                         setIsViewingPublished(true);
                         setActiveTab('preview');
                       }}>
-
+                      
                               <span className="text-[11px] font-medium text-emerald-700/70 flex-1 tracking-tight">
                                 Published version live · Editing draft
                               </span>
@@ -2168,7 +2168,7 @@ export function QuestionDetail({
                       }}
                       placeholder="Enter a descriptive title..."
                       className={`w-full rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors ${errors.title ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`} />
-
+                    
                           {errors.title &&
                     <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
@@ -2223,7 +2223,7 @@ export function QuestionDetail({
                             });
                           }}
                           className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
-
+                          
                                 {QUESTION_TYPES.map((t) =>
                           <option key={t.id} value={t.id}>
                                     {t.label}
@@ -2254,7 +2254,7 @@ export function QuestionDetail({
                           value={category}
                           onChange={(e) => setCategory(e.target.value)}
                           className="w-full appearance-none rounded-md border border-gray-200 bg-white pl-10 pr-8 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer transition-colors">
-
+                          
                                 {CATEGORIES.map((c) =>
                           <option key={c.id} value={c.id}>
                                     {c.label}
@@ -2268,7 +2268,7 @@ export function QuestionDetail({
                             CATEGORIES.find((c) => c.id === category)?.
                             color || '#6B7280'
                           }} />
-
+                        
                               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                             </div>
                           </div>
@@ -2286,7 +2286,7 @@ export function QuestionDetail({
                         setText(e.target.value);
                         clearError('text');
                       }} />
-
+                    
                           {errors.text &&
                     <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
@@ -2309,7 +2309,7 @@ export function QuestionDetail({
                         e.preventDefault();
                         setIsDragOver(false);
                       }}>
-
+                      
                             <span className="text-sm text-gray-500">
                               Drag & Drop File(s)
                             </span>
@@ -2325,19 +2325,19 @@ export function QuestionDetail({
                       onChange={(e) => setHint(e.target.value)}
                       placeholder="Optional hint for the respondent..."
                       className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
-
+                    
                         </div>
                         <button
                     onClick={navigateToAnswers}
                     className={`w-full text-left rounded-lg border-2 p-4 transition-all group ${hasAnswerErrors ? 'border-red-200 bg-red-50/50 hover:border-red-300' : 'border-gray-200 bg-gray-50/50 hover:border-teal-400 hover:bg-teal-50/30'}`}>
-
+                    
                           <div className="flex items-center gap-3">
                             <div
                         className={`p-2 rounded-lg ${hasAnswerErrors ? 'bg-red-100' : 'bg-teal-100'}`}>
-
+                        
                               <SlidersHorizontal
                           className={`w-5 h-5 ${hasAnswerErrors ? 'text-red-600' : 'text-teal-600'}`} />
-
+                        
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
@@ -2348,7 +2348,7 @@ export function QuestionDetail({
                               </div>
                               <p
                           className={`text-xs mt-0.5 ${hasAnswerErrors ? 'text-red-500' : 'text-gray-500'}`}>
-
+                          
                                 {hasAnswerErrors ?
                           errors.options ||
                           errors.correctAnswer ||
@@ -2361,7 +2361,7 @@ export function QuestionDetail({
                             </div>
                             <ChevronRight
                         className={`w-5 h-5 transition-transform group-hover:translate-x-0.5 ${hasAnswerErrors ? 'text-red-400' : 'text-gray-400'}`} />
-
+                      
                           </div>
                         </button>
                       </div>
@@ -2375,7 +2375,7 @@ export function QuestionDetail({
                     onClick={() => handleSave('draft')}
                     leftIcon={<Save className="w-4 h-4" />}
                     className="flex-1">
-
+                    
                         Draft
                       </Button>
                       <Button
@@ -2383,7 +2383,7 @@ export function QuestionDetail({
                     onClick={() => handleSave('active')}
                     leftIcon={<Send className="w-4 h-4" />}
                     className="flex-1">
-
+                    
                         Publish
                       </Button>
                     </div>
@@ -2394,7 +2394,7 @@ export function QuestionDetail({
                     onClick={() => setDeleteDialogMode('draft')}
                     leftIcon={<Trash2 className="w-4 h-4" />}
                     className="w-full">
-
+                    
                           Delete
                         </Button> :
                   isDraftOfPublished ||
@@ -2402,7 +2402,7 @@ export function QuestionDetail({
                   <button
                     onClick={() => setDeleteDialogMode('discard-draft')}
                     className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
-
+                    
                           <ArrowLeft className="w-4 h-4" />
                           Discard Draft
                         </button> :
@@ -2412,7 +2412,7 @@ export function QuestionDetail({
                     onClick={() => setDeleteDialogMode('draft')}
                     leftIcon={<Trash2 className="w-4 h-4" />}
                     className="w-full">
-
+                    
                           Delete
                         </Button>
                   }
@@ -2425,7 +2425,7 @@ export function QuestionDetail({
                     variant="danger"
                     onClick={() => setDeleteDialogMode('draft')}
                     leftIcon={<Trash2 className="w-4 h-4" />}>
-
+                    
                           Delete
                         </Button> :
                   isDraftOfPublished ||
@@ -2433,7 +2433,7 @@ export function QuestionDetail({
                   <button
                     onClick={() => setDeleteDialogMode('discard-draft')}
                     className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
-
+                    
                           <ArrowLeft className="w-4 h-4" />
                           Discard Draft
                         </button> :
@@ -2442,7 +2442,7 @@ export function QuestionDetail({
                     variant="danger"
                     onClick={() => setDeleteDialogMode('draft')}
                     leftIcon={<Trash2 className="w-4 h-4" />}>
-
+                    
                           Delete
                         </Button>
                   }
@@ -2452,14 +2452,14 @@ export function QuestionDetail({
                     variant="outline"
                     onClick={() => handleSave('draft')}
                     leftIcon={<Save className="w-4 h-4" />}>
-
+                    
                         Save as Draft
                       </Button>
                       <Button
                     variant="primary"
                     onClick={() => handleSave('active')}
                     leftIcon={<Send className="w-4 h-4" />}>
-
+                    
                         Publish
                       </Button>
                     </div>
@@ -2480,12 +2480,12 @@ export function QuestionDetail({
                 ease: [0.4, 0, 0.2, 1]
               }}
               className="flex flex-col h-full">
-
+              
                   <div className="h-[57px] px-4 md:px-6 border-b border-gray-200 flex items-center gap-2 md:gap-3 flex-shrink-0 bg-white">
                     <button
                   onClick={navigateToForm}
                   className="p-1.5 -ml-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-
+                  
                       <ArrowLeft className="w-5 h-5 text-gray-500" />
                     </button>
                     <div className="flex items-center gap-2">
@@ -2546,14 +2546,14 @@ export function QuestionDetail({
                               <button
                         onClick={addOption}
                         className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
-
+                        
                                 <Plus className="w-4 h-4" />
                                 Add Option
                               </button>
                             </div>
                             <div
                       className={`space-y-2.5 ${errors.options || errors.correctOptions ? 'rounded-md ring-2 ring-red-100 p-2 -m-2' : ''}`}>
-
+                      
                               {options.map((option, index) =>
                       <div
                         key={index}
@@ -2563,14 +2563,14 @@ export function QuestionDetail({
                         onDrop={(e) => handleDrop(e, index)}
                         onDragEnd={handleDragEnd}
                         className={`flex items-center gap-2.5 group rounded-md p-1 -m-1 transition-all ${dragIndex === index ? 'opacity-30 scale-95' : ''} ${dragOverIndex === index && dragIndex !== index ? 'ring-2 ring-teal-400 bg-teal-50/30' : ''}`}>
-
+                        
                                   <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
                                     <GripVertical className="w-4 h-4" />
                                   </div>
                                   <button
                           onClick={() => toggleCorrectOption(index)}
                           className={`flex-shrink-0 transition-colors ${correctOptions.has(index) ? 'text-emerald-500' : 'text-gray-300 hover:text-gray-400'}`}>
-
+                          
                                     {correctOptions.has(index) ?
                           <CheckSquare className="w-5 h-5" /> :
 
@@ -2585,12 +2585,12 @@ export function QuestionDetail({
                           }
                           placeholder={`Option ${index + 1}`}
                           className="flex-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 focus:bg-white transition-all" />
-
+                        
                                   <button
                           onClick={() => removeOption(index)}
                           disabled={options.length <= 2}
                           className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30">
-
+                          
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
@@ -2623,7 +2623,7 @@ export function QuestionDetail({
                             setMinCorrectRequired(val);
                           }}
                           className="w-20 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 text-center hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-gray-200 transition-colors" />
-
+                        
                                   <span className="text-xs text-gray-400">
                                     of {correctOptions.size} correct answers
                                   </span>
@@ -2655,11 +2655,11 @@ export function QuestionDetail({
                           }
                         }}
                         className={`relative rounded-lg border-2 text-center transition-all ${editingBinaryIndex !== idx ? 'cursor-pointer' : ''} ${correctOption === idx ? 'border-emerald-400 bg-emerald-50/50' : 'border-gray-100 bg-gray-50'}`}>
-
+                        
                                   {editingBinaryIndex !== idx &&
                         <div
                           className={`absolute top-2 right-2 transition-colors pointer-events-none ${correctOption === idx ? 'text-emerald-500' : 'text-gray-300'}`}>
-
+                          
                                       {correctOption === idx ?
                           <CheckCircle2 className="w-4 h-4" /> :
 
@@ -2687,7 +2687,7 @@ export function QuestionDetail({
                               }}
                               className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                               title="Cancel">
-
+                              
                                           <X className="w-3.5 h-3.5" />
                                         </button>
                                         <input
@@ -2726,7 +2726,7 @@ export function QuestionDetail({
                               idx === 0 ? 'True' : 'False'
                               }
                               autoFocus />
-
+                            
                                         <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -2734,7 +2734,7 @@ export function QuestionDetail({
                               }}
                               className="flex-shrink-0 p-1 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
                               title="Save">
-
+                              
                                           <CheckCircle2 className="w-3.5 h-3.5" />
                                         </button>
                                       </div> :
@@ -2742,7 +2742,7 @@ export function QuestionDetail({
                           <div className="flex items-center justify-center gap-1.5">
                                         <span
                               className={`text-sm font-bold ${correctOption === idx ? 'text-emerald-700' : 'text-gray-600'}`}>
-
+                              
                                           {label || (
                               idx === 0 ? 'True' : 'False')}
                                         </span>
@@ -2758,7 +2758,7 @@ export function QuestionDetail({
                                 );
                               }}
                               className="p-0.5 text-gray-300 hover:text-gray-500 transition-colors rounded">
-
+                              
                                           <PenSquare className="w-3 h-3" />
                                         </button>
                                       </div>
@@ -2789,7 +2789,7 @@ export function QuestionDetail({
                           setCorrectAnswer(e.target.value);
                           clearError('correctAnswer');
                         }} />
-
+                      
                               {errors.correctAnswer &&
                       <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3" />
@@ -2813,7 +2813,7 @@ export function QuestionDetail({
                           );
                         }}
                         className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-gray-200 transition-colors" />
-
+                      
                               <p className="mt-2 text-xs text-gray-500 leading-relaxed">
                                 What threshold in % do you want to use for the
                                 correct answer? A 90% value means that the
@@ -2834,14 +2834,14 @@ export function QuestionDetail({
                           if (next) scrollToRef(testMatchRef);
                         }}
                         className="w-full flex items-center gap-2 py-3 text-teal-600 hover:text-teal-700 transition-colors">
-
+                        
                                 <Sparkles className="w-4 h-4" />
                                 <span className="text-sm font-bold uppercase tracking-wide">
                                   Test Match Value
                                 </span>
                                 <ChevronRight
                           className={`w-4 h-4 ml-auto transition-transform duration-300 ${showTestMatch ? 'rotate-90' : ''}`} />
-
+                        
                               </button>
                               <div ref={testMatchRef}>
                                 <div
@@ -2854,7 +2854,7 @@ export function QuestionDetail({
                             transition:
                             'height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease'
                           }}>
-
+                          
                                   <div ref={testMatchContentRef}>
                                     <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
                                       <label className="block text-sm font-medium text-gray-700">
@@ -2869,7 +2869,7 @@ export function QuestionDetail({
                                 }}
                                 placeholder="Type a test answer to compare..."
                                 className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-gray-200 transition-colors" />
-
+                              
                                       <button
                                 type="button"
                                 onClick={handleTestMatch}
@@ -2878,13 +2878,13 @@ export function QuestionDetail({
                                 !testAnswer.trim()
                                 }
                                 className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-md hover:bg-teal-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-
+                                
                                         Run Test
                                       </button>
                                       {testResult &&
                               <div
                                 className={`p-3 rounded-md border ${testResult.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-
+                                
                                           <div className="flex items-center gap-2 mb-1">
                                             {testResult.passed ?
                                   <CheckCircle2 className="w-4 h-4 text-green-600" /> :
@@ -2893,7 +2893,7 @@ export function QuestionDetail({
                                   }
                                             <span
                                     className={`text-sm font-semibold ${testResult.passed ? 'text-green-700' : 'text-red-600'}`}>
-
+                                    
                                               {testResult.passed ?
                                     'PASS' :
                                     'FAIL'}
@@ -2940,10 +2940,10 @@ export function QuestionDetail({
                           }}
                           className={`relative rounded-xl transition-all cursor-pointer py-4 px-4 group ${matchSubType === 'text' ? 'border-2 border-teal-500 bg-gradient-to-b from-teal-50/80 to-white shadow-sm shadow-teal-100/50' : 'border-2 border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm'}`}
                           title="Text Match">
-
+                          
                                   <div
                             className={`absolute top-2.5 right-2.5 transition-all ${matchSubType === 'text' ? 'text-teal-500 scale-100' : 'text-gray-200 scale-90'}`}>
-
+                            
                                     {matchSubType === 'text' ?
                             <CheckCircle2 className="w-4 h-4" /> :
 
@@ -2952,10 +2952,10 @@ export function QuestionDetail({
                                   </div>
                                   <div
                             className={`w-10 h-10 rounded-lg flex items-center justify-center mx-auto transition-colors ${matchSubType === 'text' ? 'bg-teal-100/80' : 'bg-gray-100'}`}>
-
+                            
                                     <Type
                               className={`w-5 h-5 ${matchSubType === 'text' ? 'text-teal-600' : 'text-gray-400'}`} />
-
+                            
                                   </div>
                                 </button>
                                 <button
@@ -2966,10 +2966,10 @@ export function QuestionDetail({
                           }}
                           className={`relative rounded-xl transition-all cursor-pointer py-4 px-4 group ${matchSubType === 'image' ? 'border-2 border-teal-500 bg-gradient-to-b from-teal-50/80 to-white shadow-sm shadow-teal-100/50' : 'border-2 border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm'}`}
                           title="Image Match">
-
+                          
                                   <div
                             className={`absolute top-2.5 right-2.5 transition-all ${matchSubType === 'image' ? 'text-teal-500 scale-100' : 'text-gray-200 scale-90'}`}>
-
+                            
                                     {matchSubType === 'image' ?
                             <CheckCircle2 className="w-4 h-4" /> :
 
@@ -2978,10 +2978,10 @@ export function QuestionDetail({
                                   </div>
                                   <div
                             className={`w-10 h-10 rounded-lg flex items-center justify-center mx-auto transition-colors ${matchSubType === 'image' ? 'bg-teal-100/80' : 'bg-gray-100'}`}>
-
+                            
                                     <Image
                               className={`w-5 h-5 ${matchSubType === 'image' ? 'text-teal-600' : 'text-gray-400'}`} />
-
+                            
                                   </div>
                                 </button>
                               </div>
@@ -3005,7 +3005,7 @@ export function QuestionDetail({
                           ease: [0.4, 0, 0.2, 1]
                         }}
                         className="space-y-2">
-
+                        
                                   <div className="sticky top-0 z-10 bg-white pt-1 pb-2 -mx-4 md:-mx-6 px-4 md:px-6">
                                     <button
                             onClick={() => {
@@ -3015,7 +3015,7 @@ export function QuestionDetail({
                               });
                             }}
                             className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
-
+                            
                                       <Plus className="w-4 h-4" />
                                       Add Pair
                                     </button>
@@ -3056,7 +3056,7 @@ export function QuestionDetail({
                             setMatchDragOverIndex(null);
                           }}
                           className={`flex items-center gap-2 group transition-all ${matchDragIndex === index ? 'opacity-30 scale-95' : ''} ${matchDragOverIndex === index && matchDragIndex !== index ? 'ring-2 ring-teal-400 rounded-lg' : ''}`}>
-
+                          
                                       <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
                                         <GripVertical className="w-4 h-4" />
                                       </div>
@@ -3065,7 +3065,7 @@ export function QuestionDetail({
                             setActiveMatchPairIndex(index)
                             }
                             className="flex-1 flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-gray-200 bg-white hover:border-teal-400 hover:bg-teal-50/30 transition-all text-left">
-
+                            
                                         {matchSubType === 'image' ?
                             pair.imageUrl ?
                             <img
@@ -3112,7 +3112,7 @@ export function QuestionDetail({
                             }}
                             disabled={matchPairs.length <= 2}
                             className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30 opacity-0 group-hover:opacity-100">
-
+                            
                                         <Trash2 className="w-3.5 h-3.5" />
                                       </button>
                                     </div>
@@ -3134,7 +3134,7 @@ export function QuestionDetail({
                           ease: [0.4, 0, 0.2, 1]
                         }}
                         className="space-y-4">
-
+                        
                                   {matchSubType === 'text' ?
                         <div>
                                       <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -3171,7 +3171,7 @@ export function QuestionDetail({
                             }}
                             placeholder='e.g., "Ananas"'
                             className={`w-full rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors ${errors.matchPrompt ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`} />
-
+                          
                                       <p className="mt-1 text-xs text-gray-400">
                                         The text shown on the left side that
                                         users will try to match.
@@ -3208,7 +3208,7 @@ export function QuestionDetail({
                               }
                               alt="Match prompt"
                               className="w-full h-40 object-contain rounded-lg border border-gray-200 bg-gray-50" />
-
+                            
                                           <button
                               onClick={() => {
                                 if (newPairDraft) {
@@ -3230,7 +3230,7 @@ export function QuestionDetail({
                                 }
                               }}
                               className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-md text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm opacity-0 group-hover:opacity-100">
-
+                              
                                             <Trash2 className="w-3.5 h-3.5" />
                                           </button>
                                         </div> :
@@ -3301,7 +3301,7 @@ export function QuestionDetail({
                               };
                               input.click();
                             }}>
-
+                            
                                           <Upload className="w-5 h-5 text-gray-400" />
                                           <span className="text-sm text-gray-500">
                                             Drag & Drop File(s)
@@ -3358,7 +3358,7 @@ export function QuestionDetail({
                             'e.g., "Ananas"'
                             }
                             className={`w-full rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors ${errors.matchAnswer ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`} />
-
+                          
                                     <p className="mt-1 text-xs text-gray-400">
                                       {matchSubType === 'text' ?
                             'The correct match shown on the right side.' :
@@ -3411,7 +3411,7 @@ export function QuestionDetail({
                     }
                   }}
                   leftIcon={<ArrowLeft className="w-4 h-4" />}>
-
+                  
                       Back
                     </Button>
                     {!(
@@ -3423,7 +3423,7 @@ export function QuestionDetail({
                   variant="primary"
                   onClick={handleSaveAnswers}
                   leftIcon={<Save className="w-4 h-4" />}>
-
+                  
                         Save
                       </Button>
                 }

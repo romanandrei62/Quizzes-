@@ -18,7 +18,7 @@ export function MobileQuestionSkeleton({ count = 5 }: {count?: number;}) {
           delay: i * 0.05
         }}
         className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-
+        
           <div className="pl-5 pr-4 py-4">
             {/* Header */}
             <div className="flex items-start gap-3 mb-3">
@@ -28,19 +28,19 @@ export function MobileQuestionSkeleton({ count = 5 }: {count?: number;}) {
                 style={{
                   width: `${70 + Math.random() * 20}%`
                 }} />
-
+              
                 <div
                 className="h-3 bg-gray-100 rounded animate-pulse"
                 style={{
                   width: `${85 + Math.random() * 10}%`
                 }} />
-
+              
                 <div
                 className="h-3 bg-gray-100 rounded animate-pulse"
                 style={{
                   width: `${60 + Math.random() * 25}%`
                 }} />
-
+              
               </div>
               <div className="w-8 h-8 bg-gray-100 rounded-full animate-pulse flex-shrink-0" />
             </div>

@@ -36,6 +36,8 @@ export interface TableActionBarProps {
   itemsPerPage?: number;
   itemsPerPageOptions?: number[];
   onItemsPerPageChange?: (value: number) => void;
+  // Filter label customization
+  allFilterLabel?: string;
   // Styling
   className?: string;
 }
@@ -61,7 +63,7 @@ const sortOptions = [
   icon: ArrowUpDown
 }];
 
-const filterOptions = [
+const DEFAULT_FILTER_OPTIONS = [
 {
   id: 'all',
   label: 'All Questions',
@@ -96,6 +98,7 @@ export function TableActionBar({
   itemsPerPage = 10,
   itemsPerPageOptions = [10, 25, 50],
   onItemsPerPageChange,
+  allFilterLabel = 'All Questions',
   className = ''
 }: TableActionBarProps) {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -103,10 +106,18 @@ export function TableActionBar({
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState('Created (Newest - Oldest)');
-  const [selectedFilter, setSelectedFilter] = useState('All Questions');
+  const [selectedFilter, setSelectedFilter] = useState(allFilterLabel);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const narrowContainerRef = useRef<HTMLDivElement>(null);
+  const filterOptions = DEFAULT_FILTER_OPTIONS.map((opt) =>
+  opt.id === 'all' ?
+  {
+    ...opt,
+    label: allFilterLabel
+  } :
+  opt
+  );
   // Detect container width dynamically
   useEffect(() => {
     const updateWidth = () => {
@@ -144,7 +155,7 @@ export function TableActionBar({
       <div
         ref={containerRef}
         className="h-[57px] px-6 border-b border-gray-200 flex items-center flex-shrink-0">
-
+        
         {/* Wide Layout */}
         {!useNarrowLayout &&
         <div className="flex items-center justify-end gap-3 w-full">
@@ -171,7 +182,7 @@ export function TableActionBar({
                   ease: 'easeInOut'
                 }}
                 className="overflow-hidden">
-
+                
                       <input
                   type="text"
                   placeholder={searchPlaceholder}
@@ -179,14 +190,14 @@ export function TableActionBar({
                   onChange={(e) => handleSearchChange(e.target.value)}
                   className="w-80 px-4 py-2 border-2 border-teal-500 rounded-lg focus:outline-none focus:border-teal-600 text-sm"
                   autoFocus />
-
+                
                     </motion.div>
               }
                 </AnimatePresence>
                 <button
               onClick={() => setSearchOpen(!searchOpen)}
               className="p-2 hover:bg-gray-50 rounded transition-colors flex-shrink-0">
-
+              
                   <Search className="w-5 h-5 text-gray-600" />
                 </button>
               </>
@@ -197,7 +208,7 @@ export function TableActionBar({
                 <button
               onClick={() => setFilterOpen(!filterOpen)}
               className="p-2 hover:bg-gray-50 rounded transition-colors flex-shrink-0">
-
+              
                   <Filter className="w-5 h-5 text-gray-600" />
                 </button>
                 <AnimatePresence>
@@ -206,7 +217,7 @@ export function TableActionBar({
                       <div
                   className="fixed inset-0 z-30"
                   onClick={() => setFilterOpen(false)} />
-
+                
 
                       <motion.div
                   initial={{
@@ -225,7 +236,7 @@ export function TableActionBar({
                     duration: 0.15
                   }}
                   className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-40">
-
+                  
                         {filterOptions.map((filter) => {
                     const Icon = filter.icon;
                     const isSelected = selectedFilter === filter.label;
@@ -236,14 +247,14 @@ export function TableActionBar({
                         handleFilterSelect(filter.id, filter.label)
                         }
                         className={`w-full px-4 py-2.5 text-left flex items-start gap-3 hover:bg-gray-50 transition-colors ${isSelected ? 'bg-teal-50' : ''}`}>
-
+                        
                               <Icon
                           className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isSelected ? 'text-teal-600' : 'text-gray-400'}`} />
-
+                        
 
                               <span
                           className={`text-sm ${isSelected ? 'text-teal-600 font-medium' : 'text-gray-600'}`}>
-
+                          
                                 {filter.label}
                               </span>
                             </button>);
@@ -261,7 +272,7 @@ export function TableActionBar({
                 <button
               onClick={() => setSortOpen(!sortOpen)}
               className="p-2 hover:bg-gray-50 rounded transition-colors flex-shrink-0">
-
+              
                   <BarsSortIcon className="w-5 h-5 text-gray-600" />
                 </button>
                 <AnimatePresence>
@@ -270,7 +281,7 @@ export function TableActionBar({
                       <div
                   className="fixed inset-0 z-10"
                   onClick={() => setSortOpen(false)} />
-
+                
 
                       <motion.div
                   initial={{
@@ -289,7 +300,7 @@ export function TableActionBar({
                     duration: 0.15
                   }}
                   className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
-
+                  
                         {sortOptions.map((sort) => {
                     const Icon = sort.icon;
                     const isSelected = selectedSort === sort.label;
@@ -300,14 +311,14 @@ export function TableActionBar({
                         handleSortSelect(sort.id, sort.label)
                         }
                         className={`w-full px-4 py-2.5 text-left flex items-start gap-3 hover:bg-gray-50 transition-colors ${isSelected ? 'bg-teal-50' : ''}`}>
-
+                        
                               <Icon
                           className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isSelected ? 'text-teal-600' : 'text-gray-400'}`} />
-
+                        
 
                               <span
                           className={`text-sm ${isSelected ? 'text-teal-600 font-medium' : 'text-gray-600'}`}>
-
+                          
                                 {sort.label}
                               </span>
                             </button>);
@@ -330,7 +341,7 @@ export function TableActionBar({
             title={
             checkboxesVisible ? 'Hide checkboxes' : 'Show checkboxes'
             }>
-
+            
                 <CheckSquare className="w-5 h-5" />
               </button>
           }
@@ -340,7 +351,7 @@ export function TableActionBar({
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange?.(Number(e.target.value))}
             className="px-3 py-2 border border-gray-300 rounded text-sm bg-white flex-shrink-0">
-
+            
                 {itemsPerPageOptions.map((option) =>
             <option key={option} value={option}>
                     {option}
@@ -368,7 +379,7 @@ export function TableActionBar({
                   }
                 }}
                 className="p-2 hover:bg-gray-50 rounded transition-colors">
-
+                
                     <Search className="w-5 h-5 text-gray-600" />
                   </button>
               }
@@ -383,7 +394,7 @@ export function TableActionBar({
                   }
                 }}
                 className="p-2 hover:bg-gray-50 rounded transition-colors">
-
+                
                     <Filter className="w-5 h-5 text-gray-600" />
                   </button>
               }
@@ -398,7 +409,7 @@ export function TableActionBar({
                   }
                 }}
                 className="p-2 hover:bg-gray-50 rounded transition-colors">
-
+                
                     <BarsSortIcon className="w-5 h-5 text-gray-600" />
                   </button>
               }
@@ -413,7 +424,7 @@ export function TableActionBar({
                 title={
                 checkboxesVisible ? 'Hide checkboxes' : 'Show checkboxes'
                 }>
-
+                
                     <CheckSquare className="w-5 h-5" />
                   </button>
               }
@@ -425,7 +436,7 @@ export function TableActionBar({
                 onItemsPerPageChange?.(Number(e.target.value))
                 }
                 className="px-2 py-2 border border-gray-300 rounded text-xs bg-white">
-
+                
                     {itemsPerPageOptions.map((option) =>
                 <option key={option} value={option}>
                         {option}
@@ -443,7 +454,7 @@ export function TableActionBar({
                       <div
                   className="fixed inset-0 z-10"
                   onClick={() => setFilterOpen(false)} />
-
+                
 
                       <motion.div
                   initial={{
@@ -463,7 +474,7 @@ export function TableActionBar({
                     ease: 'easeInOut'
                   }}
                   className="absolute left-0 right-0 mt-2 max-w-xs bg-white rounded-lg border border-gray-200 shadow-lg overflow-hidden z-20">
-
+                  
                         {filterOptions.map((filter) => {
                     const Icon = filter.icon;
                     const isSelected = selectedFilter === filter.label;
@@ -474,14 +485,14 @@ export function TableActionBar({
                         handleFilterSelect(filter.id, filter.label)
                         }
                         className={`w-full px-4 py-2.5 text-left flex items-start gap-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${isSelected ? 'bg-teal-50' : ''}`}>
-
+                        
                               <Icon
                           className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isSelected ? 'text-teal-600' : 'text-gray-400'}`} />
-
+                        
 
                               <span
                           className={`text-sm ${isSelected ? 'text-teal-600 font-medium' : 'text-gray-600'}`}>
-
+                          
                                 {filter.label}
                               </span>
                             </button>);
@@ -502,7 +513,7 @@ export function TableActionBar({
                       <div
                   className="fixed inset-0 z-10"
                   onClick={() => setSortOpen(false)} />
-
+                
 
                       {/* Sort Dropdown - With max width */}
                       <motion.div
@@ -523,7 +534,7 @@ export function TableActionBar({
                     ease: 'easeInOut'
                   }}
                   className="absolute left-0 right-0 mt-2 max-w-xs bg-white rounded-lg border border-gray-200 shadow-lg overflow-hidden z-20">
-
+                  
                         {sortOptions.map((sort) => {
                     const Icon = sort.icon;
                     const isSelected = selectedSort === sort.label;
@@ -534,14 +545,14 @@ export function TableActionBar({
                         handleSortSelect(sort.id, sort.label)
                         }
                         className={`w-full px-4 py-2.5 text-left flex items-start gap-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${isSelected ? 'bg-teal-50' : ''}`}>
-
+                        
                               <Icon
                           className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isSelected ? 'text-teal-600' : 'text-gray-400'}`} />
-
+                        
 
                               <span
                           className={`text-sm ${isSelected ? 'text-teal-600 font-medium' : 'text-gray-600'}`}>
-
+                          
                                 {sort.label}
                               </span>
                             </button>);
@@ -579,7 +590,7 @@ export function TableActionBar({
             ease: 'easeInOut'
           }}
           className="overflow-hidden border-b border-gray-200">
-
+          
               <div className="px-6 py-3">
                 <input
               type="text"
@@ -588,7 +599,7 @@ export function TableActionBar({
               onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full px-4 py-2.5 border-2 border-teal-500 rounded-lg focus:outline-none focus:border-teal-600 text-sm"
               autoFocus />
-
+            
               </div>
             </motion.div>
         }

@@ -477,7 +477,7 @@ export function ManageCategoriesModal({
             }}
             className="fixed inset-0 z-[9998] bg-black/20"
             onClick={handleCancel} />
-
+          
 
             {/* Sidebar Panel */}
             <motion.div
@@ -496,13 +496,13 @@ export function ManageCategoriesModal({
               stiffness: 350
             }}
             className="fixed right-0 top-0 bottom-0 z-[9999] w-full max-w-md bg-white shadow-2xl flex flex-row">
-
+            
               {/* Icon Rail - extensible vertical bar for contextual icons - hidden on mobile */}
               <div className="hidden sm:flex w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex-col items-center pt-4 gap-3">
                 <button
                 className="w-9 h-9 rounded-lg flex items-center justify-center bg-white text-gray-700 shadow-sm ring-1 ring-black/5 transition-all"
                 title="Manage Categories">
-
+                
                   <Tags className="w-[18px] h-[18px]" />
                 </button>
               </div>
@@ -516,7 +516,7 @@ export function ManageCategoriesModal({
                       <button
                     onClick={handleBackToList}
                     className="p-1.5 -ml-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-
+                    
                         <ArrowLeft className="w-5 h-5 text-gray-500" />
                       </button>
                       <h2 className="text-base font-bold text-gray-900">
@@ -531,7 +531,7 @@ export function ManageCategoriesModal({
                   <button
                   onClick={handleCancel}
                   className="p-1 hover:bg-gray-100 rounded transition-colors">
-
+                  
                     <X className="w-5 h-5 text-gray-400" />
                   </button>
                 </div>
@@ -551,7 +551,7 @@ export function ManageCategoriesModal({
                       ease: [0.4, 0, 0.2, 1]
                     }}
                     className="px-6 py-5">
-
+                    
                         <div className="space-y-2">
                           {categories.map((category, index) =>
                       <div
@@ -562,7 +562,7 @@ export function ManageCategoriesModal({
                         onDrop={(e) => handleDrop(e, index)}
                         onDragEnd={handleDragEnd}
                         className={`flex items-center gap-2 group transition-all ${dragIndex === index ? 'opacity-30 scale-95' : ''} ${dragOverIndex === index && dragIndex !== index ? 'ring-2 ring-teal-400 rounded-lg' : ''}`}>
-
+                        
                               <div className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-colors select-none">
                                 <GripVertical className="w-4 h-4" />
                               </div>
@@ -572,13 +572,13 @@ export function ManageCategoriesModal({
                             setErrors({});
                           }}
                           className="flex-1 flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-gray-200 bg-white hover:border-teal-400 hover:bg-teal-50/30 transition-all text-left">
-
+                          
                                 <div
                             className="w-5 h-5 rounded-full flex-shrink-0 ring-2 ring-white shadow-sm"
                             style={{
                               backgroundColor: category.color
                             }} />
-
+                          
                                 <div className="flex-1 min-w-0">
                                   <span className="text-sm text-gray-700 truncate block">
                                     {category.label.trim() ||
@@ -596,7 +596,7 @@ export function ManageCategoriesModal({
                           }
                           disabled={categories.length <= 1}
                           className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30 opacity-0 group-hover:opacity-100">
-
+                          
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
@@ -615,7 +615,7 @@ export function ManageCategoriesModal({
                       ease: [0.4, 0, 0.2, 1]
                     }}
                     className="px-6 py-5 space-y-5">
-
+                    
                         {/* Name Field */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -644,7 +644,7 @@ export function ManageCategoriesModal({
                         placeholder="e.g., Onboarding"
                         autoFocus
                         className={`w-full rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors ${errors.name ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-200'}`} />
-
+                      
                           {errors.name &&
                       <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
@@ -674,7 +674,7 @@ export function ManageCategoriesModal({
                               }
                             }}
                             className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5 bg-white" />
-
+                          
                             </div>
                             <div className="flex-1 relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-mono">
@@ -712,7 +712,7 @@ export function ManageCategoriesModal({
                             maxLength={6}
                             placeholder="1F2937"
                             className="w-full rounded-md border border-gray-200 bg-white pl-7 pr-3 py-2.5 text-sm font-mono text-gray-900 uppercase tracking-wider hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors" />
-
+                          
                             </div>
                           </div>
                           <p className="mt-2 text-xs text-gray-400">
@@ -731,7 +731,7 @@ export function ManageCategoriesModal({
                     <button
                   onClick={handleAddCategory}
                   className="w-full flex items-center justify-center gap-1.5 py-2.5 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors">
-
+                  
                       <Plus className="w-4 h-4" />
                       Add Category
                     </button>
@@ -757,14 +757,14 @@ export function ManageCategoriesModal({
                         <ArrowLeft className="w-4 h-4" />
 
                         }>
-
+                        
                             {isNewCategory ? 'Cancel' : 'Back'}
                           </Button>
                           <Button
                         variant="primary"
                         onClick={handleSaveDetail}
                         leftIcon={<Plus className="w-4 h-4" />}>
-
+                        
                             Add
                           </Button>
                         </>);
@@ -776,14 +776,14 @@ export function ManageCategoriesModal({
                     variant="secondary"
                     onClick={handleCancel}
                     leftIcon={<X className="w-4 h-4" />}>
-
+                    
                         Cancel
                       </Button>
                       <Button
                     variant="primary"
                     onClick={handleSave}
                     leftIcon={<Save className="w-4 h-4" />}>
-
+                    
                         Save
                       </Button>
                     </>
@@ -813,7 +813,7 @@ export function ManageCategoriesModal({
           }}
           className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/30 backdrop-blur-[2px]"
           onClick={() => setDeleteWarningCategory(null)}>
-
+          
             <motion.div
             initial={{
               opacity: 0,
@@ -837,7 +837,7 @@ export function ManageCategoriesModal({
             }}
             className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 mx-4 max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}>
-
+            
               <div className="flex flex-col items-center text-center">
                 <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mb-4">
                   <AlertCircle className="w-5 h-5 text-amber-500" />
