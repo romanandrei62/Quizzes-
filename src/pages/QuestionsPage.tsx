@@ -50,8 +50,9 @@ interface Quiz {
   showPercentComplete: boolean;
   showNumQuestions: boolean;
   showProgressBar: boolean;
-  status: 'draft' | 'published' | 'archived';
+  status: 'draft' | 'published';
   description?: string;
+  questionIds: string[];
 }
 export function QuestionsPage() {
   const [selectedType, setSelectedType] = useState<string>('all');
@@ -86,6 +87,41 @@ export function QuestionsPage() {
   const [selectedQuizCategory, setSelectedQuizCategory] =
   useState<string>('all');
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+  const [quizTabSignal, setQuizTabSignal] = useState<{
+    tab: 'info' | 'edit' | 'preview' | 'questions';
+    ts: number;
+  }>({
+    tab: 'info',
+    ts: 0
+  });
+  const handleSelectQuiz = (
+  quiz: Quiz,
+  defaultTab?: 'info' | 'edit' | 'preview' | 'questions') =>
+  {
+    const tab = defaultTab || 'info';
+    setQuizTabSignal({
+      tab,
+      ts: Date.now()
+    });
+    setSelectedQuiz(quiz);
+  };
+  const handleCreateQuiz = () => {
+    const newQuiz: Quiz = {
+      id: `new-${Date.now()}`,
+      title: 'New Quiz',
+      numQuestions: 0,
+      passingScore: 0,
+      category: selectedQuizCategory !== 'all' ? selectedQuizCategory : 'TEST',
+      scoreDisplay: false,
+      hints: true,
+      showPercentComplete: false,
+      showNumQuestions: false,
+      showProgressBar: false,
+      status: 'draft',
+      description: ''
+    };
+    setSelectedQuiz(newQuiz);
+  };
   // Column widths - left: 25%, middle: 25%, right: 50%
   const [leftWidth, setLeftWidth] = useState(300);
   const [middleWidth, setMiddleWidth] = useState(300);
@@ -101,7 +137,7 @@ export function QuestionsPage() {
         containerRef.current.getBoundingClientRect().width;
         const availableWidth = containerWidth - 64;
         const targetLeft = Math.max(240, Math.floor(availableWidth * 0.25));
-        const targetMiddle = Math.max(320, Math.floor(availableWidth * 0.25));
+        const targetMiddle = Math.max(400, Math.floor(availableWidth * 0.25));
         const targetRight = Math.max(
           360,
           availableWidth - targetLeft - targetMiddle
@@ -139,7 +175,7 @@ export function QuestionsPage() {
       if (isDraggingLeft) {
         const newLeftWidth = Math.max(240, Math.min(500, mouseX));
         const newMiddleWidth = totalWidth - newLeftWidth - rightWidth;
-        if (newMiddleWidth >= 320) {
+        if (newMiddleWidth >= 400) {
           setLeftWidth(newLeftWidth);
           setMiddleWidth(newMiddleWidth);
         }
@@ -150,7 +186,7 @@ export function QuestionsPage() {
           Math.min(totalWidth * 0.7, totalWidth - mouseX - 8)
         );
         const newMiddleWidth = totalWidth - leftWidth - newRightWidth;
-        if (newMiddleWidth >= 320) {
+        if (newMiddleWidth >= 400) {
           setMiddleWidth(newMiddleWidth);
           setRightWidth(newRightWidth);
         }
@@ -688,7 +724,8 @@ export function QuestionsPage() {
               selectedStatus={selectedStatus}
               onSelectStatus={setSelectedStatus}
               selectedCategory={selectedQuizCategory}
-              onSelectCategory={setSelectedQuizCategory} />
+              onSelectCategory={setSelectedQuizCategory}
+              onCreateQuiz={handleCreateQuiz} />
 
             }
           </div>
@@ -748,7 +785,8 @@ export function QuestionsPage() {
                 selectedStatus={selectedStatus}
                 selectedCategory={selectedQuizCategory}
                 selectedQuiz={selectedQuiz}
-                onSelectQuiz={setSelectedQuiz} />
+                onSelectQuiz={handleSelectQuiz}
+                onCreateQuiz={handleCreateQuiz} />
 
               }
             </AnimatePresence>
@@ -825,7 +863,9 @@ export function QuestionsPage() {
 
             <QuizDetail
               quiz={selectedQuiz}
-              onClose={() => setSelectedQuiz(null)} />
+              onClose={() => setSelectedQuiz(null)}
+              defaultTab={quizTabSignal.tab}
+              tabSignal={quizTabSignal.ts} />
 
             }
           </div>
@@ -857,7 +897,7 @@ export function QuestionsPage() {
               selectedStatus={selectedStatus}
               selectedCategory={selectedQuizCategory}
               selectedQuiz={selectedQuiz}
-              onSelectQuiz={setSelectedQuiz} />
+              onSelectQuiz={handleSelectQuiz} />
 
             }
           </AnimatePresence>

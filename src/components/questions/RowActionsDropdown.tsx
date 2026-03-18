@@ -6,12 +6,18 @@ import {
   Edit,
   GitFork,
   Trash2,
-  MonitorPlay } from
+  MonitorPlay,
+  ListChecks,
+  Unlink } from
 'lucide-react';
 interface RowActionsDropdownProps {
   onAction: (action: string) => void;
+  excludeActions?: string[];
 }
-export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
+export function RowActionsDropdown({
+  onAction,
+  excludeActions = []
+}: RowActionsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -30,7 +36,7 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-  const actions = [
+  const allActions = [
   {
     id: 'view',
     label: 'Info',
@@ -47,9 +53,19 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
     icon: Edit
   },
   {
+    id: 'questions',
+    label: 'Questions',
+    icon: ListChecks
+  },
+  {
     id: 'fork',
     label: 'Fork',
     icon: GitFork
+  },
+  {
+    id: 'remove',
+    label: 'Detach',
+    icon: Unlink
   },
   {
     id: 'delete',
@@ -57,7 +73,10 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
     icon: Trash2
   }];
 
-  const handleActionClick = (actionId: string) => {
+  const actions = allActions.filter((a) => !excludeActions.includes(a.id));
+  const handleActionClick = (e: React.MouseEvent, actionId: string) => {
+    e.stopPropagation();
+    e.preventDefault();
     onAction(actionId);
     setIsOpen(false);
   };
@@ -114,7 +133,7 @@ export function RowActionsDropdown({ onAction }: RowActionsDropdownProps) {
               return (
                 <button
                   key={action.id}
-                  onClick={() => handleActionClick(action.id)}
+                  onClick={(e) => handleActionClick(e, action.id)}
                   className="w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors">
                   
                     <Icon className="w-4 h-4 flex-shrink-0 text-gray-500" />

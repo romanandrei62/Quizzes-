@@ -1430,15 +1430,6 @@ export function QuestionDetail({
         </button>
         <button
           onClick={() => {
-            requestEdit();
-          }}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
-          title="Edit">
-          
-          <PenSquare className="w-[18px] h-[18px]" />
-        </button>
-        <button
-          onClick={() => {
             setIsViewingPublished(false);
             setActiveTab('preview');
           }}
@@ -1446,6 +1437,15 @@ export function QuestionDetail({
           title="Preview">
           
           <MonitorPlay className="w-[18px] h-[18px]" />
+        </button>
+        <button
+          onClick={() => {
+            requestEdit();
+          }}
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+          title="Edit">
+          
+          <PenSquare className="w-[18px] h-[18px]" />
         </button>
       </div>
 
@@ -1485,7 +1485,7 @@ export function QuestionDetail({
                 left:
                 activeTab === 'info' ?
                 '3px' :
-                activeTab === 'edit' ?
+                activeTab === 'preview' ?
                 'calc(33.33% + 1px)' :
                 'calc(66.66% + 1px)',
                 width: 'calc(33.33% - 4px)'
@@ -1507,13 +1507,6 @@ export function QuestionDetail({
                 Info
               </button>
               <button
-              onClick={() => requestEdit()}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
-              
-                <PenSquare className="w-3.5 h-3.5" />
-                Edit
-              </button>
-              <button
               onClick={() => {
                 setIsViewingPublished(false);
                 setActiveTab('preview');
@@ -1522,6 +1515,13 @@ export function QuestionDetail({
               
                 <MonitorPlay className="w-3.5 h-3.5" />
                 Preview
+              </button>
+              <button
+              onClick={() => requestEdit()}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
+              
+                <PenSquare className="w-3.5 h-3.5" />
+                Edit
               </button>
             </div>
           </div>
@@ -1537,9 +1537,9 @@ export function QuestionDetail({
                 left:
                 activeTab === 'info' ?
                 '3px' :
-                activeTab === 'edit' ?
-                'calc(25% + 1px)' :
                 activeTab === 'preview' && !isViewingPublished ?
+                'calc(25% + 1px)' :
+                activeTab === 'preview' && isViewingPublished ?
                 'calc(50% + 1px)' :
                 'calc(75% + 1px)',
                 width: 'calc(25% - 4px)'
@@ -1559,13 +1559,6 @@ export function QuestionDetail({
               
                 <Info className="w-3.5 h-3.5" />
                 Info
-              </button>
-              <button
-              onClick={() => requestEdit()}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
-              
-                <PenSquare className="w-3.5 h-3.5" />
-                Edit
               </button>
               <button
               onClick={() => {
@@ -1590,6 +1583,13 @@ export function QuestionDetail({
                 className={`w-3.5 h-3.5 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-500' : ''}`} />
               
                 Live
+              </button>
+              <button
+              onClick={() => requestEdit()}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
+              
+                <PenSquare className="w-3.5 h-3.5" />
+                Edit
               </button>
             </div>
           </div>
@@ -1670,19 +1670,16 @@ export function QuestionDetail({
                     </div>
               }
 
-                  {/* Question Title & Content */}
+                  {/* Question Description & Date */}
                   <div>
-                    <div className="flex items-start gap-2.5">
-                      <h3 className="text-base font-semibold text-gray-900 leading-snug flex-1 min-w-0">
-                        {question.title}
-                      </h3>
-                    </div>
                     {text &&
-                <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">
+                <p className="text-sm text-gray-600 leading-relaxed">
                         {text}
                       </p>
                 }
-                    <span className="text-[11px] text-gray-400 mt-1.5 block">
+                    <span
+                  className={`text-[11px] text-gray-400 ${text ? 'mt-1.5' : ''} block`}>
+                  
                       {formatDate(question.createdAt)}
                     </span>
                   </div>
@@ -2374,7 +2371,7 @@ export function QuestionDetail({
                     variant="outline"
                     onClick={() => handleSave('draft')}
                     leftIcon={<Save className="w-4 h-4" />}
-                    className="flex-1">
+                    className="flex-1 !border-amber-300 !text-amber-700 !bg-amber-50 hover:!bg-amber-100">
                     
                         Draft
                       </Button>
@@ -2451,7 +2448,8 @@ export function QuestionDetail({
                       <Button
                     variant="outline"
                     onClick={() => handleSave('draft')}
-                    leftIcon={<Save className="w-4 h-4" />}>
+                    leftIcon={<Save className="w-4 h-4" />}
+                    className="!border-amber-300 !text-amber-700 !bg-amber-50 hover:!bg-amber-100">
                     
                         Save as Draft
                       </Button>
@@ -2488,15 +2486,12 @@ export function QuestionDetail({
                   
                       <ArrowLeft className="w-5 h-5 text-gray-500" />
                     </button>
-                    <div className="flex items-center gap-2">
-                      <SlidersHorizontal className="w-4 h-4 text-teal-600" />
-                      <h2 className="text-base md:text-lg font-bold text-gray-900">
-                        <span className="hidden sm:inline">
-                          Configure Answers
-                        </span>
-                        <span className="sm:hidden">Answers</span>
-                      </h2>
-                    </div>
+                    <h2 className="text-lg font-bold text-gray-900 flex-1 min-w-0 truncate">
+                      <span className="hidden sm:inline">
+                        Configure Answers
+                      </span>
+                      <span className="sm:hidden">Answers</span>
+                    </h2>
                   </div>
                   <div className="flex-1 overflow-y-auto">
                     {isAnswersLoading ?

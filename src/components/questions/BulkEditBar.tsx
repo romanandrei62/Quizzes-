@@ -181,19 +181,12 @@ export function BulkEditBar({
                       {selectedCount} item{selectedCount !== 1 ? 's' : ''}{' '}
                       selected
                     </span>
-                    {selectedCount === currentPageCount &&
-                  <button
+                    <button
                     onClick={onSelectAllPages}
                     className="text-[10px] sm:text-xs text-teal-300 hover:text-teal-200 font-medium transition-colors text-left leading-tight mt-0.5 truncate">
                     
-                        Select all {totalCount} items →
-                      </button>
-                  }
-                    {selectedCount !== currentPageCount &&
-                  <span className="text-[10px] sm:text-xs text-gray-400 leading-tight mt-0.5 truncate">
-                        Custom selection
-                      </span>
-                  }
+                      Select all {totalCount} items →
+                    </button>
                   </motion.div>
                 }
               </AnimatePresence>

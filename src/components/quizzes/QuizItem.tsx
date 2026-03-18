@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RowActionsDropdown } from '../questions/RowActionsDropdown';
 import { Checkbox } from '../questions/Checkbox';
-import { Eye, EyeOff, HelpCircle } from 'lucide-react';
+import { Eye, EyeOff, ClipboardList } from 'lucide-react';
 interface Quiz {
   id: string;
   title: string;
@@ -14,8 +14,9 @@ interface Quiz {
   showPercentComplete: boolean;
   showNumQuestions: boolean;
   showProgressBar: boolean;
-  status: 'draft' | 'published' | 'archived';
+  status: 'draft' | 'published';
   description?: string;
+  questionIds: string[];
 }
 interface QuizItemProps {
   quiz: Quiz;
@@ -27,6 +28,7 @@ interface QuizItemProps {
   showCheckbox?: boolean;
   isChecked?: boolean;
   onCheckboxChange?: (checked: boolean) => void;
+  onAction?: (action: string) => void;
 }
 const CATEGORY_CONFIG: Record<
   string,
@@ -61,7 +63,8 @@ export function QuizItem({
   onClick,
   showCheckbox = false,
   isChecked = false,
-  onCheckboxChange
+  onCheckboxChange,
+  onAction
 }: QuizItemProps) {
   const [showCategoryTooltip, setShowCategoryTooltip] = useState(false);
   const [showTypeTooltip, setShowTypeTooltip] = useState(false);
@@ -69,7 +72,7 @@ export function QuizItem({
   const categoryConfig = CATEGORY_CONFIG[quiz.category] || CATEGORY_CONFIG.all;
   const isPublished = quiz.status === 'published';
   const handleRowAction = (action: string) => {
-    console.log(`Action ${action} for quiz ${quiz.id}`);
+    onAction?.(action);
   };
   return (
     <motion.div
@@ -142,7 +145,7 @@ export function QuizItem({
             onMouseEnter={() => setShowTypeTooltip(true)}
             onMouseLeave={() => setShowTypeTooltip(false)}>
             
-            <HelpCircle className="w-4 h-4" />
+            <ClipboardList className="w-4 h-4" />
           </div>
           <AnimatePresence>
             {showTypeTooltip &&
@@ -195,7 +198,7 @@ export function QuizItem({
             {/* Status Icon with tooltip */}
             <div className="relative flex-shrink-0">
               <div
-                className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-all duration-200 cursor-pointer ${isPublished ? 'bg-emerald-100 text-emerald-600' : quiz.status === 'archived' ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-600'}`}
+                className={`flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-all duration-200 cursor-pointer ${isPublished ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}
                 onMouseEnter={() => setShowStatusTooltip(true)}
                 onMouseLeave={() => setShowStatusTooltip(false)}>
                 
@@ -225,11 +228,7 @@ export function QuizItem({
                   }}
                   className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 px-2.5 py-1 bg-gray-900 text-white text-xs rounded border border-gray-700 whitespace-nowrap pointer-events-none">
                   
-                    {quiz.status === 'published' ?
-                  'Published' :
-                  quiz.status === 'archived' ?
-                  'Archived' :
-                  'Draft'}
+                    {quiz.status === 'published' ? 'Published' : 'Draft'}
                   </motion.div>
                 }
               </AnimatePresence>
@@ -241,7 +240,10 @@ export function QuizItem({
           className="flex-shrink-0 self-center transition-opacity duration-200"
           onClick={(e) => e.stopPropagation()}>
           
-          <RowActionsDropdown onAction={handleRowAction} />
+          <RowActionsDropdown
+            onAction={handleRowAction}
+            excludeActions={['fork', 'remove']} />
+          
         </div>
       </div>
     </motion.div>);

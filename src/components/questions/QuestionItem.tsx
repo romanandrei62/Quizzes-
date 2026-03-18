@@ -322,7 +322,10 @@ export function QuestionItem({
           className="flex-shrink-0 self-center transition-opacity duration-200"
           onClick={(e) => e.stopPropagation()}>
           
-          <RowActionsDropdown onAction={handleRowAction} />
+          <RowActionsDropdown
+            onAction={handleRowAction}
+            excludeActions={['questions', 'remove']} />
+          
         </div>
       </div>
     </motion.div>);

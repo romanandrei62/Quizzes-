@@ -9,6 +9,7 @@ import {
   ArrowUpDown,
   Eye,
   EyeOff,
+  Archive,
   PenSquare } from
 'lucide-react';
 import { BarsSortIcon } from '../messaging/BarsSortIcon';
@@ -38,6 +39,12 @@ export interface TableActionBarProps {
   onItemsPerPageChange?: (value: number) => void;
   // Filter label customization
   allFilterLabel?: string;
+  // Custom filter options (overrides default)
+  customFilterOptions?: {
+    id: string;
+    label: string;
+    icon: any;
+  }[];
   // Styling
   className?: string;
 }
@@ -99,6 +106,7 @@ export function TableActionBar({
   itemsPerPageOptions = [10, 25, 50],
   onItemsPerPageChange,
   allFilterLabel = 'All Questions',
+  customFilterOptions,
   className = ''
 }: TableActionBarProps) {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -110,7 +118,9 @@ export function TableActionBar({
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const narrowContainerRef = useRef<HTMLDivElement>(null);
-  const filterOptions = DEFAULT_FILTER_OPTIONS.map((opt) =>
+  const filterOptions = customFilterOptions ?
+  customFilterOptions :
+  DEFAULT_FILTER_OPTIONS.map((opt) =>
   opt.id === 'all' ?
   {
     ...opt,

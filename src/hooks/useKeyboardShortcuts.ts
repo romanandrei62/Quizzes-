@@ -6,21 +6,24 @@ type KeyCombo = {
   shift?: boolean;
   alt?: boolean;
 };
-export function useKeyboardShortcuts(shortcuts: {
+export function useKeyboardShortcuts(
+shortcuts: {
   combo: KeyCombo;
   action: () => void;
   description?: string;
-}[]) {
+}[])
+{
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Ignore if inside an input or textarea
-      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA' || (document.activeElement as HTMLElement)?.isContentEditable) {
+      if (
+      document.activeElement?.tagName === 'INPUT' ||
+      document.activeElement?.tagName === 'TEXTAREA' ||
+      (document.activeElement as HTMLElement)?.isContentEditable)
+      {
         return;
       }
-      shortcuts.forEach(({
-        combo,
-        action
-      }) => {
+      shortcuts.forEach(({ combo, action }) => {
         const keyMatch = event.key.toLowerCase() === combo.key.toLowerCase();
         const ctrlMatch = combo.ctrl ? event.ctrlKey : true;
         const metaMatch = combo.meta ? event.metaKey : true;

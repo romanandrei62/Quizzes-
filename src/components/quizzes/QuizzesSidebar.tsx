@@ -1,13 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import {
-  Plus,
-  Tags,
-  ChevronDown,
-  Layers,
-  Eye,
-  EyeOff,
-  Archive } from
-'lucide-react';
+import { Plus, Tags, ChevronDown, Layers, Eye, EyeOff } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ManageCategoriesModal } from '../questions/ManageCategoriesModal';
 interface QuizzesSidebarProps {
@@ -33,11 +25,6 @@ const STATUSES = [
   id: 'published',
   label: 'Published',
   icon: Eye
-},
-{
-  id: 'archived',
-  label: 'Archived',
-  icon: Archive
 }];
 
 const INITIAL_CATEGORIES = [

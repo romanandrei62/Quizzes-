@@ -27,7 +27,6 @@ import {
   Layers,
   FileText,
   CheckCircle,
-  Archive,
   MonitorPlay } from
 'lucide-react';
 import { QuizItem } from './QuizItem';
@@ -78,9 +77,10 @@ interface Quiz {
   showPercentComplete: boolean;
   showNumQuestions: boolean;
   showProgressBar: boolean;
-  status: 'draft' | 'published' | 'archived';
+  status: 'draft' | 'published';
   description?: string;
   createdAt: Date;
+  questionIds: string[];
 }
 const MOCK_QUIZZES: Quiz[] = [
 {
@@ -94,9 +94,23 @@ const MOCK_QUIZZES: Quiz[] = [
   showPercentComplete: false,
   showNumQuestions: false,
   showProgressBar: false,
-  status: 'published',
+  status: 'draft',
   description: 'Introduction to our platform features',
-  createdAt: new Date('2024-01-15T10:30:00')
+  createdAt: new Date('2024-01-15T10:30:00'),
+  questionIds: [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '16',
+  '17',
+  '18',
+  '19',
+  '20',
+  '22',
+  '27']
+
 },
 {
   id: '2',
@@ -109,9 +123,10 @@ const MOCK_QUIZZES: Quiz[] = [
   showPercentComplete: false,
   showNumQuestions: false,
   showProgressBar: false,
-  status: 'draft',
+  status: 'published',
   description: 'Gather feedback from customers',
-  createdAt: new Date('2024-01-14T14:15:00')
+  createdAt: new Date('2024-01-14T14:15:00'),
+  questionIds: ['2', '3', '6', '7', '8', '9', '10', '11']
 },
 {
   id: '3',
@@ -124,9 +139,35 @@ const MOCK_QUIZZES: Quiz[] = [
   showPercentComplete: true,
   showNumQuestions: true,
   showProgressBar: true,
-  status: 'published',
+  status: 'draft',
   description: 'Final assessment for LMS course completion',
-  createdAt: new Date('2024-01-13T09:45:00')
+  createdAt: new Date('2024-01-13T09:45:00'),
+  questionIds: [
+  '1',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '16',
+  '17',
+  '18',
+  '21',
+  '24',
+  '25',
+  '28',
+  '29',
+  '30',
+  '32',
+  '33',
+  '34']
+
 },
 {
   id: '4',
@@ -139,9 +180,10 @@ const MOCK_QUIZZES: Quiz[] = [
   showPercentComplete: false,
   showNumQuestions: false,
   showProgressBar: false,
-  status: 'draft',
+  status: 'published',
   description: 'Test new feature understanding',
-  createdAt: new Date('2024-01-12T16:20:00')
+  createdAt: new Date('2024-01-12T16:20:00'),
+  questionIds: ['1', '6', '8', '10', '12', '14']
 },
 {
   id: '5',
@@ -154,9 +196,26 @@ const MOCK_QUIZZES: Quiz[] = [
   showPercentComplete: true,
   showNumQuestions: true,
   showProgressBar: true,
-  status: 'archived',
+  status: 'draft',
   description: 'Comprehensive product knowledge assessment',
-  createdAt: new Date('2024-01-11T11:00:00')
+  createdAt: new Date('2024-01-11T11:00:00'),
+  questionIds: [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '15']
+
 },
 {
   id: '6',
@@ -169,9 +228,10 @@ const MOCK_QUIZZES: Quiz[] = [
   showPercentComplete: false,
   showNumQuestions: false,
   showProgressBar: false,
-  status: 'published',
+  status: 'draft',
   description: 'Evaluate user experience quality',
-  createdAt: new Date('2024-01-10T08:30:00')
+  createdAt: new Date('2024-01-10T08:30:00'),
+  questionIds: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 },
 {
   id: '7',
@@ -186,7 +246,29 @@ const MOCK_QUIZZES: Quiz[] = [
   showProgressBar: true,
   status: 'published',
   description: 'Advanced technical skills evaluation',
-  createdAt: new Date('2024-01-09T13:45:00')
+  createdAt: new Date('2024-01-09T13:45:00'),
+  questionIds: [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '15',
+  '16',
+  '17',
+  '18',
+  '19',
+  '20']
+
 },
 {
   id: '8',
@@ -201,7 +283,8 @@ const MOCK_QUIZZES: Quiz[] = [
   showProgressBar: false,
   status: 'draft',
   description: 'Orientation quiz for new hires',
-  createdAt: new Date('2024-01-08T10:15:00')
+  createdAt: new Date('2024-01-08T10:15:00'),
+  questionIds: ['1', '2', '3', '4', '5', '6', '7']
 },
 {
   id: '9',
@@ -216,7 +299,24 @@ const MOCK_QUIZZES: Quiz[] = [
   showProgressBar: true,
   status: 'published',
   description: 'Mandatory compliance training assessment',
-  createdAt: new Date('2024-01-07T15:30:00')
+  createdAt: new Date('2024-01-07T15:30:00'),
+  questionIds: [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '15']
+
 },
 {
   id: '10',
@@ -231,7 +331,21 @@ const MOCK_QUIZZES: Quiz[] = [
   showProgressBar: true,
   status: 'published',
   description: 'Workplace safety procedures assessment',
-  createdAt: new Date('2024-01-06T09:00:00')
+  createdAt: new Date('2024-01-06T09:00:00'),
+  questionIds: [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12']
+
 },
 {
   id: '11',
@@ -246,7 +360,8 @@ const MOCK_QUIZZES: Quiz[] = [
   showProgressBar: true,
   status: 'draft',
   description: 'Assess leadership competencies',
-  createdAt: new Date('2024-01-05T14:20:00')
+  createdAt: new Date('2024-01-05T14:20:00'),
+  questionIds: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 },
 {
   id: '12',
@@ -261,7 +376,8 @@ const MOCK_QUIZZES: Quiz[] = [
   showProgressBar: false,
   status: 'published',
   description: 'Customer service best practices',
-  createdAt: new Date('2024-01-04T11:45:00')
+  createdAt: new Date('2024-01-04T11:45:00'),
+  questionIds: ['1', '2', '3', '4', '5', '6', '7', '8']
 },
 {
   id: '13',
@@ -276,7 +392,8 @@ const MOCK_QUIZZES: Quiz[] = [
   showProgressBar: true,
   status: 'published',
   description: 'Data privacy and protection basics',
-  createdAt: new Date('2024-01-03T16:10:00')
+  createdAt: new Date('2024-01-03T16:10:00'),
+  questionIds: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 },
 {
   id: '14',
@@ -289,9 +406,23 @@ const MOCK_QUIZZES: Quiz[] = [
   showPercentComplete: true,
   showNumQuestions: true,
   showProgressBar: true,
-  status: 'archived',
+  status: 'published',
   description: 'Introduction to project management',
-  createdAt: new Date('2024-01-02T10:30:00')
+  createdAt: new Date('2024-01-02T10:30:00'),
+  questionIds: [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12']
+
 },
 {
   id: '15',
@@ -306,7 +437,8 @@ const MOCK_QUIZZES: Quiz[] = [
   showProgressBar: false,
   status: 'draft',
   description: 'Evaluate communication effectiveness',
-  createdAt: new Date('2024-01-01T13:00:00')
+  createdAt: new Date('2024-01-01T13:00:00'),
+  questionIds: ['1', '2', '3', '4', '5', '6', '7', '8']
 }];
 
 const sortOptions = [
@@ -342,11 +474,6 @@ const mobileFilterOptions = [
   id: 'draft',
   label: 'Draft',
   icon: EyeOff
-},
-{
-  id: 'archived',
-  label: 'Archived',
-  icon: Archive
 }];
 
 const CATEGORY_CONFIG: Record<
@@ -413,7 +540,10 @@ interface QuizzesContentProps {
   selectedStatus: string;
   selectedCategory: string;
   selectedQuiz: Quiz | null;
-  onSelectQuiz: (quiz: Quiz) => void;
+  onSelectQuiz: (
+  quiz: Quiz,
+  defaultTab?: 'info' | 'edit' | 'preview' | 'questions')
+  => void;
   onOpenMobileFilters?: () => void;
   onCreateQuiz?: () => void;
 }
@@ -431,7 +561,6 @@ function MobileQuizCard({
 }: {quiz: Quiz;isSelected: boolean;onClick: () => void;onAction: (action: string) => void;}) {
   const categoryConfig = CATEGORY_CONFIG[quiz.category] || CATEGORY_CONFIG.all;
   const isPublished = quiz.status === 'published';
-  const isArchived = quiz.status === 'archived';
   return (
     <motion.div
       initial={{
@@ -454,7 +583,7 @@ function MobileQuizCard({
           {/* Status indicator */}
           <div className="relative flex-shrink-0">
             <div
-              className={`flex items-center justify-center w-5 h-5 rounded-full ${isPublished ? 'bg-emerald-50 text-emerald-500' : isArchived ? 'bg-gray-100 text-gray-500' : 'bg-amber-50 text-amber-500'}`}>
+              className={`flex items-center justify-center w-5 h-5 rounded-full ${isPublished ? 'bg-emerald-50 text-emerald-500' : 'bg-amber-50 text-amber-500'}`}>
               
               {isPublished ?
               <Eye className="w-3 h-3" /> :
@@ -514,13 +643,6 @@ function MobileQuizCard({
               title="Edit">
               
               <PenSquare className="w-[14px] h-[14px]" />
-            </button>
-            <button
-              onClick={() => onAction('fork')}
-              className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
-              title="Fork">
-              
-              <GitFork className="w-[14px] h-[14px]" />
             </button>
             <button
               onClick={() => onAction('delete')}
@@ -940,6 +1062,7 @@ export function QuizzesContent({
   };
   const handleClearSelection = () => {
     setSelectedIds(new Set());
+    setShowCheckboxes(false);
   };
   const handleToggleCheckboxes = () => {
     setShowCheckboxes(!showCheckboxes);
@@ -964,22 +1087,16 @@ export function QuizzesContent({
     if (!quiz) return;
     switch (action) {
       case 'view':
-      case 'preview':
         onSelectQuiz(quiz);
+        break;
+      case 'preview':
+        onSelectQuiz(quiz, 'preview');
         break;
       case 'edit':
-        onSelectQuiz(quiz);
+        onSelectQuiz(quiz, 'edit');
         break;
-      case 'fork':
-        const forked: Quiz = {
-          ...quiz,
-          id: `fork-${Date.now()}`,
-          title: `${quiz.title} (Fork)`,
-          status: 'draft',
-          createdAt: new Date()
-        };
-        setQuizzes([forked, ...quizzes]);
-        setTimeout(() => onSelectQuiz(forked), 100);
+      case 'questions':
+        onSelectQuiz(quiz, 'questions');
         break;
       case 'delete':
         setDeleteConfirmId(quizId);
@@ -1104,6 +1221,7 @@ export function QuizzesContent({
         {deleteConfirmId &&
         (() => {
           const quizToDelete = quizzes.find((q) => q.id === deleteConfirmId);
+          const isPublishedQuiz = quizToDelete?.status === 'published';
           return (
             <motion.div
               initial={{
@@ -1150,11 +1268,28 @@ export function QuizzesContent({
                       <Trash2 className="w-5 h-5 text-red-500" />
                     </div>
                     <h3 className="text-base font-semibold text-gray-900 mb-1">
-                      Delete this quiz?
+                      {isPublishedQuiz ?
+                    'Delete published quiz?' :
+                    'Delete this quiz?'}
                     </h3>
                     <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                      "{quizToDelete?.title}" will be permanently removed. This
-                      action cannot be undone.
+                      {isPublishedQuiz ?
+                    <>
+                          Users who have already{' '}
+                          <span className="font-medium text-gray-700">
+                            completed this quiz
+                          </span>{' '}
+                          will retain their scores, snapshots, and references.
+                          For{' '}
+                          <span className="font-medium text-gray-700">
+                            new users or those in progress
+                          </span>
+                          , the quiz will no longer be accessible. This action
+                          cannot be undone.
+                        </> :
+
+                    'This draft will be permanently removed. This action cannot be undone.'
+                    }
                     </p>
                     <div className="flex items-center gap-3 w-full">
                       <Button
@@ -1214,7 +1349,24 @@ export function QuizzesContent({
           itemsPerPage={itemsPerPage}
           itemsPerPageOptions={[10, 25, 50]}
           onItemsPerPageChange={setItemsPerPage}
-          allFilterLabel="All Quizzes" />
+          allFilterLabel="All Quizzes"
+          customFilterOptions={[
+          {
+            id: 'all',
+            label: 'All Statuses',
+            icon: Layers
+          },
+          {
+            id: 'published',
+            label: 'Published',
+            icon: Eye
+          },
+          {
+            id: 'draft',
+            label: 'Draft',
+            icon: EyeOff
+          }]
+          } />
         
       </div>
 
@@ -1233,7 +1385,7 @@ export function QuizzesContent({
 
       {/* Bulk Edit Bar */}
       <AnimatePresence mode="wait">
-        {selectedIds.size > 0 && showCheckboxes &&
+        {showCheckboxes &&
         <BulkEditBar
           selectedCount={selectedIds.size}
           totalCount={totalItems}
@@ -1296,7 +1448,8 @@ export function QuizzesContent({
                 onClick={() => onSelectQuiz(quiz)}
                 showCheckbox={showCheckboxes}
                 isChecked={selectedIds.has(quiz.id)}
-                onCheckboxChange={() => handleToggleSelect(quiz.id)} />
+                onCheckboxChange={() => handleToggleSelect(quiz.id)}
+                onAction={(action) => handleQuizAction(quiz.id, action)} />
               
                 </motion.div>
             )}
