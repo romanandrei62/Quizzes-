@@ -458,7 +458,7 @@ export function QuizDetail({
     new Set());
   const [quizCheckboxesVisible, setQuizCheckboxesVisible] = useState(false);
   const [quizFilter, setQuizFilter] = useState('all');
-  const [quizSort, setQuizSort] = useState('created_desc');
+  const [quizSort, setQuizSort] = useState('manual');
   const [bulkDetachConfirm, setBulkDetachConfirm] = useState(false);
   const [quizItemsPerPage, setQuizItemsPerPage] = useState(10);
   const [quizDisplayCount, setQuizDisplayCount] = useState(10);
@@ -572,7 +572,7 @@ export function QuizDetail({
     } else if (quizFilter === 'draft') {
       filtered = filtered.filter((item) => item.status === 'draft');
     }
-    // Apply sort
+    // Apply sort (skip when 'manual' — preserves questionIds order)
     if (quizSort === 'title_asc') {
       filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
     } else if (quizSort === 'title_desc') {
@@ -581,12 +581,12 @@ export function QuizDetail({
       filtered = [...filtered].sort(
         (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
       );
-    } else {
-      // created_desc (default)
+    } else if (quizSort === 'created_desc') {
       filtered = [...filtered].sort(
         (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
       );
     }
+    // 'manual' — no sorting, keeps questionIds array order
     return filtered;
   };
   // Reset display count when filters change
@@ -2101,12 +2101,16 @@ export function QuizDetail({
                             const TypeIcon = typeConfig.icon;
                             const isSelected =
                             bulkSelectedQuestionIds.has(q.id);
+                            const canReorder =
+                            !isPublished &&
+                            !quizCheckboxesVisible &&
+                            !quizSearchQuery &&
+                            quizFilter === 'all' &&
+                            quizSort === 'manual';
                             return (
                               <div
                                 key={`qt-${q.id}-${index}`}
-                                draggable={
-                                !isPublished && !quizCheckboxesVisible
-                                }
+                                draggable={canReorder}
                                 onDragStart={(e) =>
                                 handleDragStart(e, index)
                                 }
@@ -2143,8 +2147,13 @@ export function QuizDetail({
                                         </div> :
 
                                 <div
-                                  className={`flex items-center py-3 pl-4 md:pl-6 pr-0.5 flex-shrink-0 ${isPublished ? 'text-gray-200' : 'cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500'}`}
-                                  onClick={(e) => e.stopPropagation()}>
+                                  className={`flex items-center py-3 pl-4 md:pl-6 pr-0.5 flex-shrink-0 ${canReorder ? 'cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500' : 'text-gray-200'}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  title={
+                                  !canReorder && !isPublished ?
+                                  'Clear sort, filter, and search to reorder' :
+                                  undefined
+                                  }>
                                   
                                           <GripVertical className="w-3.5 h-3.5" />
                                         </div>
