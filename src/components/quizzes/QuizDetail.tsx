@@ -33,7 +33,9 @@ import {
   Image,
   HelpCircle as HelpCircleIcon,
   Unlink,
-  Filter } from
+  Filter,
+  Calendar,
+  RotateCcw } from
 'lucide-react';
 import { Button } from '../ui/Button';
 import { QuestionPreview } from '../questions/QuestionPreview';
@@ -1716,6 +1718,34 @@ export function QuizDetail({
                     onFilter={(filterId) => setQuizFilter(filterId)}
                     showSort={true}
                     onSort={(sortId) => setQuizSort(sortId)}
+                    customSortOptions={[
+                    {
+                      id: 'manual',
+                      label: 'Presentation Order',
+                      icon: GripVertical
+                    },
+                    {
+                      id: 'created_desc',
+                      label: 'Newest First',
+                      icon: Calendar
+                    },
+                    {
+                      id: 'created_asc',
+                      label: 'Oldest First',
+                      icon: Calendar
+                    },
+                    {
+                      id: 'title_asc',
+                      label: 'Title (A - Z)',
+                      icon: Type
+                    },
+                    {
+                      id: 'title_desc',
+                      label: 'Title (Z - A)',
+                      icon: Type
+                    }]
+                    }
+                    defaultSortLabel="Presentation Order"
                     showCheckboxToggle={!isPublished}
                     checkboxesVisible={quizCheckboxesVisible}
                     onToggleCheckboxes={handleToggleQuizCheckboxes}
@@ -1729,18 +1759,7 @@ export function QuizDetail({
 
                   {/* Mobile Header */}
                   <div className="md:hidden flex-shrink-0 bg-white border-b border-gray-200 relative">
-                    {!isPublished &&
-                <button
-                  onClick={() => setShowAddQuestionsModal(true)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 hover:bg-gray-50 rounded transition-colors"
-                  title="Add questions">
-                  
-                        <Plus className="w-5 h-5 text-gray-600" />
-                      </button>
-                }
-                    <div
-                  className={`[&>div]:!border-b-0 ${!isPublished ? '[&>div>div]:!pl-14' : ''}`}>
-                  
+                    <div className="[&>div]:!border-b-0">
                       <TableActionBar
                     showSearch={true}
                     searchPlaceholder="Search quiz questions..."
@@ -1750,6 +1769,34 @@ export function QuizDetail({
                     onFilter={(filterId) => setQuizFilter(filterId)}
                     showSort={true}
                     onSort={(sortId) => setQuizSort(sortId)}
+                    customSortOptions={[
+                    {
+                      id: 'manual',
+                      label: 'Presentation Order',
+                      icon: GripVertical
+                    },
+                    {
+                      id: 'created_desc',
+                      label: 'Newest First',
+                      icon: Calendar
+                    },
+                    {
+                      id: 'created_asc',
+                      label: 'Oldest First',
+                      icon: Calendar
+                    },
+                    {
+                      id: 'title_asc',
+                      label: 'Title (A - Z)',
+                      icon: Type
+                    },
+                    {
+                      id: 'title_desc',
+                      label: 'Title (Z - A)',
+                      icon: Type
+                    }]
+                    }
+                    defaultSortLabel="Presentation Order"
                     showCheckboxToggle={!isPublished}
                     checkboxesVisible={quizCheckboxesVisible}
                     onToggleCheckboxes={handleToggleQuizCheckboxes}
@@ -2040,6 +2087,45 @@ export function QuizDetail({
                 }
                   </AnimatePresence>
 
+                  {/* Order hint banners */}
+                  {!isPublished &&
+              questionIds.length > 0 &&
+              !quizCheckboxesVisible &&
+              <>
+                        {quizSort === 'manual' &&
+                quizFilter === 'all' &&
+                !quizSearchQuery ?
+                <div className="flex-shrink-0 bg-gray-50/60 border-b border-gray-100">
+                            <div className="px-4 md:px-6 py-1.5 flex items-center gap-2 text-[11px] text-gray-400">
+                              <span className="truncate text-[10px]">
+                                Drag to reorder · This is the order questions
+                                will appear in the quiz
+                              </span>
+                            </div>
+                          </div> :
+
+                <div className="flex-shrink-0 bg-gray-50/60 border-b border-gray-100">
+                            <div className="px-4 md:px-6 py-1.5 flex items-center gap-2 text-[11px] text-gray-400">
+                              <button
+                      onClick={() => {
+                        setQuizSort('manual');
+                        setQuizFilter('all');
+                        setQuizSearchQuery('');
+                      }}
+                      className="p-0.5 rounded hover:bg-gray-200/60 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+                      title="Reset to presentation order">
+                      
+                                <RotateCcw className="w-3 h-3" />
+                              </button>
+                              <span>
+                                Reordering disabled while sorting or filtering.
+                              </span>
+                            </div>
+                          </div>
+                }
+                      </>
+              }
+
                   <div className="flex-1 overflow-y-auto">
                     <div className="px-4 md:px-0 flex flex-col min-h-full">
                       {questionIds.length === 0 ?
@@ -2129,7 +2215,7 @@ export function QuizDetail({
                                   }
                                 }}>
                                 
-                                      {/* Checkbox or Drag handle */}
+                                      {/* Checkbox or Numbered drag handle */}
                                       {quizCheckboxesVisible ?
                                 <div
                                   className="flex items-center py-3 pl-4 md:pl-6 pr-1 flex-shrink-0"
@@ -2145,18 +2231,18 @@ export function QuizDetail({
                                     id={`quiz-q-${q.id}`} />
                                   
                                         </div> :
-
+                                canReorder ?
                                 <div
-                                  className={`flex items-center py-3 pl-4 md:pl-6 pr-0.5 flex-shrink-0 ${canReorder ? 'cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500' : 'text-gray-200'}`}
+                                  className="flex items-center justify-center py-3 pl-4 md:pl-6 pr-2 flex-shrink-0 cursor-grab active:cursor-grabbing"
                                   onClick={(e) => e.stopPropagation()}
-                                  title={
-                                  !canReorder && !isPublished ?
-                                  'Clear sort, filter, and search to reorder' :
-                                  undefined
-                                  }>
+                                  title="Drag to reorder">
                                   
-                                          <GripVertical className="w-3.5 h-3.5" />
-                                        </div>
+                                          <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] leading-none font-medium tabular-nums select-none transition-all duration-200 bg-teal-500/10 text-teal-600 group-hover:bg-teal-500 group-hover:text-white">
+                                            {index + 1}
+                                          </div>
+                                        </div> :
+
+                                <div className="pl-4 md:pl-6 flex-shrink-0" />
                                 }
 
                                       {/* Category color bar */}
@@ -2278,11 +2364,10 @@ export function QuizDetail({
                   </div>
 
                   {/* Add Questions button for mobile */}
-                  {!isPublished && questionIds.length > 0 &&
-              <div className="md:hidden px-4 py-3 border-t border-gray-200 flex-shrink-0 bg-white">
+                  {!isPublished &&
+              <div className="md:hidden px-4 py-3 border-t border-gray-200 flex-shrink-0 bg-gray-50">
                       <Button
-                  variant="outline"
-                  size="sm"
+                  variant="primary"
                   className="w-full justify-center"
                   onClick={() => setShowAddQuestionsModal(true)}
                   leftIcon={<Plus className="w-4 h-4" />}>

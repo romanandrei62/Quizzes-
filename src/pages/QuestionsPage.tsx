@@ -904,6 +904,29 @@ export function QuestionsPage() {
         </div>
       </div>
 
+      {/* Quiz Detail Overlay - shown on mobile only when a quiz is selected */}
+      {selectedQuiz &&
+      <div
+        className="lg:hidden"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9999,
+          backgroundColor: '#ffffff'
+        }}>
+        
+          <QuizDetail
+          quiz={selectedQuiz}
+          onClose={() => setSelectedQuiz(null)}
+          defaultTab={quizTabSignal.tab}
+          tabSignal={quizTabSignal.ts} />
+        
+        </div>
+      }
+
       {/* Detail Overlay - shown on mobile only when a question is selected/created */}
       {selectedQuestion &&
       <div

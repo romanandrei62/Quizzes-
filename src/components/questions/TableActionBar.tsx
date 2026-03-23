@@ -45,6 +45,14 @@ export interface TableActionBarProps {
     label: string;
     icon: any;
   }[];
+  // Custom sort options (overrides default)
+  customSortOptions?: {
+    id: string;
+    label: string;
+    icon: any;
+  }[];
+  // Default sort label
+  defaultSortLabel?: string;
   // Styling
   className?: string;
 }
@@ -107,13 +115,20 @@ export function TableActionBar({
   onItemsPerPageChange,
   allFilterLabel = 'All Questions',
   customFilterOptions,
+  customSortOptions,
+  defaultSortLabel,
   className = ''
 }: TableActionBarProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedSort, setSelectedSort] = useState('Created (Newest - Oldest)');
+  const activeSortOptions = customSortOptions || sortOptions;
+  const [selectedSort, setSelectedSort] = useState(
+    defaultSortLabel ||
+    activeSortOptions[0]?.label ||
+    'Created (Newest - Oldest)'
+  );
   const [selectedFilter, setSelectedFilter] = useState(allFilterLabel);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -311,7 +326,7 @@ export function TableActionBar({
                   }}
                   className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
                   
-                        {sortOptions.map((sort) => {
+                        {activeSortOptions.map((sort) => {
                     const Icon = sort.icon;
                     const isSelected = selectedSort === sort.label;
                     return (
@@ -545,7 +560,7 @@ export function TableActionBar({
                   }}
                   className="absolute left-0 right-0 mt-2 max-w-xs bg-white rounded-lg border border-gray-200 shadow-lg overflow-hidden z-20">
                   
-                        {sortOptions.map((sort) => {
+                        {activeSortOptions.map((sort) => {
                     const Icon = sort.icon;
                     const isSelected = selectedSort === sort.label;
                     return (

@@ -27,7 +27,9 @@ import {
   Layers,
   FileText,
   CheckCircle,
-  MonitorPlay } from
+  MonitorPlay,
+  ListChecks,
+  ClipboardList } from
 'lucide-react';
 import { QuizItem } from './QuizItem';
 import { QuestionListSkeleton } from '../questions/QuestionListSkeleton';
@@ -617,7 +619,7 @@ function MobileQuizCard({
               className="flex items-center justify-center w-6 h-6 rounded-md bg-gray-50 text-gray-400"
               title="Quiz">
               
-              <HelpCircle className="w-3.5 h-3.5" />
+              <ClipboardList className="w-3.5 h-3.5" />
             </div>
           </div>
 
@@ -643,6 +645,13 @@ function MobileQuizCard({
               title="Edit">
               
               <PenSquare className="w-[14px] h-[14px]" />
+            </button>
+            <button
+              onClick={() => onAction('questions')}
+              className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
+              title="Questions">
+              
+              <ListChecks className="w-[14px] h-[14px]" />
             </button>
             <button
               onClick={() => onAction('delete')}
