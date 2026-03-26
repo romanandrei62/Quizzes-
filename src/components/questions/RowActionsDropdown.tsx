@@ -38,16 +38,6 @@ export function RowActionsDropdown({
   }, [isOpen]);
   const allActions = [
   {
-    id: 'view',
-    label: 'Info',
-    icon: Info
-  },
-  {
-    id: 'preview',
-    label: 'Preview',
-    icon: MonitorPlay
-  },
-  {
     id: 'edit',
     label: 'Edit',
     icon: Edit
@@ -56,6 +46,16 @@ export function RowActionsDropdown({
     id: 'questions',
     label: 'Questions',
     icon: ListChecks
+  },
+  {
+    id: 'view',
+    label: 'Info',
+    icon: Info
+  },
+  {
+    id: 'preview',
+    label: 'Preview',
+    icon: MonitorPlay
   },
   {
     id: 'fork',

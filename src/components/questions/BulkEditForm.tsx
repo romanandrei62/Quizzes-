@@ -36,14 +36,7 @@ export function BulkEditForm({
       isExpanded={isExpanded}
       onToggleExpand={() => setIsExpanded(!isExpanded)}
       footer={
-      <div className="flex items-center justify-between w-full">
-          <Button
-          variant="secondary"
-          onClick={onClose}
-          leftIcon={<X className="w-4 h-4" />}>
-          
-            Cancel
-          </Button>
+      <div className="flex items-center w-full">
           <Button
           variant="primary"
           onClick={() => {
@@ -54,6 +47,13 @@ export function BulkEditForm({
           leftIcon={<Save className="w-4 h-4" />}>
           
             Save
+          </Button>
+          <Button
+          variant="secondary"
+          onClick={onClose}
+          leftIcon={<X className="w-4 h-4" />}>
+          
+            Cancel
           </Button>
         </div>
       }>

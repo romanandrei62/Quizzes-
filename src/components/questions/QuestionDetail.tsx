@@ -1163,13 +1163,7 @@ export function QuestionDetail({
                 </p>
 
                 {/* Actions */}
-                <div className="flex items-center gap-3 w-full">
-                  <button
-                  onClick={() => setDeleteDialogMode(null)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  
-                    Cancel
-                  </button>
+                <div className="flex items-center w-full">
                   <button
                   onClick={() => {
                     if (deleteDialogMode === 'discard-draft') {
@@ -1205,6 +1199,12 @@ export function QuestionDetail({
                         Delete
                       </>
                   }
+                  </button>
+                  <button
+                  onClick={() => setDeleteDialogMode(null)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -1275,19 +1275,19 @@ export function QuestionDetail({
                   </span>{' '}
                   until you publish the new draft.
                 </p>
-                <div className="flex items-center gap-3 w-full">
-                  <button
-                  onClick={() => setShowEditPublishedWarning(false)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  
-                    Cancel
-                  </button>
+                <div className="flex items-center w-full">
                   <button
                   onClick={confirmEditPublished}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
                   
                     <Save className="w-4 h-4" />
                     Create Draft
+                  </button>
+                  <button
+                  onClick={() => setShowEditPublishedWarning(false)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -1420,6 +1420,15 @@ export function QuestionDetail({
       <div className="hidden md:flex w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex-col items-center pt-4 gap-3">
         <button
           onClick={() => {
+            requestEdit();
+          }}
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+          title="Edit">
+          
+          <PenSquare className="w-[18px] h-[18px]" />
+        </button>
+        <button
+          onClick={() => {
             setActiveTab('info');
             setEditView('form');
           }}
@@ -1437,15 +1446,6 @@ export function QuestionDetail({
           title="Preview">
           
           <MonitorPlay className="w-[18px] h-[18px]" />
-        </button>
-        <button
-          onClick={() => {
-            requestEdit();
-          }}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'edit' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
-          title="Edit">
-          
-          <PenSquare className="w-[18px] h-[18px]" />
         </button>
       </div>
 
@@ -1483,9 +1483,9 @@ export function QuestionDetail({
               className="absolute top-[3px] bottom-[3px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]"
               animate={{
                 left:
-                activeTab === 'info' ?
+                activeTab === 'edit' ?
                 '3px' :
-                activeTab === 'preview' ?
+                activeTab === 'info' ?
                 'calc(33.33% + 1px)' :
                 'calc(66.66% + 1px)',
                 width: 'calc(33.33% - 4px)'
@@ -1497,31 +1497,31 @@ export function QuestionDetail({
               }} />
             
               <button
+              onClick={() => requestEdit()}
+              className={`relative z-10 flex-1 flex items-center justify-center py-1.5 rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Edit">
+              
+                <PenSquare className="w-4 h-4" />
+              </button>
+              <button
               onClick={() => {
                 setActiveTab('info');
                 setEditView('form');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center py-1.5 rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Info">
               
-                <Info className="w-3.5 h-3.5" />
-                Info
+                <Info className="w-4 h-4" />
               </button>
               <button
               onClick={() => {
                 setIsViewingPublished(false);
                 setActiveTab('preview');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' ? 'text-gray-900' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center py-1.5 rounded-full transition-colors duration-200 ${activeTab === 'preview' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Preview">
               
-                <MonitorPlay className="w-3.5 h-3.5" />
-                Preview
-              </button>
-              <button
-              onClick={() => requestEdit()}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
-              
-                <PenSquare className="w-3.5 h-3.5" />
-                Edit
+                <MonitorPlay className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -1535,11 +1535,11 @@ export function QuestionDetail({
               className={`absolute top-[3px] bottom-[3px] rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] ${activeTab === 'info' || activeTab === 'edit' ? 'bg-white' : !isViewingPublished ? 'bg-amber-50' : 'bg-emerald-50'}`}
               animate={{
                 left:
-                activeTab === 'info' ?
+                activeTab === 'edit' ?
                 '3px' :
-                activeTab === 'preview' && !isViewingPublished ?
+                activeTab === 'info' ?
                 'calc(25% + 1px)' :
-                activeTab === 'preview' && isViewingPublished ?
+                activeTab === 'preview' && !isViewingPublished ?
                 'calc(50% + 1px)' :
                 'calc(75% + 1px)',
                 width: 'calc(25% - 4px)'
@@ -1551,45 +1551,45 @@ export function QuestionDetail({
               }} />
             
               <button
+              onClick={() => requestEdit()}
+              className={`relative z-10 flex-1 flex items-center justify-center py-2 rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Edit">
+              
+                <PenSquare className="w-4 h-4" />
+              </button>
+              <button
               onClick={() => {
                 setActiveTab('info');
                 setEditView('form');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center py-2 rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Info">
               
-                <Info className="w-3.5 h-3.5" />
-                Info
+                <Info className="w-4 h-4" />
               </button>
               <button
               onClick={() => {
                 setIsViewingPublished(false);
                 setActiveTab('preview');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-700' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center py-2 rounded-full transition-colors duration-200 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-700' : 'text-gray-400'}`}
+              title="Draft Preview">
               
                 <MonitorPlay
-                className={`w-3.5 h-3.5 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-500' : ''}`} />
+                className={`w-4 h-4 ${activeTab === 'preview' && !isViewingPublished ? 'text-amber-500' : ''}`} />
               
-                Draft
               </button>
               <button
               onClick={() => {
                 setIsViewingPublished(true);
                 setActiveTab('preview');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-700' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center py-2 rounded-full transition-colors duration-200 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-700' : 'text-gray-400'}`}
+              title="Live Preview">
               
                 <MonitorPlay
-                className={`w-3.5 h-3.5 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-500' : ''}`} />
+                className={`w-4 h-4 ${activeTab === 'preview' && isViewingPublished ? 'text-emerald-500' : ''}`} />
               
-                Live
-              </button>
-              <button
-              onClick={() => requestEdit()}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
-              
-                <PenSquare className="w-3.5 h-3.5" />
-                Edit
               </button>
             </div>
           </div>
@@ -1941,7 +1941,7 @@ export function QuestionDetail({
             </div>
             {!isInfoLoading &&
           <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-gray-50">
-                {/* Mobile layout: Edit on top, Discard below */}
+                {/* Mobile layout: Edit on top, Discard/Delete below */}
                 <div className="sm:hidden flex flex-col gap-2 w-full">
                   <Button
                 variant="primary"
@@ -1952,13 +1952,14 @@ export function QuestionDetail({
                     Edit Question
                   </Button>
                   {isDraftOfPublished ?
-              <button
+              <Button
+                variant="draft"
                 onClick={() => setDeleteDialogMode('discard-draft')}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
+                leftIcon={<ArrowLeft className="w-4 h-4" />}
+                className="w-full">
                 
-                      <ArrowLeft className="w-4 h-4" />
                       Discard
-                    </button> :
+                    </Button> :
 
               <Button
                 variant="danger"
@@ -1973,16 +1974,24 @@ export function QuestionDetail({
               }
                 </div>
 
-                {/* Desktop layout: Discard/Delete left, Edit right — both fill space */}
+                {/* Desktop layout: Edit left, Discard/Delete right */}
                 <div className="hidden sm:flex items-center gap-2 w-full">
-                  {isDraftOfPublished ?
-              <button
-                onClick={() => setDeleteDialogMode('discard-draft')}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
+                  <Button
+                variant="primary"
+                className="flex-1 justify-center"
+                onClick={() => requestEdit()}
+                leftIcon={<Edit className="w-4 h-4" />}>
                 
-                      <ArrowLeft className="w-4 h-4" />
+                    Edit Question
+                  </Button>
+                  {isDraftOfPublished ?
+              <Button
+                variant="draft"
+                onClick={() => setDeleteDialogMode('discard-draft')}
+                leftIcon={<ArrowLeft className="w-4 h-4" />}>
+                
                       Discard
-                    </button> :
+                    </Button> :
 
               <Button
                 variant="danger"
@@ -1994,14 +2003,6 @@ export function QuestionDetail({
                       Delete
                     </Button>
               }
-                  <Button
-                variant="primary"
-                className="flex-1 justify-center"
-                onClick={() => requestEdit()}
-                leftIcon={<Edit className="w-4 h-4" />}>
-                
-                    Edit Question
-                  </Button>
                 </div>
               </div>
           }
@@ -2364,102 +2365,107 @@ export function QuestionDetail({
                       </div>
                 }
                   </div>
-                  <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-gray-50">
-                    {/* Mobile: Draft/Publish first, Delete below */}
-                    <div className="flex items-center gap-2 w-full sm:hidden">
-                      <Button
-                    variant="outline"
-                    onClick={() => handleSave('draft')}
-                    leftIcon={<Save className="w-4 h-4" />}
-                    className="flex-1 !border-amber-300 !text-amber-700 !bg-amber-50 hover:!bg-amber-100">
-                    
-                        Draft
-                      </Button>
+                  <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 bg-gray-50">
+                    {/* Mobile */}
+                    <div className="flex flex-col sm:hidden w-full">
+                      <div className="flex items-center gap-2 w-full">
+                        <Button
+                      variant="primary"
+                      onClick={() => handleSave('active')}
+                      leftIcon={<Send className="w-4 h-4" />}
+                      className="flex-1">
+                      
+                          Publish
+                        </Button>
+                        <Button
+                      variant="draft"
+                      onClick={() => handleSave('draft')}
+                      leftIcon={<Save className="w-4 h-4" />}
+                      className="flex-1">
+                      
+                          Draft
+                        </Button>
+                      </div>
+                      <div className="w-full mt-2">
+                        {isNewQuestion ?
+                    <Button
+                      variant="danger"
+                      onClick={() => setDeleteDialogMode('draft')}
+                      leftIcon={<Trash2 className="w-4 h-4" />}
+                      className="w-full">
+                      
+                            Delete
+                          </Button> :
+                    isDraftOfPublished ||
+                    isPublished && status === 'draft' ?
+                    <Button
+                      variant="draft"
+                      onClick={() => setDeleteDialogMode('discard-draft')}
+                      leftIcon={<ArrowLeft className="w-4 h-4" />}
+                      className="w-full">
+                      
+                            Discard Draft
+                          </Button> :
+
+                    <Button
+                      variant="danger"
+                      onClick={() => setDeleteDialogMode('draft')}
+                      leftIcon={<Trash2 className="w-4 h-4" />}
+                      className="w-full">
+                      
+                            Delete
+                          </Button>
+                    }
+                      </div>
+                    </div>
+
+                    {/* Desktop */}
+                    <div className="hidden sm:flex items-center gap-2 w-full">
                       <Button
                     variant="primary"
                     onClick={() => handleSave('active')}
                     leftIcon={<Send className="w-4 h-4" />}
-                    className="flex-1">
+                    className="whitespace-nowrap">
                     
                         Publish
                       </Button>
-                    </div>
-                    <div className="sm:hidden w-full">
-                      {isNewQuestion ?
-                  <Button
-                    variant="danger"
-                    onClick={() => setDeleteDialogMode('draft')}
-                    leftIcon={<Trash2 className="w-4 h-4" />}
-                    className="w-full">
-                    
-                          Delete
-                        </Button> :
-                  isDraftOfPublished ||
-                  isPublished && status === 'draft' ?
-                  <button
-                    onClick={() => setDeleteDialogMode('discard-draft')}
-                    className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
-                    
-                          <ArrowLeft className="w-4 h-4" />
-                          Discard Draft
-                        </button> :
-
-                  <Button
-                    variant="danger"
-                    onClick={() => setDeleteDialogMode('draft')}
-                    leftIcon={<Trash2 className="w-4 h-4" />}
-                    className="w-full">
-                    
-                          Delete
-                        </Button>
-                  }
-                    </div>
-
-                    {/* Desktop: Delete left, Draft/Publish right (unchanged) */}
-                    <div className="hidden sm:block">
-                      {isNewQuestion ?
-                  <Button
-                    variant="danger"
-                    onClick={() => setDeleteDialogMode('draft')}
-                    leftIcon={<Trash2 className="w-4 h-4" />}>
-                    
-                          Delete
-                        </Button> :
-                  isDraftOfPublished ||
-                  isPublished && status === 'draft' ?
-                  <button
-                    onClick={() => setDeleteDialogMode('discard-draft')}
-                    className="inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
-                    
-                          <ArrowLeft className="w-4 h-4" />
-                          Discard Draft
-                        </button> :
-
-                  <Button
-                    variant="danger"
-                    onClick={() => setDeleteDialogMode('draft')}
-                    leftIcon={<Trash2 className="w-4 h-4" />}>
-                    
-                          Delete
-                        </Button>
-                  }
-                    </div>
-                    <div className="hidden sm:flex items-center gap-2">
                       <Button
-                    variant="outline"
+                    variant="draft"
                     onClick={() => handleSave('draft')}
                     leftIcon={<Save className="w-4 h-4" />}
-                    className="!border-amber-300 !text-amber-700 !bg-amber-50 hover:!bg-amber-100">
+                    className="whitespace-nowrap">
                     
                         Save as Draft
                       </Button>
-                      <Button
-                    variant="primary"
-                    onClick={() => handleSave('active')}
-                    leftIcon={<Send className="w-4 h-4" />}>
+                      {isNewQuestion ?
+                  <Button
+                    variant="danger"
+                    onClick={() => setDeleteDialogMode('draft')}
+                    leftIcon={<Trash2 className="w-4 h-4" />}
+                    className="whitespace-nowrap">
                     
-                        Publish
-                      </Button>
+                          Delete
+                        </Button> :
+                  isDraftOfPublished ||
+                  isPublished && status === 'draft' ?
+                  <Button
+                    variant="draft"
+                    onClick={() => setDeleteDialogMode('discard-draft')}
+                    leftIcon={<ArrowLeft className="w-4 h-4" />}
+                    className="whitespace-nowrap">
+                    
+                          Discard Draft
+                        </Button> :
+
+                  <Button
+                    variant="danger"
+                    onClick={() => setDeleteDialogMode('draft')}
+                    leftIcon={<Trash2 className="w-4 h-4" />}
+                    className="whitespace-nowrap">
+                    
+                          Delete
+                        </Button>
+                  }
                     </div>
                   </div>
                 </motion.div>

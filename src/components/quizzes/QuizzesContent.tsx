@@ -626,20 +626,6 @@ function MobileQuizCard({
           {/* Right: action icons */}
           <div className="flex items-center gap-0.5">
             <button
-              onClick={() => onAction('view')}
-              className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
-              title="Info">
-              
-              <Info className="w-[14px] h-[14px]" />
-            </button>
-            <button
-              onClick={() => onAction('preview')}
-              className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
-              title="Preview">
-              
-              <MonitorPlay className="w-[14px] h-[14px]" />
-            </button>
-            <button
               onClick={() => onAction('edit')}
               className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
               title="Edit">
@@ -652,6 +638,20 @@ function MobileQuizCard({
               title="Questions">
               
               <ListChecks className="w-[14px] h-[14px]" />
+            </button>
+            <button
+              onClick={() => onAction('view')}
+              className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
+              title="Info">
+              
+              <Info className="w-[14px] h-[14px]" />
+            </button>
+            <button
+              onClick={() => onAction('preview')}
+              className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
+              title="Preview">
+              
+              <MonitorPlay className="w-[14px] h-[14px]" />
             </button>
             <button
               onClick={() => onAction('delete')}
@@ -1195,14 +1195,7 @@ export function QuizzesContent({
                       </span>
                       . This action cannot be undone.
                     </p>
-                    <div className="flex items-center gap-3 w-full">
-                      <Button
-                      variant="secondary"
-                      onClick={() => setBulkDeleteConfirm(false)}
-                      className="flex-1">
-                      
-                        Cancel
-                      </Button>
+                    <div className="flex items-center w-full">
                       <Button
                       variant="danger"
                       onClick={() => {
@@ -1216,6 +1209,13 @@ export function QuizzesContent({
                       className="flex-1">
                       
                         Delete
+                      </Button>
+                      <Button
+                      variant="secondary"
+                      onClick={() => setBulkDeleteConfirm(false)}
+                      className="flex-1">
+                      
+                        Cancel
                       </Button>
                     </div>
                   </div>
@@ -1300,14 +1300,7 @@ export function QuizzesContent({
                     'This draft will be permanently removed. This action cannot be undone.'
                     }
                     </p>
-                    <div className="flex items-center gap-3 w-full">
-                      <Button
-                      variant="secondary"
-                      onClick={() => setDeleteConfirmId(null)}
-                      className="flex-1">
-                      
-                        Cancel
-                      </Button>
+                    <div className="flex items-center w-full">
                       <Button
                       variant="danger"
                       onClick={() => {
@@ -1323,6 +1316,13 @@ export function QuizzesContent({
                       className="flex-1">
                       
                         Delete
+                      </Button>
+                      <Button
+                      variant="secondary"
+                      onClick={() => setDeleteConfirmId(null)}
+                      className="flex-1">
+                      
+                        Cancel
                       </Button>
                     </div>
                   </div>

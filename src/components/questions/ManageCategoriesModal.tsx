@@ -739,7 +739,7 @@ export function ManageCategoriesModal({
               }
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+                <div className="px-6 py-4 border-t border-gray-200 flex items-center gap-2 bg-gray-50">
                   {activeCategoryIndex !== null ?
                 (() => {
                   const isNewCategory = !savedCategories.some(
@@ -747,6 +747,13 @@ export function ManageCategoriesModal({
                   );
                   return (
                     <>
+                          <Button
+                        variant="primary"
+                        onClick={handleSaveDetail}
+                        leftIcon={<Plus className="w-4 h-4" />}>
+                        
+                            Add
+                          </Button>
                           <Button
                         variant="secondary"
                         onClick={handleBackToList}
@@ -760,31 +767,24 @@ export function ManageCategoriesModal({
                         
                             {isNewCategory ? 'Cancel' : 'Back'}
                           </Button>
-                          <Button
-                        variant="primary"
-                        onClick={handleSaveDetail}
-                        leftIcon={<Plus className="w-4 h-4" />}>
-                        
-                            Add
-                          </Button>
                         </>);
 
                 })() :
 
                 <>
                       <Button
-                    variant="secondary"
-                    onClick={handleCancel}
-                    leftIcon={<X className="w-4 h-4" />}>
-                    
-                        Cancel
-                      </Button>
-                      <Button
                     variant="primary"
                     onClick={handleSave}
                     leftIcon={<Save className="w-4 h-4" />}>
                     
                         Save
+                      </Button>
+                      <Button
+                    variant="secondary"
+                    onClick={handleCancel}
+                    leftIcon={<X className="w-4 h-4" />}>
+                    
+                        Cancel
                       </Button>
                     </>
                 }

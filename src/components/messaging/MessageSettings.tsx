@@ -715,7 +715,7 @@ export function MessageSettings() {
                           {section.id === 'receipts' && renderReceiptsContent()}
 
                           {/* Action Buttons */}
-                          <div className="flex items-center gap-3 mt-6 pt-6 border-t border-gray-200">
+                          <div className="flex items-center mt-6 pt-6 border-t border-gray-200">
                             <button className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded hover:bg-gray-800 transition-colors flex items-center gap-2">
                               <CheckCircle className="h-4 w-4" />
                               Save

@@ -897,7 +897,8 @@ export function QuestionsPage() {
               selectedStatus={selectedStatus}
               selectedCategory={selectedQuizCategory}
               selectedQuiz={selectedQuiz}
-              onSelectQuiz={handleSelectQuiz} />
+              onSelectQuiz={handleSelectQuiz}
+              onCreateQuiz={handleCreateQuiz} />
 
             }
           </AnimatePresence>

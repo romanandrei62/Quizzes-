@@ -771,13 +771,7 @@ export function QuizDetail({
                 }
                 </p>
 
-                <div className="flex items-center gap-3 w-full">
-                  <button
-                  onClick={() => setDeleteDialogMode(null)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  
-                    Cancel
-                  </button>
+                <div className="flex items-center w-full">
                   <button
                   onClick={() => {
                     setDeleteDialogMode(null);
@@ -787,6 +781,12 @@ export function QuizDetail({
                   
                     <Trash2 className="w-4 h-4" />
                     Delete
+                  </button>
+                  <button
+                  onClick={() => setDeleteDialogMode(null)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -855,13 +855,7 @@ export function QuizDetail({
                   . You can always add it back later.
                 </p>
 
-                <div className="flex items-center gap-3 w-full">
-                  <button
-                  onClick={() => setRemoveConfirmId(null)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  
-                    Cancel
-                  </button>
+                <div className="flex items-center w-full">
                   <button
                   onClick={() => {
                     handleRemoveQuestion(removeConfirmId);
@@ -875,6 +869,12 @@ export function QuizDetail({
                   
                     <Unlink className="w-4 h-4" />
                     Detach
+                  </button>
+                  <button
+                  onClick={() => setRemoveConfirmId(null)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -941,19 +941,19 @@ export function QuizDetail({
                   </span>
                   . You can always add them back later.
                 </p>
-                <div className="flex items-center gap-3 w-full">
-                  <button
-                  onClick={() => setBulkDetachConfirm(false)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  
-                    Cancel
-                  </button>
+                <div className="flex items-center w-full">
                   <button
                   onClick={confirmBulkDetach}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
                   
                     <Unlink className="w-4 h-4" />
                     Detach ({bulkSelectedQuestionIds.size})
+                  </button>
+                  <button
+                  onClick={() => setBulkDetachConfirm(false)}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -964,20 +964,6 @@ export function QuizDetail({
 
       {/* Icon Sidebar - Hidden on mobile */}
       <div className="hidden md:flex w-[48px] flex-shrink-0 border-r border-gray-200 bg-gray-50/80 flex-col items-center pt-4 gap-3">
-        <button
-          onClick={() => setActiveTab('info')}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
-          title="Info">
-          
-          <Info className="w-[18px] h-[18px]" />
-        </button>
-        <button
-          onClick={() => setActiveTab('preview')}
-          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'preview' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
-          title="Preview">
-          
-          <MonitorPlay className="w-[18px] h-[18px]" />
-        </button>
         <button
           onClick={() => {
             setIsFormLoading(true);
@@ -998,6 +984,20 @@ export function QuizDetail({
           title="Questions">
           
           <ListChecks className="w-[18px] h-[18px]" />
+        </button>
+        <button
+          onClick={() => setActiveTab('info')}
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'info' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+          title="Info">
+          
+          <Info className="w-[18px] h-[18px]" />
+        </button>
+        <button
+          onClick={() => setActiveTab('preview')}
+          className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${activeTab === 'preview' ? 'bg-white text-gray-700 shadow-sm ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
+          title="Preview">
+          
+          <MonitorPlay className="w-[18px] h-[18px]" />
         </button>
       </div>
 
@@ -1023,11 +1023,11 @@ export function QuizDetail({
               className="absolute top-[3px] bottom-[3px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]"
               animate={{
                 left:
-                activeTab === 'info' ?
-                '3px' :
-                activeTab === 'preview' ?
-                'calc(25% + 1px)' :
                 activeTab === 'edit' ?
+                '3px' :
+                activeTab === 'questions' ?
+                'calc(25% + 1px)' :
+                activeTab === 'info' ?
                 'calc(50% + 1px)' :
                 'calc(75% + 1px)',
                 width: 'calc(25% - 4px)'
@@ -1039,28 +1039,14 @@ export function QuizDetail({
               }} />
             
             <button
-              onClick={() => setActiveTab('info')}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}>
-              
-              <Info className="w-3.5 h-3.5" />
-              Info
-            </button>
-            <button
-              onClick={() => setActiveTab('preview')}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'preview' ? 'text-gray-900' : 'text-gray-400'}`}>
-              
-              <MonitorPlay className="w-3.5 h-3.5" />
-              Preview
-            </button>
-            <button
               onClick={() => {
                 setIsFormLoading(true);
                 setActiveTab('edit');
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center py-1.5 rounded-full transition-colors duration-200 ${activeTab === 'edit' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Edit">
               
-              <PenSquare className="w-3.5 h-3.5" />
-              Edit
+              <PenSquare className="w-4 h-4" />
             </button>
             <button
               onClick={() => {
@@ -1068,10 +1054,24 @@ export function QuizDetail({
                 setQuestionsView('list');
                 setSelectedQuestionId(null);
               }}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold tracking-wide rounded-full transition-colors duration-200 ${activeTab === 'questions' ? 'text-gray-900' : 'text-gray-400'}`}>
+              className={`relative z-10 flex-1 flex items-center justify-center py-1.5 rounded-full transition-colors duration-200 ${activeTab === 'questions' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Questions">
               
-              <ListChecks className="w-3.5 h-3.5" />
-              Q's
+              <ListChecks className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setActiveTab('info')}
+              className={`relative z-10 flex-1 flex items-center justify-center py-1.5 rounded-full transition-colors duration-200 ${activeTab === 'info' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Info">
+              
+              <Info className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setActiveTab('preview')}
+              className={`relative z-10 flex-1 flex items-center justify-center py-1.5 rounded-full transition-colors duration-200 ${activeTab === 'preview' ? 'text-gray-900' : 'text-gray-400'}`}
+              title="Preview">
+              
+              <MonitorPlay className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -1315,15 +1315,6 @@ export function QuizDetail({
                 </div>
                 <div className="hidden sm:flex items-center gap-2 w-full">
                   <Button
-                variant="danger"
-                onClick={() =>
-                setDeleteDialogMode(isPublished ? 'published' : 'draft')
-                }
-                leftIcon={<Trash2 className="w-4 h-4" />}>
-                
-                    Delete
-                  </Button>
-                  <Button
                 variant="primary"
                 className="flex-1 justify-center"
                 onClick={() => {
@@ -1333,6 +1324,15 @@ export function QuizDetail({
                 leftIcon={<Edit className="w-4 h-4" />}>
                 
                     Edit Quiz
+                  </Button>
+                  <Button
+                variant="danger"
+                onClick={() =>
+                setDeleteDialogMode(isPublished ? 'published' : 'draft')
+                }
+                leftIcon={<Trash2 className="w-4 h-4" />}>
+                
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -1578,10 +1578,11 @@ export function QuizDetail({
             }
             </div>
             {/* Footer */}
-            <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-gray-50">
-              {isPublished ?
-            <>
-                  <div className="flex items-center gap-2 w-full sm:hidden">
+            <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 bg-gray-50">
+              {/* Mobile */}
+              <div className="flex flex-col sm:hidden w-full">
+                {isPublished ?
+              <div className="flex items-center w-full">
                     <Button
                   variant="primary"
                   onClick={() => handleSave('published')}
@@ -1590,29 +1591,9 @@ export function QuizDetail({
                   
                       Save
                     </Button>
-                  </div>
-                  <div className="sm:hidden w-full">
-                    <Button
-                  variant="danger"
-                  onClick={() => setDeleteDialogMode('published')}
-                  leftIcon={<Trash2 className="w-4 h-4" />}
-                  className="w-full">
-                  
-                      Delete
-                    </Button>
-                  </div>
-                </> :
+                  </div> :
 
-            <>
-                  <div className="flex items-center gap-2 w-full sm:hidden">
-                    <Button
-                  variant="outline"
-                  onClick={() => handleSave('draft')}
-                  leftIcon={<Save className="w-4 h-4" />}
-                  className="flex-1 !border-amber-300 !text-amber-700 !bg-amber-50 hover:!bg-amber-100">
-                  
-                      Draft
-                    </Button>
+              <div className="flex items-center gap-2 w-full">
                     <Button
                   variant="primary"
                   onClick={() => handleSave('published')}
@@ -1621,58 +1602,71 @@ export function QuizDetail({
                   
                       Publish
                     </Button>
-                  </div>
-                  <div className="sm:hidden w-full">
                     <Button
+                  variant="draft"
+                  onClick={() => handleSave('draft')}
+                  leftIcon={<Save className="w-4 h-4" />}
+                  className="flex-1">
+                  
+                      Draft
+                    </Button>
+                  </div>
+              }
+                <div className="w-full mt-2">
+                  <Button
                   variant="danger"
-                  onClick={() => setDeleteDialogMode('draft')}
+                  onClick={() =>
+                  setDeleteDialogMode(isPublished ? 'published' : 'draft')
+                  }
                   leftIcon={<Trash2 className="w-4 h-4" />}
                   className="w-full">
                   
-                      Delete
-                    </Button>
-                  </div>
-                </>
-            }
-              <div className="hidden sm:block">
-                <Button
-                variant="danger"
-                onClick={() =>
-                setDeleteDialogMode(isPublished ? 'published' : 'draft')
-                }
-                leftIcon={<Trash2 className="w-4 h-4" />}>
-                
-                  Delete
-                </Button>
+                    Delete
+                  </Button>
+                </div>
               </div>
-              <div className="hidden sm:flex items-center gap-2">
+
+              {/* Desktop */}
+              <div className="hidden sm:flex items-center gap-2 w-full">
                 {isPublished ?
               <Button
                 variant="primary"
                 onClick={() => handleSave('published')}
-                leftIcon={<Save className="w-4 h-4" />}>
+                leftIcon={<Save className="w-4 h-4" />}
+                className="whitespace-nowrap">
                 
                     Save
                   </Button> :
 
               <>
                     <Button
-                  variant="outline"
-                  onClick={() => handleSave('draft')}
-                  leftIcon={<Save className="w-4 h-4" />}
-                  className="!border-amber-300 !text-amber-700 !bg-amber-50 hover:!bg-amber-100">
-                  
-                      Save as Draft
-                    </Button>
-                    <Button
                   variant="primary"
                   onClick={() => handleSave('published')}
-                  leftIcon={<Send className="w-4 h-4" />}>
+                  leftIcon={<Send className="w-4 h-4" />}
+                  className="whitespace-nowrap">
                   
                       Publish
                     </Button>
+                    <Button
+                  variant="draft"
+                  onClick={() => handleSave('draft')}
+                  leftIcon={<Save className="w-4 h-4" />}
+                  className="whitespace-nowrap">
+                  
+                      Save as Draft
+                    </Button>
                   </>
               }
+                <Button
+                variant="danger"
+                onClick={() =>
+                setDeleteDialogMode(isPublished ? 'published' : 'draft')
+                }
+                leftIcon={<Trash2 className="w-4 h-4" />}
+                className="whitespace-nowrap">
+                
+                  Delete
+                </Button>
               </div>
             </div>
           </div>
@@ -2673,7 +2667,7 @@ export function QuizDetail({
                       setRemoveConfirmId(selectedQuestionId)
                       }
                       leftIcon={<Unlink className="w-4 h-4" />}
-                      className="!bg-amber-500 !text-white hover:!bg-amber-600 !border-amber-500 hover:!border-amber-600 !shadow-md">
+                      className="!bg-amber-500 !text-white hover:!bg-amber-600 !border-amber-500 hover:!border-amber-600">
                       
                             Detach
                           </Button>

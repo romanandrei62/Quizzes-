@@ -606,6 +606,13 @@ function MobileQuestionCard({
           {/* Right: action icons */}
           <div className="flex items-center gap-0.5">
             <button
+              onClick={() => onAction('edit')}
+              className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
+              title="Edit"
+            >
+              <PenSquare className="w-[14px] h-[14px]" />
+            </button>
+            <button
               onClick={() => onAction('view')}
               className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
               title="Info"
@@ -618,13 +625,6 @@ function MobileQuestionCard({
               title="Preview"
             >
               <MonitorPlay className="w-[14px] h-[14px]" />
-            </button>
-            <button
-              onClick={() => onAction('edit')}
-              className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors active:scale-90"
-              title="Edit"
-            >
-              <PenSquare className="w-[14px] h-[14px]" />
             </button>
             <button
               onClick={() => onAction('fork')}
@@ -1180,14 +1180,7 @@ export function QuestionsContent({
                       , including any quiz associations. This action cannot be
                       undone.
                     </p>
-                    <div className="flex items-center gap-3 w-full">
-                      <Button
-                        variant="secondary"
-                        onClick={() => setBulkDeleteConfirm(false)}
-                        className="flex-1"
-                      >
-                        Cancel
-                      </Button>
+                    <div className="flex items-center w-full">
                       <Button
                         variant="danger"
                         onClick={() => {
@@ -1206,6 +1199,13 @@ export function QuestionsContent({
                         className="flex-1"
                       >
                         Delete
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setBulkDeleteConfirm(false)}
+                        className="flex-1"
+                      >
+                        Cancel
                       </Button>
                     </div>
                   </div>
@@ -1307,14 +1307,7 @@ export function QuestionsContent({
                         'This draft will be permanently removed. This action cannot be undone.'
                       )}
                     </p>
-                    <div className="flex items-center gap-3 w-full">
-                      <Button
-                        variant="secondary"
-                        onClick={() => setDeleteConfirmId(null)}
-                        className="flex-1"
-                      >
-                        Cancel
-                      </Button>
+                    <div className="flex items-center w-full">
                       {isDraftOfPublished ? (
                         <Button
                           variant="secondary"
@@ -1353,6 +1346,13 @@ export function QuestionsContent({
                           Delete
                         </Button>
                       )}
+                      <Button
+                        variant="secondary"
+                        onClick={() => setDeleteConfirmId(null)}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
                 </motion.div>
@@ -1423,14 +1423,7 @@ export function QuestionsContent({
                   </span>{' '}
                   until you publish the new draft.
                 </p>
-                <div className="flex items-center gap-3 w-full">
-                  <Button
-                    variant="secondary"
-                    onClick={() => setPendingEditQuestion(null)}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
+                <div className="flex items-center w-full">
                   <Button
                     variant="secondary"
                     onClick={() => {
@@ -1442,6 +1435,13 @@ export function QuestionsContent({
                     className="flex-1 !bg-amber-500 !text-white !border-amber-500 hover:!bg-amber-600 !shadow-md"
                   >
                     Create Draft
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setPendingEditQuestion(null)}
+                    className="flex-1"
+                  >
+                    Cancel
                   </Button>
                 </div>
               </div>
