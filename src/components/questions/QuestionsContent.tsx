@@ -127,8 +127,8 @@ export const MOCK_QUESTIONS: Question[] = [
   },
   {
     id: '5',
-    title: 'Identify the Icons',
-    text: 'Match each icon image with its correct label.',
+    title: 'World Landmarks',
+    text: 'Match each landmark photo with its correct name and location.',
     type: 'matching',
     matchSubType: 'image',
     category: 'knowledge',
@@ -450,6 +450,23 @@ export const MOCK_QUESTIONS: Question[] = [
     category: 'knowledge',
     createdAt: new Date('2023-12-11T08:00:00'),
     status: 'draft',
+  },
+  {
+    id: '36',
+    title: 'Required Onboarding Steps',
+    text: 'Which of the following steps are required during the employee onboarding process? Select all that apply.',
+    type: 'multiselect',
+    category: 'onboarding',
+    createdAt: new Date('2023-12-10T10:00:00'),
+    status: 'active',
+    options: [
+      'Complete your profile',
+      'Sign the NDA',
+      'Set up 2FA',
+      'Join the team Slack channel',
+      'Submit a vacation request',
+      'Attend orientation session',
+    ],
   },
 ]
 const sortOptions = [

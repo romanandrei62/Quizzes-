@@ -28,6 +28,7 @@ import { QuestionDetail } from '../components/questions/QuestionDetail';
 import { QuizzesSidebar } from '../components/quizzes/QuizzesSidebar';
 import { QuizzesContent } from '../components/quizzes/QuizzesContent';
 import { QuizDetail } from '../components/quizzes/QuizDetail';
+import { useNavigate } from 'react-router-dom';
 interface Question {
   id: string;
   title: string;
@@ -78,6 +79,7 @@ export function QuestionsPage() {
   q
   )
   );
+  const navigate = useNavigate();
   // Track question IDs that were originally published but are now being edited as drafts
   const [draftOfPublishedIds, setDraftOfPublishedIds] = useState<Set<string>>(
     new Set(['1'])
@@ -503,6 +505,22 @@ export function QuestionsPage() {
         
 
         <div className="flex items-center gap-2">
+          {activeTab === 'quizzes' &&
+          <div className="flex items-center gap-1 mr-2">
+              <button
+              onClick={() => navigate('/take-quiz')}
+              className="px-2 py-1 text-[10px] font-medium text-teal-100 bg-teal-900/50 border border-teal-800 rounded hover:bg-teal-800 transition-colors">
+              
+                Test 1
+              </button>
+              <button
+              onClick={() => navigate('/take-quiz/public')}
+              className="px-2 py-1 text-[10px] font-medium text-gray-300 bg-gray-800 border border-gray-700 rounded hover:bg-gray-700 transition-colors">
+              
+                Test 2
+              </button>
+            </div>
+          }
           <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-gray-700 cursor-pointer hover:border-gray-500 transition-colors">
             <img
               src="/george_747d2e2b146642ac46c1bd46552ca9a3.png"
@@ -565,6 +583,24 @@ export function QuestionsPage() {
               <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                 <ChevronLeft className="w-5 h-5" />
               </button>
+
+              {/* Test Buttons for Take Quiz */}
+              {activeTab === 'quizzes' &&
+              <div className="flex items-center gap-2 ml-4 border-l border-gray-200 pl-4">
+                  <button
+                  onClick={() => navigate('/take-quiz')}
+                  className="px-3 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-md hover:bg-teal-100 transition-colors">
+                  
+                    Take Quiz (Logged In)
+                  </button>
+                  <button
+                  onClick={() => navigate('/take-quiz/public')}
+                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors">
+                  
+                    Take Quiz (Public)
+                  </button>
+                </div>
+              }
             </div>
 
             <div className="flex items-center gap-3">

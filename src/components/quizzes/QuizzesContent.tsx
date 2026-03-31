@@ -68,7 +68,7 @@ function Spinner({
     </svg>);
 
 }
-interface Quiz {
+export interface Quiz {
   id: string;
   title: string;
   numQuestions: number;
@@ -84,22 +84,23 @@ interface Quiz {
   createdAt: Date;
   questionIds: string[];
 }
-const MOCK_QUIZZES: Quiz[] = [
+export const MOCK_QUIZZES: Quiz[] = [
 {
   id: '1',
   title: 'Platform Onboarding Quiz',
   numQuestions: 5,
   passingScore: 75,
   category: 'onboarding',
-  scoreDisplay: false,
+  scoreDisplay: true,
   hints: true,
-  showPercentComplete: false,
-  showNumQuestions: false,
-  showProgressBar: false,
-  status: 'draft',
+  showPercentComplete: true,
+  showNumQuestions: true,
+  showProgressBar: true,
+  status: 'published',
   description: 'Introduction to our platform features',
   createdAt: new Date('2024-01-15T10:30:00'),
   questionIds: [
+  '36',
   '1',
   '2',
   '3',

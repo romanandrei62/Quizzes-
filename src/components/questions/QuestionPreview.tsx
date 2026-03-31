@@ -1,15 +1,103 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  Fragment } from
+'react';
 import {
   Lightbulb,
   Check,
   X,
   RotateCcw,
   Send,
-  Link2,
-  Sparkles } from
+  ZoomIn,
+  HelpCircle } from
 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
+function SettingDebugPopover({
+  setting,
+  label
+
+
+
+}: {setting: string;label: string;}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+  return (
+    <span ref={ref} className="relative inline-flex ml-1 flex-shrink-0">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 text-amber-600 cursor-pointer hover:bg-amber-200 transition-colors">
+        
+        <HelpCircle className="w-3 h-3" />
+      </button>
+      <AnimatePresence>
+        {isOpen &&
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 4,
+            scale: 0.95
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            scale: 1
+          }}
+          exit={{
+            opacity: 0,
+            y: 4,
+            scale: 0.95
+          }}
+          transition={{
+            duration: 0.15
+          }}
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-56">
+          
+            <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-2 h-2 bg-gray-900 rotate-45" />
+            <div className="bg-gray-900 text-white rounded-lg shadow-xl px-3 py-2.5 text-left">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-amber-400 text-[10px]">⚙️</span>
+                <span className="text-[11px] font-semibold text-amber-300 uppercase tracking-wider">
+                  Setting
+                </span>
+              </div>
+              <p className="text-[12px] font-medium text-white leading-snug">
+                "{setting}"
+              </p>
+              <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                If this setting is OFF, "{label}" will not be visible to
+                learners.
+              </p>
+            </div>
+          </motion.div>
+        }
+      </AnimatePresence>
+    </span>);
+
+}
+export interface AnswerState {
+  selectedOption?: number | null;
+  selectedOptions?: number[];
+  textAnswer?: string;
+  matchedPairs?: [number, number][];
+}
 interface QuestionPreviewProps {
   title: string;
   text?: string;
@@ -23,45 +111,12 @@ interface QuestionPreviewProps {
   }>;
   binaryLabels?: [string, string];
   hint?: string;
+  onAnswerSubmit?: (answer: AnswerState) => void;
+  hideReset?: boolean;
+  showSettingDebug?: boolean;
+  initialAnswer?: AnswerState;
+  isReadOnly?: boolean;
 }
-const MATCH_COLORS = [
-{
-  bg: 'bg-teal-50',
-  border: 'border-teal-400',
-  text: 'text-teal-700',
-  badge: 'bg-teal-500'
-},
-{
-  bg: 'bg-violet-50',
-  border: 'border-violet-400',
-  text: 'text-violet-700',
-  badge: 'bg-violet-500'
-},
-{
-  bg: 'bg-amber-50',
-  border: 'border-amber-400',
-  text: 'text-amber-700',
-  badge: 'bg-amber-500'
-},
-{
-  bg: 'bg-rose-50',
-  border: 'border-rose-400',
-  text: 'text-rose-700',
-  badge: 'bg-rose-500'
-},
-{
-  bg: 'bg-sky-50',
-  border: 'border-sky-400',
-  text: 'text-sky-700',
-  badge: 'bg-sky-500'
-},
-{
-  bg: 'bg-emerald-50',
-  border: 'border-emerald-400',
-  text: 'text-emerald-700',
-  badge: 'bg-emerald-500'
-}];
-
 export function QuestionPreview({
   title,
   text,
@@ -70,17 +125,28 @@ export function QuestionPreview({
   matchSubType = 'text',
   matchPairs = [],
   binaryLabels = ['True', 'False'],
-  hint
+  hint,
+  onAnswerSubmit,
+  hideReset = false,
+  showSettingDebug = false,
+  initialAnswer,
+  isReadOnly = false
 }: QuestionPreviewProps) {
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [textAnswer, setTextAnswer] = useState('');
+  const [selectedOption, setSelectedOption] = useState<number | null>(
+    initialAnswer?.selectedOption ?? null
+  );
+  const [selectedOptions, setSelectedOptions] = useState<Set<number>>(
+    new Set(initialAnswer?.selectedOptions ?? [])
+  );
+  const [textAnswer, setTextAnswer] = useState(initialAnswer?.textAnswer ?? '');
   const [showHint, setShowHint] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(isReadOnly);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedMatchLeft, setSelectedMatchLeft] = useState<number | null>(
     null
   );
   const [matchedPairs, setMatchedPairs] = useState<Map<number, number>>(
-    new Map()
+    new Map(initialAnswer?.matchedPairs ?? [])
   );
   // Shuffle right column indices for matching (stable per mount)
   const shuffledRightIndices = useMemo(() => {
@@ -123,51 +189,56 @@ export function QuestionPreview({
     },
     [isSubmitted, matchedPairs, selectedMatchLeft]
   );
-  const handleSubmit = () => setIsSubmitted(true);
+  const handleSubmit = () => {
+    setIsSubmitted(true);
+    onAnswerSubmit?.({
+      selectedOption,
+      selectedOptions: Array.from(selectedOptions),
+      textAnswer,
+      matchedPairs: Array.from(matchedPairs.entries())
+    });
+  };
+  const handleMultiSelect = useCallback(
+    (index: number) => {
+      if (isSubmitted) return;
+      setSelectedOptions((prev) => {
+        const next = new Set(prev);
+        if (next.has(index)) {
+          next.delete(index);
+        } else {
+          next.add(index);
+        }
+        return next;
+      });
+    },
+    [isSubmitted]
+  );
   const handleReset = () => {
     setIsSubmitted(false);
     setSelectedOption(null);
+    setSelectedOptions(new Set());
     setTextAnswer('');
     setMatchedPairs(new Map());
     setSelectedMatchLeft(null);
     setShowHint(false);
   };
-  const getMatchColorIndex = (leftIndex: number): number => {
+  const getMatchNumber = (leftIndex: number): number => {
     const entries = Array.from(matchedPairs.entries()).sort(([a], [b]) => a - b);
     const pos = entries.findIndex(([k]) => k === leftIndex);
-    return pos >= 0 ? pos % MATCH_COLORS.length : -1;
+    return pos >= 0 ? pos + 1 : -1;
   };
   const hasAnswer =
   type === 'multiple' || type === 'true-false' ?
   selectedOption !== null :
+  type === 'multiselect' ?
+  selectedOptions.size > 0 :
   type === 'open' ?
   textAnswer.trim().length > 0 :
   type === 'matching' ?
   matchedPairs.size === matchPairs.length :
   false;
   return (
-    <div className="w-full max-w-lg mx-auto">
-      {/* Preview badge */}
-      <motion.div
-        initial={{
-          opacity: 0,
-          y: -8
-        }}
-        animate={{
-          opacity: 1,
-          y: 0
-        }}
-        transition={{
-          delay: 0.1
-        }}
-        className="flex items-center justify-center gap-1.5 mb-4">
-        
-        <Sparkles className="w-3 h-3 text-teal-500" />
-        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-teal-600/70">
-          Learner Preview
-        </span>
-      </motion.div>
-
+    <div className="w-full max-w-lg mx-auto h-full flex flex-col">
       {/* Question Card */}
       <motion.div
         initial={{
@@ -182,13 +253,13 @@ export function QuestionPreview({
           duration: 0.4,
           ease: [0.4, 0, 0.2, 1]
         }}
-        className="rounded-2xl overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] ring-1 ring-gray-900/[0.04]">
+        className="rounded-2xl overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] ring-1 ring-gray-900/[0.04] flex flex-col max-h-full">
         
         {/* Top accent bar */}
-        <div className="h-1 bg-gradient-to-r from-teal-400 via-teal-500 to-emerald-400" />
+        <div className="h-1 bg-gradient-to-r from-teal-400 via-teal-500 to-emerald-400 flex-shrink-0" />
 
         {/* Question Header */}
-        <div className="px-7 pt-7 pb-5">
+        <div className="px-6 pt-5 pb-4 flex-shrink-0">
           <motion.h3
             initial={{
               opacity: 0
@@ -222,10 +293,10 @@ export function QuestionPreview({
         </div>
 
         {/* Divider */}
-        <div className="mx-7 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+        <div className="mx-6 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent flex-shrink-0" />
 
-        {/* Answer Area */}
-        <div className="px-7 py-6">
+        {/* Answer Area — scrollable */}
+        <div className="px-6 py-4 flex-1 overflow-y-auto thin-scrollbar min-h-0">
           {/* Multiple Choice */}
           {type === 'multiple' &&
           <div className="space-y-2.5">
@@ -256,6 +327,51 @@ export function QuestionPreview({
                     className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-bold transition-all duration-200 ${isSelected ? 'bg-teal-500 text-white shadow-sm' : 'bg-white text-gray-400 ring-1 ring-gray-200'}`}>
                     
                       {isSelected ? <Check className="w-3.5 h-3.5" /> : letter}
+                    </div>
+                    <span
+                    className={`text-[13px] leading-snug transition-colors ${isSelected ? 'text-teal-900 font-medium' : 'text-gray-700'}`}>
+                    
+                      {option ||
+                    <span className="italic text-gray-400">
+                          Empty option
+                        </span>
+                    }
+                    </span>
+                  </motion.button>);
+
+            })}
+            </div>
+          }
+
+          {/* Multiselect */}
+          {type === 'multiselect' &&
+          <div className="space-y-2.5">
+              {options.map((option, index) => {
+              const isSelected = selectedOptions.has(index);
+              return (
+                <motion.button
+                  key={index}
+                  initial={{
+                    opacity: 0,
+                    x: -12
+                  }}
+                  animate={{
+                    opacity: 1,
+                    x: 0
+                  }}
+                  transition={{
+                    delay: 0.2 + index * 0.06,
+                    duration: 0.35,
+                    ease: [0.4, 0, 0.2, 1]
+                  }}
+                  onClick={() => handleMultiSelect(index)}
+                  disabled={isSubmitted}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-left transition-all duration-200 ${isSelected ? 'bg-teal-50 ring-2 ring-teal-500 ring-offset-1' : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300 hover:bg-gray-50'}`}>
+                  
+                    <div
+                    className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isSelected ? 'bg-teal-500 text-white shadow-sm' : 'bg-white ring-1 ring-gray-200'}`}>
+                    
+                      {isSelected && <Check className="w-3.5 h-3.5" />}
                     </div>
                     <span
                     className={`text-[13px] leading-snug transition-colors ${isSelected ? 'text-teal-900 font-medium' : 'text-gray-700'}`}>
@@ -347,7 +463,7 @@ export function QuestionPreview({
               onChange={(e) => setTextAnswer(e.target.value)}
               disabled={isSubmitted}
               placeholder="Type your answer here..."
-              className="w-full min-h-[140px] p-4 rounded-xl bg-gray-50/60 ring-1 ring-gray-200/80 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1 focus:bg-white resize-y transition-all" />
+              className="w-full min-h-[100px] max-h-[180px] p-4 rounded-xl bg-gray-50/60 ring-1 ring-gray-200/80 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1 focus:bg-white resize-none transition-all" />
             
               <div className="flex justify-end px-1">
                 <span className="text-[11px] text-gray-400 tabular-nums">
@@ -374,20 +490,33 @@ export function QuestionPreview({
               <p className="text-[11px] text-gray-400 text-center font-medium uppercase tracking-wider">
                 Select a prompt, then select its match
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                {/* Left Column */}
-                <div className="flex-1 space-y-2">
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2 px-1">
-                    Prompts
-                  </span>
-                  {matchPairs.map((pair, index) => {
-                  const isMatched = matchedPairs.has(index);
-                  const isActive = selectedMatchLeft === index;
-                  const colorIdx = getMatchColorIndex(index);
-                  const color = colorIdx >= 0 ? MATCH_COLORS[colorIdx] : null;
-                  return (
-                    <motion.button
-                      key={`left-${index}`}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-0">
+                {/* Column Headers */}
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2 px-1">
+                  Prompts
+                </span>
+                <span className="hidden sm:block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2 px-1">
+                  Answers
+                </span>
+
+                {/* Rows — each row has one prompt and one answer aligned */}
+                {matchPairs.map((pair, index) => {
+                const isMatched = matchedPairs.has(index);
+                const isActive = selectedMatchLeft === index;
+                const matchNum = getMatchNumber(index);
+                const rightOriginalIndex = shuffledRightIndices[index];
+                const rightPair = matchPairs[rightOriginalIndex];
+                const rightMatchedLeftIndex = Array.from(
+                  matchedPairs.entries()
+                ).find(([_, r]) => r === rightOriginalIndex)?.[0];
+                const rightIsMatched = rightMatchedLeftIndex !== undefined;
+                const rightMatchNum = rightIsMatched ?
+                getMatchNumber(rightMatchedLeftIndex) :
+                -1;
+                return (
+                  <Fragment key={index}>
+                      {/* Left — Prompt */}
+                      <motion.button
                       initial={{
                         opacity: 0,
                         x: -8
@@ -401,56 +530,47 @@ export function QuestionPreview({
                       }}
                       onClick={() => handleMatchClick('left', index)}
                       disabled={isSubmitted}
-                      className={`w-full p-3 rounded-xl text-left transition-all duration-200 relative ${isMatched && color ? `${color.bg} ring-2 ${color.border}` : isActive ? 'bg-teal-50 ring-2 ring-teal-500 ring-offset-1' : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300'}`}>
+                      className={`w-full p-3 mb-2 rounded-xl text-left transition-all duration-200 relative flex items-center min-h-[52px] ${isMatched ? 'bg-teal-50 ring-2 ring-teal-400' : isActive ? 'bg-teal-50 ring-2 ring-teal-500 ring-offset-1' : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300'}`}>
                       
-                        {isMatched && color &&
-                      <div
-                        className={`absolute -right-1.5 -top-1.5 w-5 h-5 rounded-full ${color.badge} text-white flex items-center justify-center shadow-sm`}>
-                        
-                            <Link2 className="w-2.5 h-2.5" />
+                        {isMatched && matchNum > 0 &&
+                      <div className="absolute -right-1.5 -top-1.5 w-5 h-5 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-sm text-[10px] font-bold">
+                            {matchNum}
                           </div>
                       }
                         {matchSubType === 'image' && pair.imageUrl ?
                       <div className="flex items-center gap-2.5">
-                            <img
-                          src={pair.imageUrl}
-                          alt=""
-                          className="w-9 h-9 rounded-lg object-cover ring-1 ring-black/5" />
-                        
+                            <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLightboxImage(pair.imageUrl!);
+                          }}
+                          className="relative group/zoom flex-shrink-0">
+                          
+                              <img
+                            src={pair.imageUrl}
+                            alt=""
+                            className="w-9 h-9 rounded-lg object-cover ring-1 ring-black/5" />
+                          
+                              <div className="absolute inset-0 rounded-lg bg-black/0 group-hover/zoom:bg-black/30 transition-all duration-200 flex items-center justify-center">
+                                <ZoomIn className="w-4 h-4 text-white opacity-0 group-hover/zoom:opacity-100 transition-opacity duration-200 drop-shadow-md" />
+                              </div>
+                            </button>
                             <span className="text-[11px] text-gray-500 font-medium">
                               Image {index + 1}
                             </span>
                           </div> :
 
                       <span
-                        className={`text-[13px] font-medium ${isMatched && color ? color.text : 'text-gray-700'}`}>
+                        className={`text-[13px] font-medium ${isMatched ? 'text-teal-700' : 'text-gray-700'}`}>
                         
                             {pair.prompt || `Item ${index + 1}`}
                           </span>
                       }
-                      </motion.button>);
+                      </motion.button>
 
-                })}
-                </div>
-
-                {/* Right Column (shuffled) */}
-                <div className="flex-1 space-y-2">
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2 px-1">
-                    Answers
-                  </span>
-                  {shuffledRightIndices.map((originalIndex, displayIndex) => {
-                  const pair = matchPairs[originalIndex];
-                  const matchedLeftIndex = Array.from(
-                    matchedPairs.entries()
-                  ).find(([_, r]) => r === originalIndex)?.[0];
-                  const isMatched = matchedLeftIndex !== undefined;
-                  const colorIdx = isMatched ?
-                  getMatchColorIndex(matchedLeftIndex) :
-                  -1;
-                  const color = colorIdx >= 0 ? MATCH_COLORS[colorIdx] : null;
-                  return (
-                    <motion.button
-                      key={`right-${originalIndex}`}
+                      {/* Right — Answer (shuffled) */}
+                      <motion.button
                       initial={{
                         opacity: 0,
                         x: 8
@@ -460,28 +580,29 @@ export function QuestionPreview({
                         x: 0
                       }}
                       transition={{
-                        delay: 0.25 + displayIndex * 0.05
+                        delay: 0.25 + index * 0.05
                       }}
-                      onClick={() => handleMatchClick('right', originalIndex)}
+                      onClick={() =>
+                      handleMatchClick('right', rightOriginalIndex)
+                      }
                       disabled={isSubmitted}
-                      className={`w-full p-3 rounded-xl text-left transition-all duration-200 relative ${isMatched && color ? `${color.bg} ring-2 ${color.border}` : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300'}`}>
+                      className={`w-full p-3 mb-2 rounded-xl text-left transition-all duration-200 relative flex items-center min-h-[52px] ${rightIsMatched ? 'bg-teal-50 ring-2 ring-teal-400' : 'bg-gray-50/60 ring-1 ring-gray-200/80 hover:ring-gray-300'}`}>
                       
-                        {isMatched && color &&
-                      <div
-                        className={`absolute -left-1.5 -top-1.5 w-5 h-5 rounded-full ${color.badge} text-white flex items-center justify-center shadow-sm`}>
-                        
-                            <Link2 className="w-2.5 h-2.5" />
+                        {rightIsMatched && rightMatchNum > 0 &&
+                      <div className="absolute -left-1.5 -top-1.5 w-5 h-5 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-sm text-[10px] font-bold">
+                            {rightMatchNum}
                           </div>
                       }
                         <span
-                        className={`text-[13px] ${isMatched && color ? `font-medium ${color.text}` : 'text-gray-700'}`}>
+                        className={`text-[13px] ${rightIsMatched ? 'font-medium text-teal-700' : 'text-gray-700'}`}>
                         
-                          {pair?.answer || `Answer ${originalIndex + 1}`}
+                          {rightPair?.answer ||
+                        `Answer ${rightOriginalIndex + 1}`}
                         </span>
-                      </motion.button>);
+                      </motion.button>
+                    </Fragment>);
 
-                })}
-                </div>
+              })}
               </div>
               {matchedPairs.size > 0 &&
             matchedPairs.size < matchPairs.length &&
@@ -492,60 +613,60 @@ export function QuestionPreview({
             </motion.div>
           }
 
-          {/* Hint */}
+          {/* Hint — shown as overlay tooltip, doesn't push content */}
           {hint &&
-          <motion.div
-            initial={{
-              opacity: 0
-            }}
-            animate={{
-              opacity: 1
-            }}
-            transition={{
-              delay: 0.4
-            }}
-            className="mt-5 pt-4 border-t border-gray-100">
-            
-              <button
-              onClick={() => setShowHint(!showHint)}
-              className="inline-flex items-center gap-2 text-[13px] font-medium text-amber-600 hover:text-amber-700 transition-colors">
-              
-                <Lightbulb className="w-4 h-4" />
-                {showHint ? 'Hide hint' : 'Need a hint?'}
-              </button>
+          <div className="relative mt-3 pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-1">
+                <button
+                onClick={() => setShowHint(!showHint)}
+                className="inline-flex items-center gap-2 text-[13px] font-medium text-amber-600 hover:text-amber-700 transition-colors">
+                
+                  <Lightbulb className="w-4 h-4" />
+                  {showHint ? 'Hide hint' : 'Need a hint?'}
+                </button>
+                {showSettingDebug &&
+              <SettingDebugPopover
+                setting="hints"
+                label="the hint button" />
+
+              }
+              </div>
               <AnimatePresence>
                 {showHint &&
               <motion.div
                 initial={{
                   opacity: 0,
-                  height: 0
+                  y: 4
                 }}
                 animate={{
                   opacity: 1,
-                  height: 'auto'
+                  y: 0
                 }}
                 exit={{
                   opacity: 0,
-                  height: 0
+                  y: 4
                 }}
                 transition={{
-                  duration: 0.25,
+                  duration: 0.2,
                   ease: [0.4, 0, 0.2, 1]
                 }}
-                className="overflow-hidden">
+                className="absolute bottom-full left-0 right-0 mb-1 z-10">
                 
-                    <div className="mt-2.5 px-3.5 py-3 bg-amber-50/60 rounded-xl ring-1 ring-amber-200/50 text-[13px] text-amber-800 leading-relaxed">
-                      {hint}
+                    <div className="px-3.5 py-2.5 bg-amber-50 rounded-xl ring-1 ring-amber-200 shadow-lg text-[12px] text-amber-800 leading-relaxed">
+                      <div className="flex items-start gap-2">
+                        <Lightbulb className="w-3.5 h-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
+                        <span>{hint}</span>
+                      </div>
                     </div>
                   </motion.div>
               }
               </AnimatePresence>
-            </motion.div>
+            </div>
           }
         </div>
 
         {/* Footer */}
-        <div className="px-7 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+        <div className="px-6 py-3 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between flex-shrink-0">
           <AnimatePresence mode="wait">
             {isSubmitted ?
             <motion.div
@@ -582,7 +703,13 @@ export function QuestionPreview({
               }}>
               
                 <span className="text-[11px] text-gray-400">
-                  {hasAnswer ? 'Ready to submit' : 'Select an answer'}
+                  {type === 'open' ?
+                'Type your answer' :
+                type === 'matching' ?
+                'Match all pairs' :
+                type === 'multiselect' ?
+                '✓ Multiple answers allowed' :
+                'Select an answer'}
                 </span>
               </motion.div>
             }
@@ -590,13 +717,15 @@ export function QuestionPreview({
 
           <div className="flex items-center gap-2">
             {isSubmitted ?
+            !hideReset &&
             <button
               onClick={handleReset}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-medium text-gray-600 bg-white ring-1 ring-gray-200 hover:bg-gray-50 hover:ring-gray-300 transition-all">
               
-                <RotateCcw className="w-3.5 h-3.5" />
-                Try Again
-              </button> :
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Try Again
+                </button> :
+
 
             <button
               onClick={handleSubmit}
@@ -610,6 +739,61 @@ export function QuestionPreview({
           </div>
         </div>
       </motion.div>
+
+      {/* Image Lightbox */}
+      <AnimatePresence>
+        {lightboxImage &&
+        <motion.div
+          initial={{
+            opacity: 0
+          }}
+          animate={{
+            opacity: 1
+          }}
+          exit={{
+            opacity: 0
+          }}
+          transition={{
+            duration: 0.2
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-6"
+          onClick={() => setLightboxImage(null)}>
+          
+            <motion.div
+            initial={{
+              scale: 0.9,
+              opacity: 0
+            }}
+            animate={{
+              scale: 1,
+              opacity: 1
+            }}
+            exit={{
+              scale: 0.9,
+              opacity: 0
+            }}
+            transition={{
+              duration: 0.25,
+              ease: [0.4, 0, 0.2, 1]
+            }}
+            className="relative max-w-lg max-h-[80vh]"
+            onClick={(e) => e.stopPropagation()}>
+            
+              <img
+              src={lightboxImage}
+              alt=""
+              className="rounded-2xl shadow-2xl ring-1 ring-white/10 max-w-full max-h-[80vh] object-contain" />
+            
+              <button
+              onClick={() => setLightboxImage(null)}
+              className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white/90 shadow-lg ring-1 ring-black/5 flex items-center justify-center hover:bg-white transition-colors">
+              
+                <X className="w-4 h-4 text-gray-700" />
+              </button>
+            </motion.div>
+          </motion.div>
+        }
+      </AnimatePresence>
     </div>);
 
 }
